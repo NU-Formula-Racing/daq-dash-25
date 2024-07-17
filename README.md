@@ -1,6 +1,6 @@
-# daq-firmware-base-25
+# daq-dash-25
 
-This repository is the template for DAQ projects. The base is configured to work with ESP32-based projects, which may not be the case for your project. Below are some resources!
+[Project Specifications!](https://docs.google.com/document/d/1AshcWZaVp2FTWgpyuQdh6TqbJDp9D0i6MMMnYMOrbmg/edit#heading=h.3cwv5c7n5ykf)
 
 This project follows the follows a slightly modified PlatormIO project structure:
 ```
