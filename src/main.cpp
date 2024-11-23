@@ -11,9 +11,10 @@
 // Connect MOSI to UNO Digital #11 (Hardware SPI MOSI)
 
 #define SP28_ANGLE 21
-
+int total_screens = 3;
 // Hi!
-
+int screen = 0;
+//int re=0;
 
 
 u_int8_t SP28_input;
@@ -24,12 +25,33 @@ uint16_t tx, ty;
 
 Dash dashboard;
 
+#define LED GPIO_NUM_2
+#define BUTTON GPIO_NUM_15
+#define green GPIO_NUM_16
+#define yellow GPIO_NUM_17
+#define red GPIO_NUM_4
+
+
+  void onRisingEdge() { 
+  //re=re+1;
+  //screen = (screen + 1) % total_screens;
+  screen = screen+1;
+  if(screen == 3)
+  {
+    screen =0;
+  }
+  }
+
 void setup()
 {
   Serial.begin(9600);
-
+  
   pinMode(SP28_ANGLE, INPUT);
-
+  pinMode(LED,OUTPUT);
+  pinMode(BUTTON,INPUT);
+  pinMode(yellow,OUTPUT);
+  pinMode(red,OUTPUT);
+  pinMode(green,OUTPUT);
   // RA8875 Setup
   Serial.println("RA8875 start");
 
@@ -52,13 +74,102 @@ void setup()
 
   // With hardware accelleration this is instant
   dashboard.DrawBackground(tft);
+
+
+  attachInterrupt(digitalPinToInterrupt(BUTTON), onRisingEdge, RISING);
+
 }
+
+
 
 void loop()
 {
   // put your main code here, to run repeatedly:
   dashboard.GetCAN();
   dashboard.UpdateDisplay(tft);
+/*
+if(screen == 0)
+{
+  digitalWrite(LED,1);
+  delay(1000);
+  digitalWrite(LED,0);
+  delay(1000);
+  Serial.print(screen);
+  Serial.print(re);
+  Serial.println("case 0");
+  
+}
+else if(screen == 1)
+{
+  digitalWrite(LED,1);
+  delay(2000);
+  digitalWrite(LED,0);
+  delay(2000);
+  Serial.print(screen);
+  Serial.print(re);
+  Serial.println("case 1");
+}
+else if(screen == 2)
+{
+  digitalWrite(LED,1);
+  delay(3000);
+  digitalWrite(LED,0);
+  delay(3000);
+  Serial.print(screen);
+  Serial.print(re);
+  Serial.println("case 2");
+}*/
+
+  switch(screen){
+      case 0:
+        digitalWrite(red,1);
+        digitalWrite(green,0);
+        digitalWrite(yellow,0);
+        //delay(1000);
+        //digitalWrite(LED,0);
+        //delay(1000);
+        Serial.print("        ");
+        Serial.print(screen);
+        Serial.println("        case 0");
+        break;
+      case 1:
+        digitalWrite(yellow,1);
+        digitalWrite(red,0);
+        digitalWrite(green,0);
+        //delay(2000);
+        //digitalWrite(LED,0);
+       // delay(2000);
+        Serial.print("        ");
+        Serial.print(screen);
+        Serial.println("case 1");
+        break;
+      case 2:
+        digitalWrite(green,1);
+        digitalWrite(red,0);
+        digitalWrite(yellow,0);
+        //delay(3000);
+        //digitalWrite(LED,0);
+        //delay(3000);
+        Serial.print("        ");
+        Serial.print(screen);
+        Serial.println("case 2");
+        break;
+  }
+
+
+  // digitalWrite(LED,1);
+  /*int var = digitalRead(BUTTON);
+  if (var == 1)
+  {
+    digitalWrite(LED,1);
+    delay(1000);
+    digitalWrite(LED,0);
+  }
+  else
+  {
+    digitalWrite(LED,0);
+  }
+  */
 
   // Resistance: 2.6k
   // 180 degrees range of motion: divot side rotating over PF2C1
