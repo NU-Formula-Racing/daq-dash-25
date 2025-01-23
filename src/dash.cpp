@@ -1,5 +1,4 @@
 #include "dash.h"
-
 #include <iostream>
 #include <map>
 #include <cmath>
