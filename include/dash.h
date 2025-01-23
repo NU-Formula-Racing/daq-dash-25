@@ -10,10 +10,10 @@
 
 // VirtualTimerGroup read_timer;
 
-#define RA8875_INT GPIO_NUM_22
-#define RA8875_WAIT GPIO_NUM_25
-#define RA8875_CS GPIO_NUM_21
-#define RA8875_RESET GPIO_NUM_32
+//#define RA8875_INT GPIO_NUM_22
+//#define RA8875_WAIT GPIO_NUM_25
+//#define RA8875_CS GPIO_NUM_21
+//#define RA8875_RESET GPIO_NUM_32
 
 class Dash
 {
