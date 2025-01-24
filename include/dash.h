@@ -11,7 +11,7 @@
 // VirtualTimerGroup read_timer;
 
 //deleted CS because same as SS in arduino_spi.h
-#define RA8875_INT 1
+#define RA8875_INT 3
 #define RA8875_WAIT 2
 #define RA8875_RESET 4
 
