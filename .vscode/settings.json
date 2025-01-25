@@ -3,6 +3,11 @@
         "*.compute": "hlsl",
         "string_view": "cpp",
         "bitset": "cpp",
-        "ostream": "cpp"
+        "ostream": "cpp",
+        "functional": "cpp",
+        "memory": "cpp",
+        "vector": "cpp",
+        "*.tcc": "cpp",
+        "iosfwd": "cpp"
     }
 }

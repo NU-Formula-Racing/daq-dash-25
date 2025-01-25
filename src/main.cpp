@@ -1,3 +1,5 @@
+#ifndef NATIVE
+
 #include <Arduino.h>
 
 #include <Dash.h>
@@ -77,6 +79,10 @@ void setup()
 
 
   attachInterrupt(digitalPinToInterrupt(BUTTON), onRisingEdge, RISING);
+
+  // writetoSDcard( Serializer.saveData(ourData));
+
+  //
 
 }
 
@@ -180,3 +186,5 @@ else if(screen == 2)
   // Serial.println(SP28_voltage);
   // Serial.println("****************************************");
 }
+
+#endif

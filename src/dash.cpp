@@ -1,3 +1,5 @@
+#ifndef NATIVE
+
 #include "dash.h"
 #include <iostream>
 #include <map>
@@ -381,3 +383,5 @@ void Dash::RecordBMSFaults()
     std::cout << "BMS Faults: " << std::bitset<8>(faults).to_string() << std::endl;
     bms_faults = faults;
 }
+
+#endif

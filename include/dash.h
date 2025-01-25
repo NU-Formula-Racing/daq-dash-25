@@ -1,3 +1,5 @@
+#ifndef NATIVE
+
 #include <map>
 #include <string>
 #include "virtualTimer.h"
@@ -146,3 +148,5 @@ private:
     int CalcBarHeight(float value, float min, float max, int maxHeight);
     void RecordBMSFaults();
 };
+
+#endif
