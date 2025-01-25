@@ -10,7 +10,7 @@ using namespace std;
 struct CarData
 {
 public:
-    int wheelBackLeftSpeed;
+    int wheelBackLeftSpeed; // 4 bytes
     int wheelBackRightSpeed;
     int wheelFrontLeftSpeed;
     int wheelFrontRightSpeed;
@@ -31,6 +31,10 @@ public:
     vector<uint8_t> saveData(CarData data) const;
     CarData loadData(vector<uint8_t> data) const;
 
+private:
+    void addIntToBytes(vector<uint8_t> &byteData, int num) const;
+    int readIntFromBytes(vector<uint8_t> &byteData, int index) const;
 };
+
 
 #endif // __SERIALIZER_HPP__
