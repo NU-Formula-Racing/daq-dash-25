@@ -1,0 +1,16 @@
+{
+	"folders": [
+		{
+			"name": "daq-dash-25",
+			"path": ".."
+		}
+	],
+	"settings": {
+		"files.associations": {
+			"*.compute": "hlsl",
+			"string_view": "cpp",
+			"bitset": "cpp",
+			"ostream": "cpp"
+		}
+	}
+}
