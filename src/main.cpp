@@ -1,190 +1,159 @@
-#ifndef NATIVE
+/*
+  SD card datalogger
+ 
+ This example shows how to log data from two digital sensors and one analog sensor
+ to an SD card using the SD library.
 
-#include <Arduino.h>
+In this example you can fiddle with a potentiometer, 
+press a button to save the value of the pot to the teensy 4.1 microSD 
+and press a different button to display what value was saved.
+ 	
+ The circuit:
+ * analog sensors on analog ins 0, 1, and 2
+ * SD card attached to SPI bus as follows:
+ ** MOSI - pin 11, pin 7 on Teensy with audio board
+ ** MISO - pin 12
+ ** CLK - pin 13, pin 14 on Teensy with audio board
+ ** CS - pin 4,  pin 10 on Teensy with audio board
+ 
+ created  24 Nov 2010
+ modified 9 Apr 2012
+ by Tom Igoe
+then modified again (horrible) by Andrew C. 
 
-#include <Dash.h>
-#include "Adafruit_GFX.h"
-#include "Adafruit_RA8875.h"
-#include <iostream>
+ This example code is in the public domain.
+ 	 
+ */
 
-// Library only supports hardware SPI at this time
-// Connect SCLK to UNO Digital #13 (Hardware SPI clock)
-// Connect MISO to UNO Digital #12 (Hardware SPI MISO)
-// Connect MOSI to UNO Digital #11 (Hardware SPI MOSI)
+// #include <Arduino.h>
+#include <SD.h>
+#include <SPI.h>
 
-#define SP28_ANGLE 21
-int total_screens = 3;
-// Hi!
-int screen = 0;
-//int re=0;
+// On the Ethernet Shield, CS is pin 4. Note that even if it's not
+// used as the CS pin, the hardware CS pin (10 on most Arduino boards,
+// 53 on the Mega) must be left as an output or the SD library
+// functions will not work.
 
-
-u_int8_t SP28_input;
-float SP28_voltage;
-
-Adafruit_RA8875 tft = Adafruit_RA8875(RA8875_CS, RA8875_RESET);
-uint16_t tx, ty;
-
-Dash dashboard;
-
-#define LED GPIO_NUM_2
-#define BUTTON GPIO_NUM_15
-#define green GPIO_NUM_16
-#define yellow GPIO_NUM_17
-#define red GPIO_NUM_4
+// change this to match your SD shield or module;
+// Arduino Ethernet shield: pin 4
+// Adafruit SD shields and modules: pin 10
+// Sparkfun SD shield: pin 8
+// Teensy audio board: pin 10
+// Teensy 3.5 & 3.6 & 4.1 on-board: BUILTIN_SDCARD
+// Wiz820+SD board: pin 4
+// Teensy 2.0: pin 0
+// Teensy++ 2.0: pin 20
+//===============================================================================================================================
 
 
-  void onRisingEdge() { 
-  //re=re+1;
-  //screen = (screen + 1) % total_screens;
-  screen = screen+1;
-  if(screen == 3)
-  {
-    screen =0;
-  }
-  }
+const int chipSelect = BUILTIN_SDCARD; 
+
+
+//create an integer named "pot" This integer will be used for the value of the potentiometer.
+int pot; 
+
+
+//================================================================================================================================
+//this part sets things up!
 
 void setup()
 {
-  Serial.begin(9600);
-  
-  pinMode(SP28_ANGLE, INPUT);
-  pinMode(LED,OUTPUT);
-  pinMode(BUTTON,INPUT);
-  pinMode(yellow,OUTPUT);
-  pinMode(red,OUTPUT);
-  pinMode(green,OUTPUT);
-  // RA8875 Setup
-  Serial.println("RA8875 start");
 
-  /* Initialize the display using 'RA8875_480x80', 'RA8875_480x128', 'RA8875_480x272' or 'RA8875_800x480' */
-  if (!tft.begin(RA8875_800x480))
-  {
-    Serial.println("RA8875 Not Found!");
-    while (1)
-      ;
+
+  //UNCOMMENT THESE TWO LINES FOR TEENSY AUDIO BOARD:
+  //SPI.setMOSI(7);  // Audio shield has MOSI on pin 7
+  //SPI.setSCK(14);  // Audio shield has SCK on pin 14
+
+  
+ // Open serial communications and wait for port to open:
+  Serial.begin(9600);
+   while (!Serial) {
+    ; // wait for serial port to connect.
   }
 
-  Serial.println("Found RA8875");
 
-  tft.displayOn(true);
-  tft.GPIOX(true);                              // Enable TFT - display enable tied to GPIOX
-  tft.PWM1config(true, RA8875_PWM_CLK_DIV1024); // PWM output for backlight
-  tft.PWM1out(255);
-  // Initialize dashboard
-  dashboard.Initialize();
-
-  // With hardware accelleration this is instant
-  dashboard.DrawBackground(tft);
-
-
-  attachInterrupt(digitalPinToInterrupt(BUTTON), onRisingEdge, RISING);
-
-  // writetoSDcard( Serializer.saveData(ourData));
-
-  //
-
+  Serial.print("Initializing SD card...");
+  
+  // see if the card is present and can be initialized:
+  if (!SD.begin(chipSelect)) {
+    Serial.println("Card failed, or not present");
+    // don't do anything more:
+    return;
+  }
+  Serial.println("card initialized.");
 }
 
+//================================================================================================================================
 
 
 void loop()
 {
-  // put your main code here, to run repeatedly:
-  dashboard.GetCAN();
-  dashboard.UpdateDisplay(tft);
-/*
-if(screen == 0)
-{
-  digitalWrite(LED,1);
-  delay(1000);
-  digitalWrite(LED,0);
-  delay(1000);
-  Serial.print(screen);
-  Serial.print(re);
-  Serial.println("case 0");
+  // make a string for assembling the data to log:
+  String dataString = "";
+
+
+//================================================================================================================================
+      //if button wired to digital pin 7 is pressed, print "button 7 pressed - data saved!" to serial
+        
+        if (digitalRead(7) == HIGH) {
+        Serial.println("button 7 pressed - data saved!");
+        
+      //read the potentiometer's value. then use this value as the new value of dataString
+          int pot = analogRead(A0);
+          dataString = String(pot);
+
+
+      // open the file named datalog.txt on the sd card
+          File dataFile = SD.open("datalog.txt", FILE_WRITE);
+
+          // if the file is available, write the contents of datastring to it
+          if (dataFile) {
+          dataFile.println(dataString);
+          dataFile.close();
+          }  
+          // if the file isn't open, pop up an error:
+          else {
+          Serial.println("error opening datalog.txt");
+        }   
+  }
+
+//================================================================================================================================
+
+//if button wired to digital pin 8 is pressed, print "button 8 pressed - load" to serial
+
+
+        if (digitalRead(8) == HIGH) {
+        Serial.println("button 8 pressed - load");
+
+      //open up datalog2.txt and then print all of its contents  
+
+        File dataFile = SD.open("datalog.txt");
+        if(dataFile) {
+          Serial.println("datalog:");
+          while (dataFile.available()) {
+              Serial.write(dataFile.read());
+           }
+      // close the file:
+         dataFile.close();
+
+
+//Delete the file so it can be created again at the begining of the loop
+SD.remove("datalog.txt");
+    
+  } else {
+    // if the file didn't open, print an error:
+    Serial.println("error opening datalog.txt");
+  }
   
 }
-else if(screen == 1)
-{
-  digitalWrite(LED,1);
-  delay(2000);
-  digitalWrite(LED,0);
-  delay(2000);
-  Serial.print(screen);
-  Serial.print(re);
-  Serial.println("case 1");
-}
-else if(screen == 2)
-{
-  digitalWrite(LED,1);
-  delay(3000);
-  digitalWrite(LED,0);
-  delay(3000);
-  Serial.print(screen);
-  Serial.print(re);
-  Serial.println("case 2");
-}*/
 
-  switch(screen){
-      case 0:
-        digitalWrite(red,1);
-        digitalWrite(green,0);
-        digitalWrite(yellow,0);
-        //delay(1000);
-        //digitalWrite(LED,0);
-        //delay(1000);
-        Serial.print("        ");
-        Serial.print(screen);
-        Serial.println("        case 0");
-        break;
-      case 1:
-        digitalWrite(yellow,1);
-        digitalWrite(red,0);
-        digitalWrite(green,0);
-        //delay(2000);
-        //digitalWrite(LED,0);
-       // delay(2000);
-        Serial.print("        ");
-        Serial.print(screen);
-        Serial.println("case 1");
-        break;
-      case 2:
-        digitalWrite(green,1);
-        digitalWrite(red,0);
-        digitalWrite(yellow,0);
-        //delay(3000);
-        //digitalWrite(LED,0);
-        //delay(3000);
-        Serial.print("        ");
-        Serial.print(screen);
-        Serial.println("case 2");
-        break;
+
+
+  delay(150);
   }
 
 
-  // digitalWrite(LED,1);
-  /*int var = digitalRead(BUTTON);
-  if (var == 1)
-  {
-    digitalWrite(LED,1);
-    delay(1000);
-    digitalWrite(LED,0);
-  }
-  else
-  {
-    digitalWrite(LED,0);
-  }
-  */
 
-  // Resistance: 2.6k
-  // 180 degrees range of motion: divot side rotating over PF2C1
 
-  // SP28_input = analogRead(SP28_ANGLE);
-  // SP28_voltage = (float) SP28_input * 0.00322581f;
-  // Serial.println(SP28_input);
-  // Serial.println(SP28_voltage);
-  // Serial.println("****************************************");
-}
 
-#endif
+
