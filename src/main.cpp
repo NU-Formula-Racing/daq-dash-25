@@ -25,7 +25,7 @@ then modified again (horrible) by Andrew C.
  	 
  */
 
-// #include <Arduino.h>
+#include <Arduino.h>
 #include <SD.h>
 #include <SPI.h>
 
