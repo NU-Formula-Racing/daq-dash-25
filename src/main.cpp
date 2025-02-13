@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include <pins_arduino.h>
 
 #include <Dash.h>
 #include "Adafruit_GFX.h"
@@ -20,7 +21,8 @@ int screen = 0;
 u_int8_t SP28_input;
 float SP28_voltage;
 
-Adafruit_RA8875 tft = Adafruit_RA8875(RA8875_CS, RA8875_RESET);
+//fix later cs/ss pin
+Adafruit_RA8875 tft = Adafruit_RA8875(PIN_SPI_SS, RA8875_RESET);
 uint16_t tx, ty;
 
 Dash dashboard;
@@ -32,11 +34,11 @@ enum class RotaryState {
     STATUS
 };
 
-#define LED 23
-#define BUTTON 22
-#define green 21
-#define yellow 20
-#define red 19
+#define CLK_ROTARY 23
+#define DT_ROTARY 22
+#define SW_ROTARY 21
+int currentStateCLK;
+int lastStateCLK;
 
 
 void handleRotaryState(RotaryState state) {
@@ -61,11 +63,10 @@ void setup()
   Serial.begin(9600);
   
   pinMode(SP28_ANGLE, INPUT);
-  pinMode(LED,OUTPUT);
-  pinMode(BUTTON,INPUT);
-  pinMode(yellow,OUTPUT);
-  pinMode(red,OUTPUT);
-  pinMode(green,OUTPUT);
+  pinMode(CLK_ROTARY,INPUT);
+  pinMode(DT_ROTARY,INPUT);
+  pinMode(SW_ROTARY,INPUT_PULLUP);
+  lastStateCLK=digitalRead(CLK_ROTARY);
   // RA8875 Setup
   Serial.println("RA8875 start");
 
@@ -89,9 +90,6 @@ void setup()
   // With hardware accelleration this is instant
   dashboard.DrawBackground(tft);
 
-
-  attachInterrupt(digitalPinToInterrupt(BUTTON), onRisingEdge, RISING);
-
 }
 
 
@@ -103,17 +101,32 @@ void loop()
   dashboard.UpdateDisplay(tft);
 
   // Example usage
-  RotaryState currentState = RotaryState::DRIVER;
+  currentStateCLK = digitalRead(CLK_ROTARY);
+  if (currentStateCLK!=lastStateCLK&&currentStateCLK==1){
+    if(digitalRead(DT_ROTARY)!=currentStateCLK){
+      screen=(screen+1)%total_screens;
+      handleRotaryState(static_cast<RotaryState>(screen));
+    }else{
+      screen=(screen-1+total_screens)%total_screens;
+      handleRotaryState(static_cast<RotaryState>(screen));
+    }
+    lastStateCLK=currentStateCLK;
+    }
+}
 
-  // Simulate changing states
-  handleRotaryState(currentState);
-  currentState = RotaryState::DRIVER;
-  handleRotaryState(currentState);
-  currentState = RotaryState::WHEEL;
-  handleRotaryState(currentState);
-  currentState = RotaryState::STATUS;
-  handleRotaryState(currentState);
-/*
+
+// digitalWrite(LED,1);
+  /*int var = digitalRead(BUTTON);
+  if (var == 1)
+  {
+    digitalWrite(LED,1);
+    delay(1000);
+    digitalWrite(LED,0);
+  }
+  else
+  {
+    digitalWrite(LED,0);
+  }
 if(screen == 0)
 {
   digitalWrite(LED,1);
@@ -183,19 +196,7 @@ else if(screen == 2)
   }
 */
 
-  // digitalWrite(LED,1);
-  /*int var = digitalRead(BUTTON);
-  if (var == 1)
-  {
-    digitalWrite(LED,1);
-    delay(1000);
-    digitalWrite(LED,0);
-  }
-  else
-  {
-    digitalWrite(LED,0);
-  }
-  */
+  
 
   // Resistance: 2.6k
   // 180 degrees range of motion: divot side rotating over PF2C1
@@ -205,4 +206,3 @@ else if(screen == 2)
   // Serial.println(SP28_input);
   // Serial.println(SP28_voltage);
   // Serial.println("****************************************");
-}
