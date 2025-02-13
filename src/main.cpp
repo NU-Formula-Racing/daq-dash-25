@@ -26,7 +26,7 @@ then modified again (horrible) by Andrew C.
  */
 
 #include <Arduino.h>
-#include <SD.h>
+#include "SD.h"
 #include <SPI.h>
 
 // On the Ethernet Shield, CS is pin 4. Note that even if it's not
