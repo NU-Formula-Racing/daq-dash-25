@@ -103,7 +103,7 @@ void loop()
   dashboard.UpdateDisplay(tft);
 
   // Example usage
-  RotaryState currentState = RotaryState::OFF;
+  RotaryState currentState = RotaryState::DRIVER;
 
   // Simulate changing states
   handleRotaryState(currentState);
