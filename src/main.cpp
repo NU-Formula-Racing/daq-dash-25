@@ -25,22 +25,36 @@ uint16_t tx, ty;
 
 Dash dashboard;
 
-#define LED GPIO_NUM_2
-#define BUTTON GPIO_NUM_15
-#define green GPIO_NUM_16
-#define yellow GPIO_NUM_17
-#define red GPIO_NUM_4
+// Define the states of the rotary
+enum class RotaryState {
+    DRIVER,
+    WHEEL,
+    STATUS
+};
+
+#define LED 23
+#define BUTTON 22
+#define green 21
+#define yellow 20
+#define red 19
 
 
-  void onRisingEdge() { 
-  //re=re+1;
-  //screen = (screen + 1) % total_screens;
-  screen = screen+1;
-  if(screen == 3)
-  {
-    screen =0;
+void handleRotaryState(RotaryState state) {
+  switch (state) {
+      case RotaryState::DRIVER:
+          Serial.println("Rotary is on DRIVER.");
+          break;
+      case RotaryState::WHEEL:
+          Serial.println("Rotary is on WHEEL.");
+          break;
+      case RotaryState::STATUS:
+          Serial.println("Rotary is on STATUS.");
+          break;
+      default:
+          Serial.println("more states");
+          break;
   }
-  }
+}
 
 void setup()
 {
@@ -87,6 +101,18 @@ void loop()
   // put your main code here, to run repeatedly:
   dashboard.GetCAN();
   dashboard.UpdateDisplay(tft);
+
+  // Example usage
+  RotaryState currentState = RotaryState::OFF;
+
+  // Simulate changing states
+  handleRotaryState(currentState);
+  currentState = RotaryState::DRIVER;
+  handleRotaryState(currentState);
+  currentState = RotaryState::WHEEL;
+  handleRotaryState(currentState);
+  currentState = RotaryState::STATUS;
+  handleRotaryState(currentState);
 /*
 if(screen == 0)
 {
@@ -118,7 +144,7 @@ else if(screen == 2)
   Serial.print(screen);
   Serial.print(re);
   Serial.println("case 2");
-}*/
+}
 
   switch(screen){
       case 0:
@@ -155,7 +181,7 @@ else if(screen == 2)
         Serial.println("case 2");
         break;
   }
-
+*/
 
   // digitalWrite(LED,1);
   /*int var = digitalRead(BUTTON);
