@@ -74,8 +74,21 @@ void Dash::DrawBackground(Adafruit_RA8875 tft, int16_t color)
     int rect_height = 200;
     int rect_border_height = rect_height + 2 * border;
     // draw outlines
-    tft.fillRect(SCREEN_WIDTH / 3.75, 0, SCREEN_HEIGHT * 0.75, SCREEN_HEIGHT, RA8875_BLACK);
-    tft.fillCircle(CENTER, SCREEN_HEIGHT / 2.2, RA8875_BLACK);
+    //MIDDLE DRIVE RECT
+    tft.drawRect(SCREEN_WIDTH/4, SCREEN_HEIGHT / 3, SCREEN_WIDTH/2, SCREEN_HEIGHT / 3, RA8875_WHITE);
+    //COOLANT, MAX CELL, INTERVERT TEMPS RECT
+    tft.drawRect(SCREEN_WIDTH/4, SCREEN_HEIGHT * 2/3 , SCREEN_WIDTH/2, SCREEN_HEIGHT / 3, RA8875_WHITE);
+    //MOTOR TEMP CIRC TOP LEFT
+    tft.drawCircle(SCREEN_WIDTH/8, SCREEN_HEIGHT /4 , SCREEN_WIDTH/8, RA8875_WHITE);
+    //ACCUM TEMP CIRC BOTTOM LEFT
+    tft.drawCircle(SCREEN_WIDTH/8, SCREEN_HEIGHT * 3/4 , SCREEN_WIDTH/8, RA8875_WHITE);
+    //MIN VOLTAGE CIRC TOP RIGHT
+    tft.drawCircle(SCREEN_WIDTH* 7/8, SCREEN_HEIGHT /4 , SCREEN_WIDTH/8, RA8875_WHITE);
+    //BATTERY VOLTAGE CIRC BOTTOM RIGHT
+    tft.drawCircle(SCREEN_WIDTH * 7/8, SCREEN_HEIGHT * 3/4 , SCREEN_WIDTH/8, RA8875_WHITE);
+
+
+
 
     // draw the error band
     tft.fillRect(0, 0, SCREEN_WIDTH, BAND_HEIGHT, RA8875_BLACK);
@@ -255,21 +268,129 @@ void Dash::DrawDriveState(Adafruit_RA8875 tft, int startX, int startY, int curr_
     // }
 
     char state;
+    int16_t color;
     switch (curr_drive_state)
     {
     case 0:
-        state = '-';
+        state = 'DRIVE';
+        color = RA8875_GREEN;
         break;
     case 1:
-        state = 'N';
+        state = 'ON';
+        color = RA8875_YELLOW;
         break;
     case 2:
-        state = 'D';
+        state = 'OFF';
+        color = RA8875_BLUE;
+        break;
+    }
+    tft.fillRect(SCREEN_WIDTH/4, SCREEN_HEIGHT / 3, SCREEN_WIDTH/2, SCREEN_HEIGHT / 3, color);
+    tft.drawChar(startX - 32, startY+160, state, RA8875_BLACK, RA8875_WHITE, 10);
+    drive_state = curr_drive_state;
+}
+
+// Draws motor temp circle
+void Dash::DrawMotorTempState(Adafruit_RA8875 tft, int startX, int startY, int curr_motor_state, int squareSize)
+{
+    // if (curr_drive_state == drive_state)
+    // {
+    //     return;
+    // }
+
+    int16_t color;
+    switch (curr_motor_state)
+    {
+    case 0:
+        color = RA8875_GREEN;
+        break;
+    case 1:
+        color = RA8875_YELLOW;
+        break;
+    case 2:
+        color = RA8875_RED;
         break;
     }
 
-    tft.drawChar(startX - 32, startY, state, RA8875_BLACK, RA8875_WHITE, 16);
-    drive_state = curr_drive_state;
+    tft.drawCircle(SCREEN_WIDTH/8, SCREEN_HEIGHT /4 , SCREEN_WIDTH/8, color);
+    drive_state = curr_motor_state;
+}
+
+// Draws accum temp circle
+void Dash::DrawAccumTempState(Adafruit_RA8875 tft, int startX, int startY, int curr_accum_state, int squareSize)
+{
+    // if (curr_drive_state == drive_state)
+    // {
+    //     return;
+    // }
+
+    int16_t color;
+    switch (curr_accum_state)
+    {
+    case 0:
+        color = RA8875_GREEN;
+        break;
+    case 1:
+        color = RA8875_YELLOW;
+        break;
+    case 2:
+        color = RA8875_RED;
+        break;
+    }
+
+    tft.drawCircle(SCREEN_WIDTH/8, SCREEN_HEIGHT * 3/4 , SCREEN_WIDTH/8, color);
+    drive_state = curr_accum_state;
+}
+
+// Draws min voltage circle
+void Dash::DrawMinVoltState(Adafruit_RA8875 tft, int startX, int startY, int curr_minVolt_state, int squareSize)
+{
+    // if (curr_drive_state == drive_state)
+    // {
+    //     return;
+    // }
+
+    int16_t color;
+    switch (curr_minVolt_state)
+    {
+    case 0:
+        color = RA8875_GREEN;
+        break;
+    case 1:
+        color = RA8875_YELLOW;
+        break;
+    case 2:
+        color = RA8875_RED;
+        break;
+    }
+
+    tft.drawCircle(SCREEN_WIDTH* 7/8, SCREEN_HEIGHT /4 , SCREEN_WIDTH/8, RA8875_WHITE);
+    drive_state = curr_minVolt_state;
+}
+
+// Draws battery voltage circle
+void Dash::DrawBatteryVoltState(Adafruit_RA8875 tft, int startX, int startY, int curr_batteryVolt_state, int squareSize)
+{
+    // if (curr_drive_state == drive_state)
+    // {
+    //     return;
+    // }
+
+    int16_t color;
+    switch (curr_batteryVolt_state)
+    {
+    case 0:
+        color = RA8875_GREEN;
+        break;
+    case 1:
+        color = RA8875_YELLOW;
+        break;
+    case 2:
+        color = RA8875_RED;
+        break;
+    }
+
+    tft.drawCircle(SCREEN_WIDTH * 7/8, SCREEN_HEIGHT * 3/4 , SCREEN_WIDTH/8, RA8875_WHITE);
+    drive_state = curr_batteryVolt_state;
 }
 
 void Dash::DrawIMDStatus(Adafruit_RA8875 tft, int startX, int startY, int imd_status, int squareSize)
