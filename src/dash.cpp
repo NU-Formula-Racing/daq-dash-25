@@ -222,6 +222,8 @@ void Dash::DrawBar(Adafruit_RA8875 tft, std::string barName, float newValue, int
     // write the value at the bottom of the
 }
 
+//COME HERE NEXT TIME TO DRAW THE NUMBER IN THE MIDDLE. ALSO, CHANGE DRAWCHAR FOR OTHER DRAW STATE CIRCLES AND THE MIDDLE RECTANGLE BC FULL WORDS
+
 void Dash::DrawWheelSpeed(Adafruit_RA8875 tft, float wheel_speed, int startX, int startY)
 {
     // Serial.println("Drawing Wheel Speed");
