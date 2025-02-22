@@ -28,6 +28,7 @@ then modified again (horrible) by Andrew C.
 #include <Arduino.h>
 #include "SD.h"
 #include <SPI.h>
+#include <rtc.c>
 
 // On the Ethernet Shield, CS is pin 4. Note that even if it's not
 // used as the CS pin, the hardware CS pin (10 on most Arduino boards,
@@ -127,14 +128,14 @@ void loop()
 
       //open up datalog2.txt and then print all of its contents  
 
-  File dataFile = SD.open("datalog.txt");
-  if(dataFile) {
+  File dataFile1 = SD.open("datalog.txt");
+  if(dataFile1) {
     Serial.println("datalog:");
-    while (dataFile.available()) {
-        Serial.write(dataFile.read());
+    while (dataFile1.available()) {
+        Serial.write(dataFile1.read());
       }
 // close the file:
-    dataFile.close();
+    dataFile1.close();
 
 
 //Delete the file so it can be created again at the begining of the loop
@@ -148,6 +149,13 @@ SD.remove("datalog.txt");
   }
   
 // }
+
+
+
+    time_t time = rtc_get();    // read the current time from the RTC
+    Serial.print(ctime(&time)); // convert time_t to readable string and print out
+    delay(1000);
+
 
 
 
