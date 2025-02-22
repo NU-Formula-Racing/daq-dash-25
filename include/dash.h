@@ -28,6 +28,20 @@ public:
             : displayName(displayName), min(min), max(max), value(min), x(startX), y(startY), width(width), maxHeight(maxHeight) {}
     };
 
+    struct CircleData
+    {
+        std::string displayName;
+        float value;
+        int x;
+        int y;
+        int diameter;
+
+        CircleData() : displayName(""), value(0), x(0), y(0), diameter(20) {}
+
+        CircleData(std::string displayName, int value, int startX, int startY, int diameter = 20)
+            : displayName(displayName), value(value), x(startX), y(startY), diameter(diameter) {}
+    };
+
     enum Error
     {
         NO_ERROR,
