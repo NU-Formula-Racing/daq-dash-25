@@ -22,7 +22,7 @@ u_int8_t SP28_input;
 float SP28_voltage;
 
 //fix later cs/ss pin
-Adafruit_RA8875 tft = Adafruit_RA8875(PIN_SPI_SS, RA8875_RESET);
+Adafruit_RA8875 tft = Adafruit_RA8875(RA8875_CS, RA8875_RESET);
 uint16_t tx, ty;
 
 Dash dashboard;
