@@ -1,5 +1,5 @@
 #include "testing_suite.hpp"
-#include <serializer.hpp>
+#include <serializer.cpp>
 
 #include <vector>
 #include <stdint.h>
