@@ -23,6 +23,14 @@
 
 int drive_state_startX = SCREEN_WIDTH / 2;
 int drive_state_startY = SCREEN_HEIGHT / 2 - 160;
+int motor_temp_startX = SCREEN_WIDTH/8;
+int motor_temp_startY = SCREEN_HEIGHT/4;
+int accum_temp_startX = SCREEN_WIDTH/8;
+int accum_temp_startY = SCREEN_HEIGHT* 3/4;
+int min_volt_startX = SCREEN_WIDTH* 7/8;
+int min_volt_startY = SCREEN_HEIGHT/4;
+int battery_volt_startX = SCREEN_WIDTH* 7/8;
+int battery_volt_startY = SCREEN_HEIGHT* 3/4;
 int wheel_speed_startX = SCREEN_WIDTH / 2;
 int wheel_speed_startY = SCREEN_HEIGHT / 2;
 int bar_max_size = 480;
@@ -140,11 +148,16 @@ void Dash::UpdateDisplay(Adafruit_RA8875 tft)
     float fl_wheel_speed = (millis() / 200) % 200;
     float fr_wheel_speed = (millis() / 200) % 200;
     int curr_drive_state = (millis() / 1000) % 3;
+    int curr_motor_state = (millis() / 1000) % 3;
+    int curr_accum_state = (millis() / 1000) % 3;
+    int curr_minVolt_state = (millis() / 1000) % 3;
+    int curr_batteryVolt_state = (millis() / 1000) % 3;
     int imd_status = millis() > 5000 ? -10 : 0;
     this->bms_faults = millis() > 10000 ? 0b11111111 : 0;
 
     float coolant_temp = (millis() / 100) % 100;
     float inverter_temp = (millis() / 20) % 100;
+    float accum_temp = (millis() / 20) % 100;
     float motor_temp = (millis() / 10) % 100;
     float battery_voltage = (millis() / 100) % 100;
     float min_voltage = (millis() / 20) % 100;
@@ -157,6 +170,21 @@ void Dash::UpdateDisplay(Adafruit_RA8875 tft)
     if (this->prev_wheel_speed != avg_wheel_speed)
         DrawWheelSpeed(tft, avg_wheel_speed, wheel_speed_startX, wheel_speed_startY);
     this->prev_wheel_speed = avg_wheel_speed;
+    DrawMotorState(tft, motor_temp_startX, motor_temp_startY, curr_motor_state, 8);
+    if (this->prev_motor_temp != motor_temp)
+        DrawMotorTemp(tft, motor_temp, motor_temp_startX, motor_temp_startY);
+    this->prev_motor_temp = motor_temp;
+     DrawAccumTempState(tft, accum_temp_startX, accum_temp_startY, curr_accum_state, 8);
+    if (this->prev_accum_temp != accum_temp)
+        DrawAccumTemp(tft, accum_temp, accum_temp_startX, accum_temp_startY);
+    this->prev_accum_temp = accum_temp;
+    DrawMinVoltState(tft, min_volt_startX, min_volt_startY, curr_minVolt_state, 8);
+    if (this->prev_min_volt != min_voltage)
+        DrawMinVolt(tft, min_voltage, min_volt_startX, min_volt_startY);
+    DrawBatteryVoltState(tft, battery_volt_startX, battery_volt_startY, curr_batteryVolt_state, 8);
+    if (this->prev_bat_volt != battery_voltage)
+        DrawBatteryVolt(tft, battery_voltage, battery_volt_startX, battery_volt_startY);
+    this->prev_bat_volt = battery_voltage;
     // draw IMD status
     DrawIMDStatus(tft, 8, 2, imd_status, 32);
     HandleBMSFaults(tft, 8, 2);
@@ -292,14 +320,46 @@ void Dash::DrawDriveState(Adafruit_RA8875 tft, int startX, int startY, int curr_
 }
 
 // Draws motor temp circle
-void Dash::DrawMotorTempState(Adafruit_RA8875 tft, int startX, int startY, int curr_motor_state, int squareSize)
+void Dash::DrawMotorTemp(Adafruit_RA8875 tft, float motor_temp, int startX, int startY)
 {
     // if (curr_drive_state == drive_state)
     // {
     //     return;
     // }
+    int rounded_motor_temp = round(motor_temp);
 
-    int16_t color;
+    Serial.println(rounded_motor_temp);
+
+    int digit_spacing = 4;
+    int char_width = 40;
+
+    startX -= char_width / 2;
+
+    // Making a naive assumption that 0 <= wheel speed < 100
+    if (motor_temp > 99)
+    {
+        startX += char_width;
+    }
+    else if (motor_temp > 9)
+    {
+        // Digits must be off center for double digit numbers
+        startX += char_width / 2;
+    }
+
+    // Draw the digits
+    while (rounded_motor_temp > 0)
+    {
+        int digit = rounded_motor_temp % 10;
+        tft.drawChar(startX, startY, digit + '0', RA8875_BLACK, RA8875_WHITE, 16);
+        startX -= char_width + digit_spacing;
+        rounded_motor_temp /= 10;
+    }
+
+}   
+
+void Dash::DrawMotorState(Adafruit_RA8875 tft, int startX, int startY, int curr_motor_state, int squareSize)
+{
+int16_t color;
     switch (curr_motor_state)
     {
     case 0:
@@ -318,6 +378,43 @@ void Dash::DrawMotorTempState(Adafruit_RA8875 tft, int startX, int startY, int c
 }
 
 // Draws accum temp circle
+void Dash::DrawAccumTemp(Adafruit_RA8875 tft, float accum_temp, int startX, int startY)
+{
+    // if (curr_drive_state == drive_state)
+    // {
+    //     return;
+    // }
+    int rounded_accum_temp = round(accum_temp);
+
+    Serial.println(rounded_accum_temp);
+
+    int digit_spacing = 4;
+    int char_width = 40;
+
+    startX -= char_width / 2;
+
+    // Making a naive assumption that 0 <= wheel speed < 100
+    if (accum_temp > 99)
+    {
+        startX += char_width;
+    }
+    else if (accum_temp > 9)
+    {
+        // Digits must be off center for double digit numbers
+        startX += char_width / 2;
+    }
+
+    // Draw the digits
+    while (rounded_accum_temp > 0)
+    {
+        int digit = rounded_accum_temp % 10;
+        tft.drawChar(startX, startY, digit + '0', RA8875_BLACK, RA8875_WHITE, 16);
+        startX -= char_width + digit_spacing;
+        rounded_accum_temp /= 10;
+    }
+
+}  
+
 void Dash::DrawAccumTempState(Adafruit_RA8875 tft, int startX, int startY, int curr_accum_state, int squareSize)
 {
     // if (curr_drive_state == drive_state)
@@ -342,6 +439,43 @@ void Dash::DrawAccumTempState(Adafruit_RA8875 tft, int startX, int startY, int c
     tft.drawCircle(SCREEN_WIDTH/8, SCREEN_HEIGHT * 3/4 , SCREEN_WIDTH/8, color);
     drive_state = curr_accum_state;
 }
+
+void Dash::DrawMinVolt(Adafruit_RA8875 tft, float min_voltage, int startX, int startY)
+{
+    // if (curr_drive_state == drive_state)
+    // {
+    //     return;
+    // }
+    int rounded_min_voltage = round(min_voltage);
+
+    Serial.println(rounded_min_voltage);
+
+    int digit_spacing = 4;
+    int char_width = 40;
+
+    startX -= char_width / 2;
+
+    // Making a naive assumption that 0 <= wheel speed < 100
+    if (min_voltage > 99)
+    {
+        startX += char_width;
+    }
+    else if (min_voltage > 9)
+    {
+        // Digits must be off center for double digit numbers
+        startX += char_width / 2;
+    }
+
+    // Draw the digits
+    while (rounded_min_voltage > 0)
+    {
+        int digit = rounded_min_voltage % 10;
+        tft.drawChar(startX, startY, digit + '0', RA8875_BLACK, RA8875_WHITE, 16);
+        startX -= char_width + digit_spacing;
+        rounded_min_voltage /= 10;
+    }
+
+} 
 
 // Draws min voltage circle
 void Dash::DrawMinVoltState(Adafruit_RA8875 tft, int startX, int startY, int curr_minVolt_state, int squareSize)
@@ -368,6 +502,43 @@ void Dash::DrawMinVoltState(Adafruit_RA8875 tft, int startX, int startY, int cur
     tft.drawCircle(SCREEN_WIDTH* 7/8, SCREEN_HEIGHT /4 , SCREEN_WIDTH/8, RA8875_WHITE);
     drive_state = curr_minVolt_state;
 }
+
+void Dash::DrawBatteryVolt(Adafruit_RA8875 tft, float battery_voltage, int startX, int startY)
+{
+    // if (curr_drive_state == drive_state)
+    // {
+    //     return;
+    // }
+    int rounded_battery_voltage = round(battery_voltage);
+
+    Serial.println(rounded_battery_voltage);
+
+    int digit_spacing = 4;
+    int char_width = 40;
+
+    startX -= char_width / 2;
+
+    // Making a naive assumption that 0 <= wheel speed < 100
+    if (battery_voltage > 99)
+    {
+        startX += char_width;
+    }
+    else if (battery_voltage > 9)
+    {
+        // Digits must be off center for double digit numbers
+        startX += char_width / 2;
+    }
+
+    // Draw the digits
+    while (rounded_battery_voltage > 0)
+    {
+        int digit = rounded_battery_voltage % 10;
+        tft.drawChar(startX, startY, digit + '0', RA8875_BLACK, RA8875_WHITE, 16);
+        startX -= char_width + digit_spacing;
+        rounded_battery_voltage /= 10;
+    }
+
+} 
 
 // Draws battery voltage circle
 void Dash::DrawBatteryVoltState(Adafruit_RA8875 tft, int startX, int startY, int curr_batteryVolt_state, int squareSize)

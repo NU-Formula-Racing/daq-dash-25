@@ -71,7 +71,15 @@ public:
     void DrawBar(Adafruit_RA8875 tft, std::string barName, float newValue, int16_t barColor, int16_t backgroundColor);
     float WheelSpeedAvg(float fl_wheel_speed, float fr_wheel_speed);
     void DrawWheelSpeed(Adafruit_RA8875 tft, float wheel_speed, int startX, int startY);
+    void DrawMotorTemp(Adafruit_RA8875 tft, float motor_temp, int startX, int startY);
+    void DrawAccumTemp(Adafruit_RA8875 tft, float motor_temp, int startX, int startY);
+    void DrawMinVolt(Adafruit_RA8875 tft, float motor_temp, int startX, int startY);
+    void DrawBatteryVolt(Adafruit_RA8875 tft, float motor_temp, int startX, int startY);
     void DrawDriveState(Adafruit_RA8875 tft, int startX, int startY, int curr_drive_state, int squareSize);
+    void DrawMotorState(Adafruit_RA8875 tft, int startX, int startY, int curr_motor_state, int squareSize);
+    void DrawAccumTempState(Adafruit_RA8875 tft, int startX, int startY, int curr_motor_state, int squareSize);
+    void DrawMinVoltState(Adafruit_RA8875 tft, int startX, int startY, int curr_motor_state, int squareSize);
+    void DrawBatteryVoltState(Adafruit_RA8875 tft, int startX, int startY, int curr_motor_state, int squareSize);
     void DrawIMDStatus(Adafruit_RA8875 tft, int startX, int startY, int imd_status, int squareSize);
     // void HandleError(Adafruit_RA8875 tft, std::string error_message, int startX, int startY, Error type);
     void DrawString(Adafruit_RA8875 tft, std::string message, int startX, int startY, int size, int16_t color, int16_t backgroundColor, Direction dir = LEFT_TO_RIGHT);
@@ -144,6 +152,10 @@ private:
 
 
     float prev_wheel_speed = -1;
+    float prev_motor_temp = -1;
+    float prev_accum_temp = -1;
+    float prev_min_volt = -1;
+    float prev_bat_volt = -1;
     float prev_fr_wheel_speed = -1;
     Error error = NO_ERROR;
     uint8_t bms_faults = 0;

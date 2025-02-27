@@ -1,7 +1,7 @@
 #include <Arduino.h>
 #include <pins_arduino.h>
 
-#include <Dash.h>
+#include <dash.h>
 #include "Adafruit_GFX.h"
 #include "Adafruit_RA8875.h"
 #include <iostream>
