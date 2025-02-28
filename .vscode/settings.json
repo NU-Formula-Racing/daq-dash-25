@@ -11,6 +11,9 @@
         "iosfwd": "cpp",
         "ratio": "cpp",
         "deque": "cpp",
-        "string": "cpp"
+        "string": "cpp",
+        "array": "cpp",
+        "initializer_list": "cpp",
+        "utility": "cpp"
     }
 }
