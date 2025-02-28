@@ -1,3 +1,6 @@
+#ifndef __PIN_ESP32_H__
+#define __PIN_ESP32_H__
+
 #include <stdint.h>
 
 //pins_arduino.h
@@ -14,7 +17,9 @@
 #define RA8875_INT 3
 #define RA8875_WAIT 2
 #define RA8875_RESET 4
+#define RA8875_CS 10
 
 //other pins
 // drive can tx   1
 //drive can rx    0
+#endif // __PIN_ESP32_H__

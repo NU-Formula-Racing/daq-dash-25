@@ -15,7 +15,7 @@
 #define SCREEN_HEIGHT 480
 #define CENTER SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2
 #define CENTER_OFFSET(x, y) SCREEN_WIDTH / 2 + x, SCREEN_HEIGHT / 2 + y
-#define BAND_HEIGHT 50
+#define BAND_HEIGHT 30
 #define BAR_HEIGHT SCREEN_HEIGHT - BAND_HEIGHT * 2
 #define BAR_WIDTH 50
 #define BAR_SPACING 15
@@ -95,15 +95,12 @@ void Dash::DrawBackground(Adafruit_RA8875 tft, int16_t color)
     //BATTERY VOLTAGE CIRC BOTTOM RIGHT
     tft.drawCircle(SCREEN_WIDTH * 7/8, SCREEN_HEIGHT * 3/4 , SCREEN_WIDTH/8, RA8875_WHITE);
 
-
-
-
     // draw the error band
-    tft.fillRect(0, 0, SCREEN_WIDTH, BAND_HEIGHT, RA8875_BLACK);
+    //tft.fillRect(0, 0, SCREEN_WIDTH, BAND_HEIGHT, RA8875_BLACK);
     // draw the bottom band
-    tft.fillRect(0, SCREEN_HEIGHT - BAND_HEIGHT, SCREEN_WIDTH, BAND_HEIGHT, RA8875_BLACK);
+    //tft.fillRect(0, SCREEN_HEIGHT - BAND_HEIGHT, SCREEN_WIDTH, BAND_HEIGHT, RA8875_BLACK);
     // fill in main circle white
-    tft.fillCircle(CENTER, SCREEN_HEIGHT / 2.2 - border, RA8875_WHITE);
+    //tft.fillCircle(CENTER, SCREEN_HEIGHT / 2.2 - border, RA8875_WHITE);
 
     // write text beneath the bars
     // iterate
@@ -206,7 +203,7 @@ void Dash::DrawBar(Adafruit_RA8875 tft, std::string barName, float newValue, int
     // get the bar if any
     if (this->bars.find(barName) == this->bars.end())
     {
-        Serial.println("Bar not found");
+        // Serial.println("Bar not found");
         return;
     }
 
@@ -261,7 +258,7 @@ void Dash::DrawWheelSpeed(Adafruit_RA8875 tft, float wheel_speed, int startX, in
 
     int rounded_wheel_speed = round(wheel_speed);
 
-    Serial.println(rounded_wheel_speed);
+    // Serial.println(rounded_wheel_speed);
 
     int digit_spacing = 8;
     int char_width = 80;
@@ -296,27 +293,41 @@ void Dash::DrawDriveState(Adafruit_RA8875 tft, int startX, int startY, int curr_
     // {
     //     return;
     // }
-
-    char state;
     int16_t color;
     switch (curr_drive_state)
     {
     case 0:
-        state = 'DRIVE';
+
         color = RA8875_GREEN;
         break;
     case 1:
-        state = 'ON';
+
         color = RA8875_YELLOW;
         break;
     case 2:
-        state = 'OFF';
+
         color = RA8875_BLUE;
         break;
     }
     tft.fillRect(SCREEN_WIDTH/4, SCREEN_HEIGHT / 3, SCREEN_WIDTH/2, SCREEN_HEIGHT / 3, color);
-    tft.drawChar(startX - 32, startY+160, state, RA8875_BLACK, RA8875_WHITE, 10);
-    drive_state = curr_drive_state;
+
+    switch (curr_drive_state)
+    {
+    case 0:
+
+        DrawString(tft, "DRIVE", SCREEN_WIDTH/2, SCREEN_HEIGHT / 3, 15, RA8875_WHITE, color);
+        break;
+    case 1:
+
+        DrawString(tft, "ON", SCREEN_WIDTH/2, SCREEN_HEIGHT / 3, 15, RA8875_WHITE, color);
+        break;
+    case 2:
+
+        DrawString(tft, "OFF", SCREEN_WIDTH/2, SCREEN_HEIGHT / 3, 15, RA8875_WHITE, color);
+        break;
+    }
+
+    //drive_state = curr_drive_state;
 }
 
 // Draws motor temp circle
