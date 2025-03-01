@@ -280,7 +280,7 @@ void Dash::DrawWheelSpeed(Adafruit_RA8875 tft, float wheel_speed, int startX, in
     while (rounded_wheel_speed > 0)
     {
         int digit = rounded_wheel_speed % 10;
-        tft.drawChar(startX*0.8, startY, digit + '0', RA8875_BLACK,RA8875_WHITE, 13);
+        tft.drawChar(startX, startY, digit + '0', RA8875_BLACK,RA8875_WHITE, 13);
         startX -= char_width + digit_spacing;
         rounded_wheel_speed /= 10;
     }
