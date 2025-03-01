@@ -19,13 +19,13 @@ public:
         float value;
         int x;
         int y;
-        int width;
-        int maxHeight;
+        int height;
+        int maxWidth;
 
-        BarData() : displayName(""), min(0), max(0), value(0), x(0), y(0), width(20), maxHeight(100) {}
+        BarData() : displayName(""), min(0), max(0), value(0), x(0), y(0), height(20), maxWidth(100) {}
 
-        BarData(std::string displayName, float min, float max, int startX, int startY, int width = 20, int maxHeight = 100)
-            : displayName(displayName), min(min), max(max), value(min), x(startX), y(startY), width(width), maxHeight(maxHeight) {}
+        BarData(std::string displayName, float min, float max, int startX, int startY, int height = 20, int maxWidth = 100)
+            : displayName(displayName), min(min), max(max), value(min), x(startX), y(startY), height(height), maxWidth(maxWidth) {}
     };
 
     // struct CircleData
