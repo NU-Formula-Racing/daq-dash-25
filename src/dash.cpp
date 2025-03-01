@@ -306,7 +306,7 @@ void Dash::DrawDriveState(Adafruit_RA8875 tft, int startX, int startY, int curr_
         break;
     case 2:
 
-        color = RA8875_BLUE;
+        color = RA8875_RED;
         break;
     }
     tft.fillRect(SCREEN_WIDTH/4, SCREEN_HEIGHT / 3, SCREEN_WIDTH/2, SCREEN_HEIGHT / 3, color);
