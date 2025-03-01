@@ -483,7 +483,7 @@ void Dash::DrawMinVolt(Adafruit_RA8875 tft, float min_voltage, int startX, int s
     while (rounded_min_voltage > 0)
     {
         int digit = rounded_min_voltage % 10;
-        tft.drawChar(startX, startY*0.8, digit + '0', RA8875_BLACK, RA8875_WHITE, 16);
+        tft.drawChar(startX, startY*0.8, digit + '0', RA8875_BLACK, RA8875_WHITE, 13);
         startX -= char_width + digit_spacing;
         rounded_min_voltage /= 10;
     }
@@ -547,7 +547,7 @@ void Dash::DrawBatteryVolt(Adafruit_RA8875 tft, float battery_voltage, int start
     while (rounded_battery_voltage > 0)
     {
         int digit = rounded_battery_voltage % 10;
-        tft.drawChar(startX, startY*0.8, digit + '0', RA8875_BLACK, RA8875_WHITE, 16);
+        tft.drawChar(startX, startY*0.8, digit + '0', RA8875_BLACK, RA8875_WHITE, 13);
         startX -= char_width + digit_spacing;
         rounded_battery_voltage /= 10;
     }
