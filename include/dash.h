@@ -169,5 +169,6 @@ private:
     std::map<std::string, BarData> bars;
 
     int CalcBarHeight(float value, float min, float max, int maxHeight);
+    int CalcBarWidth(float value, float min, float max, int maxWidth);
     void RecordBMSFaults();
 };

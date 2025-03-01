@@ -232,16 +232,16 @@ void Dash::DrawBar(Adafruit_RA8875 tft, std::string barName, float newValue, int
     }
 
     // calculate the height of the bar
-    int newHeight = CalcBarHeight(newValue, bar.min, bar.max, bar.maxHeight);
-    int oldHeight = CalcBarHeight(bar.value, bar.min, bar.max, bar.maxHeight);
+    int newWidth = CalcBarWidth(newValue, bar.min, bar.max, bar.maxWidth);
+    int oldWidth = CalcBarWidth(bar.value, bar.min, bar.max, bar.maxWidth);
 
-    if (newHeight == oldHeight)
+    if (newWidth == oldWidth)
     {
         return;
     }
 
     // draw the bar
-    int diff = newHeight - oldHeight;
+    int diff = newWidth - oldWidth;
     bar.value = newValue;
 
     // std::cout << "Drawing bar " << barName << " with value " << newValue << " and height " << newHeight << std::endl;
@@ -251,13 +251,13 @@ void Dash::DrawBar(Adafruit_RA8875 tft, std::string barName, float newValue, int
         // if the new height is greater than the old height, we need to fill in the difference
         // we will draw the bar to go upwards
         // the top left of the screen is 0,0
-        tft.fillRect(bar.x, bar.y - newHeight, bar.width, diff, barColor);
+        tft.fillRect(bar.x-newWidth, bar.y, diff, bar.height, barColor);
     }
     else
     {
         // if the new height is less than the old height, we need to clear the difference
         // we will draw the bar to go downwards
-        tft.fillRect(bar.x, bar.y - oldHeight, bar.width, -diff, backgroundColor);
+        tft.fillRect(bar.x- oldWidth, bar.y, diff, bar.height, backgroundColor);
     }
 
     // write the value at the bottom of the
@@ -707,6 +707,14 @@ int Dash::CalcBarHeight(float value, float min, float max, int maxHeight)
     int lerp = (value - min) / (max - min) * maxHeight;
     // clamp the value between 0 and maxHeight
     return lerp > maxHeight ? maxHeight : lerp < 0 ? 0
+                                                   : lerp;
+}
+
+int Dash::CalcBarWidth(float value, float min, float max, int maxWidth)
+{
+    int lerp = (value - min) / (max - min) * maxWidth;
+    // clamp the value between 0 and maxHeight
+    return lerp > maxWidth ? maxWidth : lerp < 0 ? 0
                                                    : lerp;
 }
 
