@@ -385,7 +385,7 @@ int16_t color;
     }
 
     tft.fillCircle(SCREEN_WIDTH/8, SCREEN_HEIGHT /4 , SCREEN_WIDTH/8, color);
-    DrawString(tft, "MT", startX*0.85, startY-SCREEN_WIDTH/8, 5, RA8875_BLACK, color);
+    DrawString(tft, "MT", startX*0.8, startY-SCREEN_WIDTH/7, 5, RA8875_BLACK, color);
     //drive_state = curr_motor_state;
 }
 
