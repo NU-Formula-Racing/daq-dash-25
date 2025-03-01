@@ -341,8 +341,8 @@ void Dash::DrawMotorTemp(Adafruit_RA8875 tft, float motor_temp, int startX, int 
 
     Serial.println(rounded_motor_temp);
 
-    int digit_spacing = 4;
-    int char_width = 40;
+    int digit_spacing = -14;
+    int char_width = 80;
 
     startX -= char_width / 2;
 
@@ -361,7 +361,7 @@ void Dash::DrawMotorTemp(Adafruit_RA8875 tft, float motor_temp, int startX, int 
     while (rounded_motor_temp > 0)
     {
         int digit = rounded_motor_temp % 10;
-        tft.drawChar(startX*0.5, startY*0.8, digit + '0', RA8875_BLACK, RA8875_WHITE, 13);
+        tft.drawChar(startX+4, startY*0.8, digit + '0', RA8875_BLACK, RA8875_WHITE, 11);
         startX -= char_width + digit_spacing;
         rounded_motor_temp /= 10;
     }
@@ -400,8 +400,8 @@ void Dash::DrawAccumTemp(Adafruit_RA8875 tft, float accum_temp, int startX, int 
 
     Serial.println(rounded_accum_temp);
 
-    int digit_spacing = 4;
-    int char_width = 40;
+    int digit_spacing = -14;
+    int char_width = 80;
 
     startX -= char_width / 2;
 
@@ -420,7 +420,7 @@ void Dash::DrawAccumTemp(Adafruit_RA8875 tft, float accum_temp, int startX, int 
     while (rounded_accum_temp > 0)
     {
         int digit = rounded_accum_temp % 10;
-        tft.drawChar(startX*0.5, startY*0.8, digit + '0', RA8875_BLACK, RA8875_WHITE, 13);
+        tft.drawChar(startX+4, startY*0.8+SCREEN_WIDTH/16, digit + '0', RA8875_BLACK, RA8875_WHITE, 11);
         startX -= char_width + digit_spacing;
         rounded_accum_temp /= 10;
     }
@@ -463,8 +463,8 @@ void Dash::DrawMinVolt(Adafruit_RA8875 tft, float min_voltage, int startX, int s
 
     Serial.println(rounded_min_voltage);
 
-    int digit_spacing = 4;
-    int char_width = 40;
+    int digit_spacing = -14;
+    int char_width = 80;
 
     startX -= char_width / 2;
 
@@ -483,7 +483,7 @@ void Dash::DrawMinVolt(Adafruit_RA8875 tft, float min_voltage, int startX, int s
     while (rounded_min_voltage > 0)
     {
         int digit = rounded_min_voltage % 10;
-        tft.drawChar(startX, startY*0.8, digit + '0', RA8875_BLACK, RA8875_WHITE, 13);
+        tft.drawChar(startX+4, startY*0.8, digit + '0', RA8875_BLACK, RA8875_WHITE, 11);
         startX -= char_width + digit_spacing;
         rounded_min_voltage /= 10;
     }
@@ -513,7 +513,7 @@ void Dash::DrawMinVoltState(Adafruit_RA8875 tft, int startX, int startY, int cur
     }
 
     tft.fillCircle(SCREEN_WIDTH* 7/8, SCREEN_HEIGHT /4 , SCREEN_WIDTH/8, color);
-    DrawString(tft, "MV", startX, startY-SCREEN_WIDTH/9, 5, RA8875_BLACK, color);
+    DrawString(tft, "MV", startX-20, startY-SCREEN_WIDTH/9, 5, RA8875_BLACK, color);
     //drive_state = curr_minVolt_state;
 }
 
@@ -527,8 +527,8 @@ void Dash::DrawBatteryVolt(Adafruit_RA8875 tft, float battery_voltage, int start
 
     Serial.println(rounded_battery_voltage);
 
-    int digit_spacing = 4;
-    int char_width = 40;
+    int digit_spacing = -14;
+    int char_width = 80;
 
     startX -= char_width / 2;
 
@@ -547,7 +547,7 @@ void Dash::DrawBatteryVolt(Adafruit_RA8875 tft, float battery_voltage, int start
     while (rounded_battery_voltage > 0)
     {
         int digit = rounded_battery_voltage % 10;
-        tft.drawChar(startX, startY*0.8, digit + '0', RA8875_BLACK, RA8875_WHITE, 13);
+        tft.drawChar(startX+4, startY*0.8+SCREEN_WIDTH/16, digit + '0', RA8875_BLACK, RA8875_WHITE, 11);
         startX -= char_width + digit_spacing;
         rounded_battery_voltage /= 10;
     }
@@ -576,7 +576,7 @@ void Dash::DrawBatteryVoltState(Adafruit_RA8875 tft, int startX, int startY, int
     }
 
     tft.fillCircle(SCREEN_WIDTH * 7/8, SCREEN_HEIGHT * 3/4 , SCREEN_WIDTH/8, color);
-    DrawString(tft, "BV", startX, startY-SCREEN_WIDTH/9, 5, RA8875_BLACK, color);
+    DrawString(tft, "BV", startX-20, startY-SCREEN_WIDTH/9, 5, RA8875_BLACK, color);
     //drive_state = curr_batteryVolt_state;
 }
 
