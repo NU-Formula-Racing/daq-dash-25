@@ -510,7 +510,7 @@ void Dash::DrawMinVoltState(Adafruit_RA8875 tft, int startX, int startY, int cur
         break;
     }
 
-    tft.fillCircle(SCREEN_WIDTH* 7/8, SCREEN_HEIGHT /4 , SCREEN_WIDTH/8, RA8875_WHITE);
+    tft.fillCircle(SCREEN_WIDTH* 7/8, SCREEN_HEIGHT /4 , SCREEN_WIDTH/8, color);
     //drive_state = curr_minVolt_state;
 }
 
@@ -572,7 +572,7 @@ void Dash::DrawBatteryVoltState(Adafruit_RA8875 tft, int startX, int startY, int
         break;
     }
 
-    tft.fillCircle(SCREEN_WIDTH * 7/8, SCREEN_HEIGHT * 3/4 , SCREEN_WIDTH/8, RA8875_WHITE);
+    tft.fillCircle(SCREEN_WIDTH * 7/8, SCREEN_HEIGHT * 3/4 , SCREEN_WIDTH/8, color);
     drive_state = curr_batteryVolt_state;
 }
 
