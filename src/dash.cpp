@@ -33,6 +33,13 @@ int battery_volt_startX = SCREEN_WIDTH* 7/8;
 int battery_volt_startY = SCREEN_HEIGHT* 3/4;
 int wheel_speed_startX = SCREEN_WIDTH / 2;
 int wheel_speed_startY = SCREEN_HEIGHT *0.34;
+int coolant_temp_startX = SCREEN_WIDTH/4;
+int max_cell_temp_startX = SCREEN_WIDTH/4;
+int inverter_temp_startX = SCREEN_WIDTH/4;
+int coolant_temp_startY = SCREEN_HEIGHT*0.7;
+int max_cell_temp_startY = SCREEN_HEIGHT*0.8;
+int inverter_temp_startY = SCREEN_HEIGHT*0.9;
+
 int bar_max_size = 480;
 
 #define DEBUG
@@ -182,6 +189,15 @@ void Dash::UpdateDisplay(Adafruit_RA8875 tft)
     if (this->prev_bat_volt != battery_voltage)
         DrawBatteryVolt(tft, battery_voltage, battery_volt_startX, battery_volt_startY);
     this->prev_bat_volt = battery_voltage;
+    if (this->prev_coolant_temp != coolant_temp)
+    DrawCoolantTemp(tft, coolant_temp, coolant_temp_startX, coolant_temp_startY);
+    this->prev_coolant_temp = coolant_temp;
+    if (this->prev_max_cell_temp != max_cell_temp)
+    DrawMaxCellTemp(tft, max_cell_temp, max_cell_temp_startX, max_cell_temp_startY);
+    this->prev_max_cell_temp = max_cell_temp;
+    if (this->prev_inverter_temp != inverter_temp)
+    DrawInverterTemp(tft, inverter_temp, inverter_temp_startX, inverter_temp_startY);
+    this->prev_inverter_temp = inverter_temp;
     // draw IMD status
     DrawIMDStatus(tft, 8, 2, imd_status, 32);
     HandleBMSFaults(tft, 8, 2);
@@ -251,17 +267,20 @@ void Dash::DrawBar(Adafruit_RA8875 tft, std::string barName, float newValue, int
 
 void Dash::DrawCoolantTemp(Adafruit_RA8875 tft, float coolant_temp, int startX, int startY)
 {
+    DrawString(tft, "CT", startX+2, startY, 5, RA8875_WHITE, RA8875_BLACK);
 
 }
 
 void Dash::DrawMaxCellTemp(Adafruit_RA8875 tft, float max_cell_temp, int startX, int startY)
 {
-    
+    DrawString(tft, "MCT", startX+2, startY, 5, RA8875_WHITE, RA8875_BLACK);
+
 }
 
 void Dash::DrawInverterTemp(Adafruit_RA8875 tft, float inverter_temp, int startX, int startY)
 {
-    
+    DrawString(tft, "IT", startX+2, startY, 5, RA8875_WHITE, RA8875_BLACK);
+
 }
 
 void Dash::DrawWheelSpeed(Adafruit_RA8875 tft, float wheel_speed, int startX, int startY)
