@@ -69,9 +69,9 @@ void Dash::Initialize()
     //this->circles["motor_temp"] = CircleData("Motor Temp", 20, 70, 0, SCREEN_HEIGHT - BAND_HEIGHT, CIRCLE_DIAMETER);
     //this->circles["motor_temp"] = CircleData("Motor Temp", 20, 70, 0, SCREEN_HEIGHT - BAND_HEIGHT, BAR_WIDTH, BAR_HEIGHT);
 
-    //this->bars["coolant_temp"] = BarData("co", 20, 70, 0, SCREEN_HEIGHT - BAND_HEIGHT, BAR_WIDTH, BAR_HEIGHT);
-    //this->bars["inverter_temp"] = BarData("iv", 0, 100, BAR_WIDTH + BAR_SPACING, SCREEN_HEIGHT - BAND_HEIGHT, BAR_WIDTH, BAR_HEIGHT);
-    //this->bars["motor_temp"] = BarData("mo", 0, 100, 2 * BAR_WIDTH + 2 * BAR_SPACING, SCREEN_HEIGHT - BAND_HEIGHT, BAR_WIDTH, BAR_HEIGHT);  
+    this->bars["coolant_temp"] = BarData("", 0, 100, SCREEN_WIDTH/4 +2, SCREEN_HEIGHT*0.7, 15,SCREEN_WIDTH/2);
+    this->bars["inverter_temp"] = BarData("", 0, 100, SCREEN_WIDTH/4 +2, SCREEN_HEIGHT*0.8, 15, SCREEN_WIDTH/2);
+    this->bars["motor_temp"] = BarData("", 0, 100, SCREEN_WIDTH/4 +2, SCREEN_HEIGHT*0.9, 15,SCREEN_WIDTH/2);  
 
     //this->bars["battery_voltage"] = BarData("bv", 0, 600, SCREEN_WIDTH - BAR_WIDTH, SCREEN_HEIGHT - BAND_HEIGHT, BAR_WIDTH, BAR_HEIGHT);
     //this->bars["min_voltage"] = BarData("nv", 0, 5, SCREEN_WIDTH - 2 * BAR_WIDTH - BAR_SPACING, SCREEN_HEIGHT - BAND_HEIGHT, BAR_WIDTH, BAR_HEIGHT);
