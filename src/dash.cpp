@@ -22,7 +22,7 @@
 #define MASK(x) (1 << x)
 
 int drive_state_startX = SCREEN_WIDTH / 2;
-int drive_state_startY = SCREEN_HEIGHT / 2 - 160;
+int drive_state_startY = SCREEN_HEIGHT / 2 -160;
 int motor_temp_startX = SCREEN_WIDTH/8;
 int motor_temp_startY = SCREEN_HEIGHT/4;
 int accum_temp_startX = SCREEN_WIDTH/8;
@@ -254,7 +254,7 @@ void Dash::DrawWheelSpeed(Adafruit_RA8875 tft, float wheel_speed, int startX, in
     // Serial.println("Drawing Wheel Speed");
 
     // fill in the space
-    tft.fillRect(startX - 150, startY, 300, 128, RA8875_WHITE);
+    tft.fillRect(startX - 150, startY, 300, 110, RA8875_WHITE);
 
     int rounded_wheel_speed = round(wheel_speed);
 
@@ -280,7 +280,7 @@ void Dash::DrawWheelSpeed(Adafruit_RA8875 tft, float wheel_speed, int startX, in
     while (rounded_wheel_speed > 0)
     {
         int digit = rounded_wheel_speed % 10;
-        tft.drawChar(startX, startY, digit + '0', RA8875_BLACK, RA8875_WHITE, 16);
+        tft.drawChar(startX, startY, digit + '0', RA8875_BLACK,RA8875_WHITE, 13);
         startX -= char_width + digit_spacing;
         rounded_wheel_speed /= 10;
     }
@@ -361,7 +361,7 @@ void Dash::DrawMotorTemp(Adafruit_RA8875 tft, float motor_temp, int startX, int 
     while (rounded_motor_temp > 0)
     {
         int digit = rounded_motor_temp % 10;
-        tft.drawChar(startX, startY, digit + '0', RA8875_BLACK, RA8875_WHITE, 16);
+        tft.drawChar(startX, startY, digit + '0', RA8875_BLACK, RA8875_WHITE, 15);
         startX -= char_width + digit_spacing;
         rounded_motor_temp /= 10;
     }
