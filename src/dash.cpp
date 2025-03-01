@@ -116,9 +116,9 @@ void Dash::DrawBackground(Adafruit_RA8875 tft, int16_t color)
     }
 
     // draw info in top left cornder
-    DrawString(tft, "Temperatures", 8, 2, 5, RA8875_WHITE, RA8875_BLACK);
+    //DrawString(tft, "Temperatures", 8, 2, 5, RA8875_WHITE, RA8875_BLACK);
     // draw info on the top right
-    DrawString(tft, "Battery", SCREEN_WIDTH - 8 * 28, 2, 5, RA8875_WHITE, RA8875_BLACK);
+    //DrawString(tft, "Battery", SCREEN_WIDTH - 8 * 28, 2, 5, RA8875_WHITE, RA8875_BLACK);
 }
 
 float Dash::WheelSpeedAvg(float fl_wheel_speed, float fr_wheel_speed)
@@ -385,6 +385,7 @@ int16_t color;
     }
 
     tft.fillCircle(SCREEN_WIDTH/8, SCREEN_HEIGHT /4 , SCREEN_WIDTH/8, color);
+    DrawString(tft, "Motor Temp", startX, startY+10, 5, RA8875_BLACK, color);
     //drive_state = curr_motor_state;
 }
 
@@ -448,6 +449,7 @@ void Dash::DrawAccumTempState(Adafruit_RA8875 tft, int startX, int startY, int c
     }
 
     tft.fillCircle(SCREEN_WIDTH/8, SCREEN_HEIGHT * 3/4 , SCREEN_WIDTH/8, color);
+    DrawString(tft, "Acumm. Temp", startX, startY+10, 5, RA8875_BLACK, color);
     //drive_state = curr_accum_state;
 }
 
@@ -511,6 +513,7 @@ void Dash::DrawMinVoltState(Adafruit_RA8875 tft, int startX, int startY, int cur
     }
 
     tft.fillCircle(SCREEN_WIDTH* 7/8, SCREEN_HEIGHT /4 , SCREEN_WIDTH/8, color);
+    DrawString(tft, "Min Volt.", startX, startY+10, 5, RA8875_BLACK, color);
     //drive_state = curr_minVolt_state;
 }
 
@@ -573,7 +576,8 @@ void Dash::DrawBatteryVoltState(Adafruit_RA8875 tft, int startX, int startY, int
     }
 
     tft.fillCircle(SCREEN_WIDTH * 7/8, SCREEN_HEIGHT * 3/4 , SCREEN_WIDTH/8, color);
-    drive_state = curr_batteryVolt_state;
+    DrawString(tft, "Bat Volt", startX, startY+10, 5, RA8875_BLACK, color);
+    //drive_state = curr_batteryVolt_state;
 }
 
 void Dash::DrawIMDStatus(Adafruit_RA8875 tft, int startX, int startY, int imd_status, int squareSize)
