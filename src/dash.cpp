@@ -116,9 +116,9 @@ void Dash::DrawBackground(Adafruit_RA8875 tft, int16_t color)
     }
 
     // draw info in top left cornder
-    DrawString(tft, "Temperatures", 8, 2, 5, RA8875_WHITE, RA8875_BLACK);
+    // DrawString(tft, "Temperatures", 8, 2, 5, RA8875_WHITE, RA8875_BLACK);
     // draw info on the top right
-    DrawString(tft, "Battery", SCREEN_WIDTH - 8 * 28, 2, 5, RA8875_WHITE, RA8875_BLACK);
+    // DrawString(tft, "Battery", SCREEN_WIDTH - 8 * 28, 2, 5, RA8875_WHITE, RA8875_BLACK);
 }
 
 float Dash::WheelSpeedAvg(float fl_wheel_speed, float fr_wheel_speed)
