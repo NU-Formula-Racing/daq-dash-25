@@ -160,6 +160,9 @@ private:
     float prev_min_volt = -1;
     float prev_bat_volt = -1;
     float prev_fr_wheel_speed = -1;
+    float prev_coolant_temp = -1;
+    float prev_max_cell_temp = -1;
+    float prev_inverter_temp = -1;
     Error error = NO_ERROR;
     uint8_t bms_faults = 0;
     int16_t backgroundColor = NORTHWESTERN_PURPLE;
