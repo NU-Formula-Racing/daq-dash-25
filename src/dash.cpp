@@ -249,6 +249,21 @@ void Dash::DrawBar(Adafruit_RA8875 tft, std::string barName, float newValue, int
 
 //COME HERE NEXT TIME TO DRAW THE NUMBER IN THE MIDDLE. ALSO, CHANGE DRAWCHAR FOR OTHER DRAW STATE CIRCLES AND THE MIDDLE RECTANGLE BC FULL WORDS
 
+void Dash::DrawCoolantTemp(Adafruit_RA8875 tft, float coolant_temp, int startX, int startY)
+{
+
+}
+
+void Dash::DrawMaxCellTemp(Adafruit_RA8875 tft, float max_cell_temp, int startX, int startY)
+{
+    
+}
+
+void Dash::DrawInverterTemp(Adafruit_RA8875 tft, float inverter_temp, int startX, int startY)
+{
+    
+}
+
 void Dash::DrawWheelSpeed(Adafruit_RA8875 tft, float wheel_speed, int startX, int startY)
 {
     // Serial.println("Drawing Wheel Speed");
