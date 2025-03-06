@@ -171,4 +171,6 @@ private:
     int CalcBarHeight(float value, float min, float max, int maxHeight);
     int CalcBarWidth(float value, float min, float max, int maxWidth);
     void RecordBMSFaults();
+
+    void HandleError(Adafruit_RA8875 tft, std::string status, int startX, int startY, enum Dash::Error ERROR_TYPE);
 };

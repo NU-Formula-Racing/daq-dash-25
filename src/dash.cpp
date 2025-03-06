@@ -634,7 +634,7 @@ void Dash::DrawIMDStatus(Adafruit_RA8875 tft, int startX, int startY, int imd_st
         return;
     }
     
-    // HandleError(tft, status, startX, startY, IMD_FAULT);
+    HandleError(tft, status, startX, startY, IMD_FAULT);
 }
 
 void Dash::HandleBMSFaults(Adafruit_RA8875 tft, int startX, int startY)
@@ -679,7 +679,7 @@ void Dash::HandleBMSFaults(Adafruit_RA8875 tft, int startX, int startY)
 
     // remove the last comma
     error_message.pop_back();
-    // HandleError(tft, error_message, startX, startY, BMS_FAULT);
+    HandleError(tft, error_message, startX, startY, BMS_FAULT);
 }
 
 
@@ -733,4 +733,9 @@ void Dash::RecordBMSFaults()
 
     std::cout << "BMS Faults: " << std::bitset<8>(faults).to_string() << std::endl;
     bms_faults = faults;
+}
+
+void Dash::HandleError(Adafruit_RA8875 tft, std::string status, int startX, int startY, enum Dash::Error ERROR_TYPE)
+{
+    //
 }
