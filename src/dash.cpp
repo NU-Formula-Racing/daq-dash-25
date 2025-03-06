@@ -641,6 +641,7 @@ void Dash::HandleBMSFaults(Adafruit_RA8875 tft, int startX, int startY)
 {
     if (this->bms_faults == 0)
     {
+        tft.fillRect(SCREEN_WIDTH/2, SCREEN_HEIGHT/4, 300, 110, RA8875_BLACK); //Cover the error message
         return;
     }
 
@@ -737,6 +738,7 @@ void Dash::RecordBMSFaults()
 
 void Dash::HandleError(Adafruit_RA8875 tft, std::string error_message, int startX, int startY, Error type)
 {
-    //
+    tft.fillRect(SCREEN_WIDTH/2, SCREEN_HEIGHT/4, 300, 110, RA8875_RED);
+    DrawString(tft, error_message, SCREEN_WIDTH/2 , SCREEN_HEIGHT/4, 4, RA8875_BLACK, RA8875_RED);
 
 }
