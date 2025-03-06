@@ -735,7 +735,8 @@ void Dash::RecordBMSFaults()
     bms_faults = faults;
 }
 
-void Dash::HandleError(Adafruit_RA8875 tft, std::string status, int startX, int startY, enum Dash::Error ERROR_TYPE)
+void Dash::HandleError(Adafruit_RA8875 tft, std::string error_message, int startX, int startY, Error type)
 {
     //
+
 }

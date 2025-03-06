@@ -84,7 +84,7 @@ public:
     void DrawMaxCellTemp(Adafruit_RA8875 tft, float max_cell_temp, int startX, int startY);
     void DrawInverterTemp(Adafruit_RA8875 tft, float inverter_temp, int startX, int startY);
     void DrawIMDStatus(Adafruit_RA8875 tft, int startX, int startY, int imd_status, int squareSize);
-    // void HandleError(Adafruit_RA8875 tft, std::string error_message, int startX, int startY, Error type);
+    void HandleError(Adafruit_RA8875 tft, std::string error_message, int startX, int startY, Error type);
     void DrawString(Adafruit_RA8875 tft, std::string message, int startX, int startY, int size, int16_t color, int16_t backgroundColor, Direction dir = LEFT_TO_RIGHT);
     void HandleBMSFaults(Adafruit_RA8875 tft, int startX, int startY);
 
@@ -171,6 +171,4 @@ private:
     int CalcBarHeight(float value, float min, float max, int maxHeight);
     int CalcBarWidth(float value, float min, float max, int maxWidth);
     void RecordBMSFaults();
-
-    void HandleError(Adafruit_RA8875 tft, std::string status, int startX, int startY, enum Dash::Error ERROR_TYPE);
 };
