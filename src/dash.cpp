@@ -738,7 +738,7 @@ void Dash::RecordBMSFaults()
 
 void Dash::HandleError(Adafruit_RA8875 tft, std::string error_message, int startX, int startY, Error type)
 {
-    tft.fillRect(SCREEN_WIDTH/2, SCREEN_HEIGHT/4, 300, 110, RA8875_RED);
-    DrawString(tft, error_message, SCREEN_WIDTH/2 , SCREEN_HEIGHT/4, 4, RA8875_BLACK, RA8875_RED);
+    tft.fillRect(SCREEN_WIDTH/4, 0, SCREEN_WIDTH/2, SCREEN_HEIGHT/6, RA8875_RED);
+    DrawString(tft, error_message, SCREEN_WIDTH/4 , 0, 2, RA8875_BLACK, RA8875_RED);
 
 }
