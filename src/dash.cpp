@@ -25,8 +25,8 @@ int drive_state_startX = SCREEN_WIDTH / 2;
 int drive_state_startY = SCREEN_HEIGHT / 2 -160;
 int motor_temp_startX = SCREEN_WIDTH/8;
 int motor_temp_startY = SCREEN_HEIGHT/4;
-int accum_temp_startX = SCREEN_WIDTH/8;
-int accum_temp_startY = SCREEN_HEIGHT* 3/4;
+int inverter_current_drawn_startX = SCREEN_WIDTH/8;
+int inverter_current_drawn_startY = SCREEN_HEIGHT* 3/4;
 int min_volt_startX = SCREEN_WIDTH* 7/8;
 int min_volt_startY = SCREEN_HEIGHT/4;
 int battery_volt_startX = SCREEN_WIDTH* 7/8;
@@ -136,39 +136,40 @@ float Dash::WheelSpeedAvg(float fl_wheel_speed, float fr_wheel_speed)
 void Dash::UpdateDisplay(Adafruit_RA8875 tft)
 {
 #ifndef DEBUG
-    float fl_wheel_speed = static_cast<float>(fl_wheel_speed_signal);
-    float fr_wheel_speed = static_cast<float>(fr_wheel_speed_signal);
-    int curr_drive_state = static_cast<int>(drive_state_signal);
+    float fl_wheel_speed = static_cast<float>(fl_wheel_speed_signal);//
+    float fr_wheel_speed = static_cast<float>(fr_wheel_speed_signal);//
+    int curr_drive_state = static_cast<int>(drive_state_signal);//
     int imd_status = static_cast<int>(imd_status_signal);
-    float coolant_temp = static_cast<float>(coolant_temp_signal);
-    float inverter_temp = static_cast<int>(0); // unknown
-    float motor_temp = static_cast<float>(0); // unknown
-    float battery_voltage = static_cast<float>(bms_battery_voltage_signal);
+    float coolant_temp = static_cast<float>(coolant_temp_signal);//
+    float inverter_temp = static_cast<uint16_t>(inverter_temp_status_igbt_temp); // unknown
+    float motor_temp = static_cast<uint16_t>(inverter_temp_status_motor_temp); // unknown
+    float battery_voltage = static_cast<float>(bms_battery_voltage_signal);//
     float min_voltage = static_cast<float>(bms_min_cell_voltage_signal);
-    float max_cell_temp = static_cast<float>(bms_max_cell_temp_signal);
+    float max_cell_temp = static_cast<float>(bms_max_cell_temp_signal);//
+    float inverter_current_drawn=static_cast<uint32_t>(inverter_current_draw_ah_drawn);
 #else
     // we should change the drive state for testing
     // cycle based on time
-    float fl_wheel_speed = (millis() / 200) % 200;
-    float fr_wheel_speed = (millis() / 200) % 200;
-    int curr_drive_state = (millis() / 1000) % 3;
-    int curr_motor_state = (millis() / 1000) % 3;
-    int curr_accum_state = (millis() / 1000) % 3;
-    int curr_minVolt_state = (millis() / 1000) % 3;
-    int curr_batteryVolt_state = (millis() / 1000) % 3;
-    int imd_status = millis() > 5000 ? -10 : 0;
-    this->bms_faults = millis() > 10000 ? 0b11111111 : 0;
+    float fl_wheel_speed = (millis() / 200) % 200;//
+    float fr_wheel_speed = (millis() / 200) % 200;//
+    int curr_drive_state = (millis() / 1000) % 3;//
+    int imd_status = millis() > 5000 ? -10 : 0; //
+    this->bms_faults = millis() > 10000 ? 0b11111111 : 0; //
 
-    float coolant_temp = (millis() / 100) % 100;
+    float coolant_temp = (millis() / 100) % 100;//
     float inverter_temp = (millis() / 20) % 100;
-    float accum_temp = (millis() / 20) % 100;
+    float inverter_current_drawn = (millis() / 20) % 100;
     float motor_temp = (millis() / 10) % 100;
-    float battery_voltage = (millis() / 100) % 100;
-    float min_voltage = (millis() / 20) % 100;
-    float max_cell_temp = (millis() / 10) % 100;
+    float battery_voltage = (millis() / 100) % 100;//
+    float min_voltage = (millis() / 20) % 100;//
+    float max_cell_temp = (millis() / 10) % 100;//
 
 #endif
     float avg_wheel_speed = fl_wheel_speed + fr_wheel_speed / 2;
+    int curr_motor_state = 
+    int curr_inverter_current_drawn_state = 
+    int curr_minVolt_state = 
+    int curr_batteryVolt_state = 
 
     DrawDriveState(tft, drive_state_startX, drive_state_startY, curr_drive_state, 8);
     if (this->prev_wheel_speed != avg_wheel_speed)
@@ -178,10 +179,10 @@ void Dash::UpdateDisplay(Adafruit_RA8875 tft)
     if (this->prev_motor_temp != motor_temp)
         DrawMotorTemp(tft, motor_temp, motor_temp_startX, motor_temp_startY);
     this->prev_motor_temp = motor_temp;
-     DrawAccumTempState(tft, accum_temp_startX, accum_temp_startY, curr_accum_state, 8);
-    if (this->prev_accum_temp != accum_temp)
-        DrawAccumTemp(tft, accum_temp, accum_temp_startX, accum_temp_startY);
-    this->prev_accum_temp = accum_temp;
+     DrawInvCurState(tft, inverter_current_drawn_startX, inverter_current_drawn_startY, curr_inverter_current_drawn_state, 8);
+    if (this->prev_inverter_current_drawn != inverter_current_drawn)
+        DrawInvCur(tft, inverter_current_drawn, inverter_current_drawn_startX, inverter_current_drawn_startY);
+    this->prev_inverter_current_drawn = inverter_current_drawn;
     DrawMinVoltState(tft, min_volt_startX, min_volt_startY, curr_minVolt_state, 8);
     if (this->prev_min_volt != min_voltage)
         DrawMinVolt(tft, min_voltage, min_volt_startX, min_volt_startY);
@@ -424,15 +425,15 @@ int16_t color;
 }
 
 // Draws accum temp circle
-void Dash::DrawAccumTemp(Adafruit_RA8875 tft, float accum_temp, int startX, int startY)
+void Dash::DrawInvCur(Adafruit_RA8875 tft, float inverter_current_drawn, int startX, int startY)
 {
     // if (curr_drive_state == drive_state)
     // {
     //     return;
     // }
-    int rounded_accum_temp = round(accum_temp);
+    int rounded_inverter_current_drawn = round(inverter_current_drawn);
 
-    Serial.println(rounded_accum_temp);
+    Serial.println(rounded_inverter_current_drawn);
 
     int digit_spacing = -14;
     int char_width = 80;
@@ -440,28 +441,28 @@ void Dash::DrawAccumTemp(Adafruit_RA8875 tft, float accum_temp, int startX, int 
     startX -= char_width / 2;
 
     // Making a naive assumption that 0 <= wheel speed < 100
-    if (accum_temp > 99)
+    if (inverter_current_drawn > 99)
     {
         startX += char_width;
     }
-    else if (accum_temp > 9)
+    else if (inverter_current_drawn > 9)
     {
         // Digits must be off center for double digit numbers
         startX += char_width / 2;
     }
 
     // Draw the digits
-    while (rounded_accum_temp > 0)
+    while (rounded_inverter_current_drawn > 0)
     {
-        int digit = rounded_accum_temp % 10;
+        int digit = rounded_inverter_current_drawn % 10;
         tft.drawChar(startX+4, startY*0.8+SCREEN_WIDTH/16, digit + '0', RA8875_BLACK, RA8875_WHITE, 11);
         startX -= char_width + digit_spacing;
-        rounded_accum_temp /= 10;
+        rounded_inverter_current_drawn /= 10;
     }
 
 }  
 
-void Dash::DrawAccumTempState(Adafruit_RA8875 tft, int startX, int startY, int curr_accum_state, int squareSize)
+void Dash::DrawInvCurState(Adafruit_RA8875 tft, int startX, int startY, int curr_accum_state, int squareSize)
 {
     // if (curr_drive_state == drive_state)
     // {
@@ -483,7 +484,7 @@ void Dash::DrawAccumTempState(Adafruit_RA8875 tft, int startX, int startY, int c
     }
 
     tft.fillCircle(SCREEN_WIDTH/8, SCREEN_HEIGHT * 3/4 , SCREEN_WIDTH/8, color);
-    DrawString(tft, "AT", startX*0.8, startY-SCREEN_WIDTH/9, 5, RA8875_BLACK, color);
+    DrawString(tft, "IC", startX*0.8, startY-SCREEN_WIDTH/9, 5, RA8875_BLACK, color);
     //drive_state = curr_accum_state;
 }
 

@@ -72,12 +72,12 @@ public:
     float WheelSpeedAvg(float fl_wheel_speed, float fr_wheel_speed);
     void DrawWheelSpeed(Adafruit_RA8875 tft, float wheel_speed, int startX, int startY);
     void DrawMotorTemp(Adafruit_RA8875 tft, float motor_temp, int startX, int startY);
-    void DrawAccumTemp(Adafruit_RA8875 tft, float motor_temp, int startX, int startY);
+    void DrawInvCur(Adafruit_RA8875 tft, uint32_t inverter_current_drawn, int startX, int startY);
     void DrawMinVolt(Adafruit_RA8875 tft, float motor_temp, int startX, int startY);
     void DrawBatteryVolt(Adafruit_RA8875 tft, float motor_temp, int startX, int startY);
     void DrawDriveState(Adafruit_RA8875 tft, int startX, int startY, int curr_drive_state, int squareSize);
     void DrawMotorState(Adafruit_RA8875 tft, int startX, int startY, int curr_motor_state, int squareSize);
-    void DrawAccumTempState(Adafruit_RA8875 tft, int startX, int startY, int curr_accum_state, int squareSize);
+    void DrawInvCurState(Adafruit_RA8875 tft, int startX, int startY, int curr_accum_state, int squareSize);
     void DrawMinVoltState(Adafruit_RA8875 tft, int startX, int startY, int curr_minVolt_state, int squareSize);
     void DrawBatteryVoltState(Adafruit_RA8875 tft, int startX, int startY, int curr_batteryVolt_state, int squareSize);
     void DrawCoolantTemp(Adafruit_RA8875 tft, float coolant_temp, int startX, int startY);
@@ -98,9 +98,19 @@ private:
     CANRXMessage<2> rx_coolant_state{g_can_bus, 0x420, coolant_temp_signal, coolant_flow_signal};
 
     // Wheel Speed Signals
-    CANSignal<float, 16, 16, CANTemplateConvertFloat(0.01), CANTemplateConvertFloat(0), false> fl_wheel_speed_signal;
-    CANSignal<float, 0, 16, CANTemplateConvertFloat(0.01), CANTemplateConvertFloat(0), false> fr_wheel_speed_signal;
+    CANSignal<float, 16, 16, CANTemplateConvertFloat(0.01), CANTemplateConvertFloat(0), true> fl_wheel_speed_signal;
+    CANSignal<float, 0, 16, CANTemplateConvertFloat(0.01), CANTemplateConvertFloat(0), true> fr_wheel_speed_signal;
     CANRXMessage<2> rx_wheel_speeds{g_can_bus, 0x411, fl_wheel_speed_signal, fr_wheel_speed_signal};
+
+    //Inverter Temp Signals
+    CANSignal<uint16_t, 0, 16, CANTemplateConvertFloat(0.1), CANTemplateConvertFloat(0.0),false> inverter_temp_status_igbt_temp{};
+    CANSignal<uint16_t, 16, 16, CANTemplateConvertFloat(0.1), CANTemplateConvertFloat(0.0),false> inverter_temp_status_motor_temp{};
+    CANRXMessage<2> rx_inverter_temp_status{g_can_bus, 0x282, inverter_temp_status_igbt_temp, inverter_temp_status_motor_temp};
+
+    //Inverter Current Signals
+    CANSignal<uint32_t, 0, 32, CANTemplateConvertFloat(0.0001), CANTemplateConvertFloat(0.0),false> inverter_current_draw_ah_drawn{};
+    CANSignal<uint32_t, 32, 32, CANTemplateConvertFloat(0.0001), CANTemplateConvertFloat(0.0),false> inverter_current_draw_ah_charged{};
+    CANTXMessage<2> rx_inverter_current_draw{g_can_bus, 0x283, 8, 100, inverter_current_draw_ah_drawn, inverter_current_draw_ah_charged};
 
     // VCU Signals
     CANSignal<int, 0, 8, CANTemplateConvertFloat(1), CANTemplateConvertFloat(0), false> drive_state_signal;
@@ -156,7 +166,7 @@ private:
 
     float prev_wheel_speed = -1;
     float prev_motor_temp = -1;
-    float prev_accum_temp = -1;
+    float prev_inverter_current_drawn = -1;
     float prev_min_volt = -1;
     float prev_bat_volt = -1;
     float prev_fr_wheel_speed = -1;
