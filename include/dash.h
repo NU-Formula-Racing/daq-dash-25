@@ -1,18 +1,19 @@
+#include <CAN.h>
+
 #include <map>
 #include <string>
-#include "virtualTimer.h"
-#include <CAN.h>
+
 #include "Adafruit_GFX.h"
 #include "Adafruit_RA8875.h"
+#include "command_buffer.h"
 #include "define.h"
+#include "virtualTimer.h"
 
 // VirtualTimerGroup read_timer;
 
-class Dash
-{
-public:
-    struct BarData
-    {
+class Dash {
+   public:
+    struct BarData {
         std::string displayName;
         float min;
         float max;
@@ -42,15 +43,13 @@ public:
     //         : displayName(displayName), value(value), x(startX), y(startY), diameter(diameter) {}
     // };
 
-    enum Error
-    {
+    enum Error {
         NO_ERROR,
         BMS_FAULT,
         IMD_FAULT
     };
 
-    enum Direction
-    {
+    enum Direction {
         LEFT_TO_RIGHT,
         UP_TO_DOWN
     };
@@ -88,7 +87,7 @@ public:
     void DrawString(Adafruit_RA8875 tft, std::string message, int startX, int startY, int size, int16_t color, int16_t backgroundColor, Direction dir = LEFT_TO_RIGHT);
     void HandleBMSFaults(Adafruit_RA8875 tft, int startX, int startY);
 
-private:
+   private:
     CAN g_can_bus{};
     VirtualTimerGroup timer_group{};
 
@@ -123,16 +122,9 @@ private:
     CANSignal<bool, 7, 1, CANTemplateConvertFloat(1), CANTemplateConvertFloat(0), false> bms_fault_open_wire_signal;
     CANRXMessage<8> rx_bms_faults{
         g_can_bus, 0x250, [this]() {
-                                    RecordBMSFaults();
-                                  },
-                                  bms_fault_summary_signal, 
-                                  bms_fault_under_voltage_signal, 
-                                  bms_fault_over_voltage_signal, 
-                                  bms_fault_under_temperature_signal, 
-                                  bms_fault_over_temperature_signal, 
-                                  bms_fault_over_current_signal, 
-                                  bms_fault_external_kill_signal, 
-                                  bms_fault_open_wire_signal};
+            RecordBMSFaults();
+        },
+        bms_fault_summary_signal, bms_fault_under_voltage_signal, bms_fault_over_voltage_signal, bms_fault_under_temperature_signal, bms_fault_over_temperature_signal, bms_fault_over_current_signal, bms_fault_external_kill_signal, bms_fault_open_wire_signal};
 
     // BMS Status Signals
     CANSignal<uint8_t, 0, 8, CANTemplateConvertFloat(1), CANTemplateConvertFloat(0), false> bms_state_signal;
@@ -142,7 +134,7 @@ private:
     CANSignal<float, 32, 8, CANTemplateConvertFloat(0.012), CANTemplateConvertFloat(2), false> bms_min_cell_voltage_signal;
     CANSignal<float, 40, 8, CANTemplateConvertFloat(0.5), CANTemplateConvertFloat(0), false> bms_soc_signal;
     CANRXMessage<6> rx_bms_status{
-        g_can_bus, 0x241, bms_state_signal, bms_max_cell_temp_signal, bms_min_cell_temp_signal, bms_max_cell_voltage_signal, bms_min_cell_voltage_signal, bms_soc_signal};   
+        g_can_bus, 0x241, bms_state_signal, bms_max_cell_temp_signal, bms_min_cell_temp_signal, bms_max_cell_voltage_signal, bms_min_cell_voltage_signal, bms_soc_signal};
 
     // BMS SOE Signals
     CANSignal<float, 0, 12, CANTemplateConvertFloat(0.1), CANTemplateConvertFloat(0), false> bms_max_discharge_signal;
@@ -152,7 +144,6 @@ private:
     CANSignal<float, 48, 16, CANTemplateConvertFloat(0.01), CANTemplateConvertFloat(0), false> bms_battery_current_signal;
     CANRXMessage<5> rx_bms_soe{
         g_can_bus, 0x240, bms_max_discharge_signal, bms_max_regen_current_signal, bms_battery_voltage_signal, bms_battery_temperature_signal, bms_battery_current_signal};
-
 
     float prev_wheel_speed = -1;
     float prev_motor_temp = -1;
@@ -167,6 +158,8 @@ private:
     uint8_t bms_faults = 0;
     int16_t backgroundColor = NORTHWESTERN_PURPLE;
     std::map<std::string, BarData> bars;
+
+    CommandBuffer command_buffer;
 
     int CalcBarHeight(float value, float min, float max, int maxHeight);
     int CalcBarWidth(float value, float min, float max, int maxWidth);

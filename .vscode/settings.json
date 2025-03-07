@@ -1,5 +1,8 @@
 {
     "files.associations": {
+        "*.sqlbook": "sql",
+        "*.ndjson": "jsonl",
+        "*.dbclient-js": "javascript",
         "*.compute": "hlsl",
         "string_view": "cpp",
         "bitset": "cpp",
@@ -52,6 +55,9 @@
         "stdexcept": "cpp",
         "streambuf": "cpp",
         "cinttypes": "cpp",
-        "typeinfo": "cpp"
+        "typeinfo": "cpp",
+        "command_buffer.h": "c",
+        "command_buffer.hpp": "c",
+        "adafruit_ra8875.h": "c"
     }
 }

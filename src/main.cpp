@@ -89,7 +89,6 @@ void setup()
 
   // With hardware accelleration this is instant
   dashboard.DrawBackground(tft);
-
 }
 
 
