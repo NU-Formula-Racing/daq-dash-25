@@ -141,8 +141,8 @@ void Dash::UpdateDisplay(Adafruit_RA8875 tft)
     int curr_drive_state = static_cast<int>(drive_state_signal);//
     int imd_status = static_cast<int>(imd_status_signal);
     float coolant_temp = static_cast<float>(coolant_temp_signal);//
-    float inverter_temp = static_cast<uint16_t>(inverter_temp_status_igbt_temp); // unknown
-    float motor_temp = static_cast<uint16_t>(inverter_temp_status_motor_temp); // unknown
+    int inverter_temp = static_cast<int>(inverter_temp_status_igbt_temp); // unknown
+    int motor_temp = static_cast<int>(inverter_temp_status_motor_temp); // unknown
     float battery_voltage = static_cast<float>(bms_battery_voltage_signal);//
     float min_voltage = static_cast<float>(bms_min_cell_voltage_signal);
     float max_cell_temp = static_cast<float>(bms_max_cell_temp_signal);//
@@ -157,8 +157,8 @@ void Dash::UpdateDisplay(Adafruit_RA8875 tft)
     this->bms_faults = millis() > 10000 ? 0b11111111 : 0; //
 
     float coolant_temp = (millis() / 100) % 100;//
-    float inverter_temp = (millis() / 20) % 100;
-    float inverter_current_drawn = (millis() / 20) % 100;
+    int inverter_temp = (millis() / 20) % 100;
+    int inverter_current_drawn = (millis() / 20) % 100;
     float motor_temp = (millis() / 10) % 100;
     float battery_voltage = (millis() / 100) % 100;//
     float min_voltage = (millis() / 20) % 100;//
@@ -166,27 +166,23 @@ void Dash::UpdateDisplay(Adafruit_RA8875 tft)
 
 #endif
     float avg_wheel_speed = fl_wheel_speed + fr_wheel_speed / 2;
-    int curr_motor_state = 
-    int curr_inverter_current_drawn_state = 
-    int curr_minVolt_state = 
-    int curr_batteryVolt_state = 
 
     DrawDriveState(tft, drive_state_startX, drive_state_startY, curr_drive_state, 8);
     if (this->prev_wheel_speed != avg_wheel_speed)
         DrawWheelSpeed(tft, avg_wheel_speed, wheel_speed_startX, wheel_speed_startY);
     this->prev_wheel_speed = avg_wheel_speed;
-    DrawMotorState(tft, motor_temp_startX, motor_temp_startY, curr_motor_state, 8);
+    DrawMotorState(tft, motor_temp_startX, motor_temp_startY, motor_temp, 8);
     if (this->prev_motor_temp != motor_temp)
         DrawMotorTemp(tft, motor_temp, motor_temp_startX, motor_temp_startY);
     this->prev_motor_temp = motor_temp;
-     DrawInvCurState(tft, inverter_current_drawn_startX, inverter_current_drawn_startY, curr_inverter_current_drawn_state, 8);
+     DrawInvCurState(tft, inverter_current_drawn_startX, inverter_current_drawn_startY, inverter_current_drawn, 8);
     if (this->prev_inverter_current_drawn != inverter_current_drawn)
         DrawInvCur(tft, inverter_current_drawn, inverter_current_drawn_startX, inverter_current_drawn_startY);
     this->prev_inverter_current_drawn = inverter_current_drawn;
-    DrawMinVoltState(tft, min_volt_startX, min_volt_startY, curr_minVolt_state, 8);
+    DrawMinVoltState(tft, min_volt_startX, min_volt_startY, min_voltage, 8);
     if (this->prev_min_volt != min_voltage)
         DrawMinVolt(tft, min_voltage, min_volt_startX, min_volt_startY);
-    DrawBatteryVoltState(tft, battery_volt_startX, battery_volt_startY, curr_batteryVolt_state, 8);
+    DrawBatteryVoltState(tft, battery_volt_startX, battery_volt_startY, battery_voltage, 8);
     if (this->prev_bat_volt != battery_voltage)
         DrawBatteryVolt(tft, battery_voltage, battery_volt_startX, battery_volt_startY);
     this->prev_bat_volt = battery_voltage;
@@ -278,7 +274,7 @@ void Dash::DrawMaxCellTemp(Adafruit_RA8875 tft, float max_cell_temp, int startX,
 
 }
 
-void Dash::DrawInverterTemp(Adafruit_RA8875 tft, float inverter_temp, int startX, int startY)
+void Dash::DrawInverterTemp(Adafruit_RA8875 tft, int inverter_temp, int startX, int startY)
 {
     DrawString(tft, "IT", startX+2, startY, 5, RA8875_WHITE, RA8875_BLACK);
 
@@ -403,9 +399,20 @@ void Dash::DrawMotorTemp(Adafruit_RA8875 tft, float motor_temp, int startX, int 
 
 }   
 
-void Dash::DrawMotorState(Adafruit_RA8875 tft, int startX, int startY, int curr_motor_state, int squareSize)
+void Dash::DrawMotorState(Adafruit_RA8875 tft, int startX, int startY, int motor_temp, int squareSize)
 {
 int16_t color;
+int curr_motor_state = 0;
+if(motor_temp>70){
+    curr_motor_state = 2;
+}
+else if(motor_temp>30){
+    curr_motor_state = 1;
+}
+else {
+    curr_motor_state = 0;
+}
+
     switch (curr_motor_state)
     {
     case 0:
@@ -425,7 +432,7 @@ int16_t color;
 }
 
 // Draws accum temp circle
-void Dash::DrawInvCur(Adafruit_RA8875 tft, float inverter_current_drawn, int startX, int startY)
+void Dash::DrawInvCur(Adafruit_RA8875 tft, int inverter_current_drawn, int startX, int startY)
 {
     // if (curr_drive_state == drive_state)
     // {
@@ -462,15 +469,20 @@ void Dash::DrawInvCur(Adafruit_RA8875 tft, float inverter_current_drawn, int sta
 
 }  
 
-void Dash::DrawInvCurState(Adafruit_RA8875 tft, int startX, int startY, int curr_accum_state, int squareSize)
+void Dash::DrawInvCurState(Adafruit_RA8875 tft, int startX, int startY, int inverter_current_drawn, int squareSize)
 {
-    // if (curr_drive_state == drive_state)
-    // {
-    //     return;
-    // }
-
+int curr_inverter_current_drawn_state = 0;
+if(inverter_current_drawn>100){
+    curr_inverter_current_drawn_state = 2;
+}
+else if(inverter_current_drawn>50){
+    curr_inverter_current_drawn_state = 1;
+}
+else {
+    curr_inverter_current_drawn_state = 0;
+}
     int16_t color;
-    switch (curr_accum_state)
+    switch (curr_inverter_current_drawn_state)
     {
     case 0:
         color = RA8875_GREEN;
@@ -490,10 +502,7 @@ void Dash::DrawInvCurState(Adafruit_RA8875 tft, int startX, int startY, int curr
 
 void Dash::DrawMinVolt(Adafruit_RA8875 tft, float min_voltage, int startX, int startY)
 {
-    // if (curr_drive_state == drive_state)
-    // {
-    //     return;
-    // }
+
     int rounded_min_voltage = round(min_voltage);
 
     Serial.println(rounded_min_voltage);
@@ -526,12 +535,18 @@ void Dash::DrawMinVolt(Adafruit_RA8875 tft, float min_voltage, int startX, int s
 } 
 
 // Draws min voltage circle
-void Dash::DrawMinVoltState(Adafruit_RA8875 tft, int startX, int startY, int curr_minVolt_state, int squareSize)
+void Dash::DrawMinVoltState(Adafruit_RA8875 tft, int startX, int startY, int min_voltage, int squareSize)
 {
-    // if (curr_drive_state == drive_state)
-    // {
-    //     return;
-    // }
+int curr_minVolt_state = 0;
+if(min_voltage<2.7){
+    curr_minVolt_state = 2;
+}
+else if(min_voltage<3.2){
+    curr_minVolt_state = 1;
+}
+else {
+    curr_minVolt_state = 0;
+}
 
     int16_t color;
     switch (curr_minVolt_state)
@@ -589,14 +604,20 @@ void Dash::DrawBatteryVolt(Adafruit_RA8875 tft, float battery_voltage, int start
 } 
 
 // Draws battery voltage circle
-void Dash::DrawBatteryVoltState(Adafruit_RA8875 tft, int startX, int startY, int curr_batteryVolt_state, int squareSize)
+void Dash::DrawBatteryVoltState(Adafruit_RA8875 tft, int startX, int startY, int battery_voltage, int squareSize)
 {
-    // if (curr_drive_state == drive_state)
-    // {
-    //     return;
-    // }
+int curr_batteryVolt_state = 0;
+if(battery_voltage>3.4){
+    curr_batteryVolt_state = 2;
+}
+else if(battery_voltage>3.2){
+    curr_batteryVolt_state = 1;
+}
+else {
+    curr_batteryVolt_state = 0;
+}
 
-    int16_t color;
+    int16_t color = RA8875_RED;
     switch (curr_batteryVolt_state)
     {
     case 0:
