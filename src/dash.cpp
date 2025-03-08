@@ -215,9 +215,9 @@ void Dash::UpdateDisplay(Adafruit_RA8875 tft)
     this->DrawBar(tft, "inverter_temp", inverter_temp, RA8875_YELLOW, this->backgroundColor);
     this->DrawBar(tft, "motor_temp", max_cell_temp, RA8875_BLUE, this->backgroundColor);
 
-    this->DrawBar(tft, "battery_voltage", battery_voltage, RA8875_GREEN, this->backgroundColor);
-    this->DrawBar(tft, "min_voltage", min_voltage, RA8875_YELLOW, this->backgroundColor);
-    this->DrawBar(tft, "max_cell_temp", max_cell_temp, RA8875_BLUE, this->backgroundColor);
+    //this->DrawBar(tft, "battery_voltage", battery_voltage, RA8875_GREEN, this->backgroundColor);
+    //this->DrawBar(tft, "min_voltage", min_voltage, RA8875_YELLOW, this->backgroundColor);
+    //this->DrawBar(tft, "max_cell_temp", max_cell_temp, RA8875_BLUE, this->backgroundColor);
 
     timer_group.Tick(millis());
 }
