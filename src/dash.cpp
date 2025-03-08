@@ -80,9 +80,10 @@ void Dash::Initialize()
     //this->circles["motor_temp"] = CircleData("Motor Temp", 20, 70, 0, SCREEN_HEIGHT - BAND_HEIGHT, CIRCLE_DIAMETER);
     //this->circles["motor_temp"] = CircleData("Motor Temp", 20, 70, 0, SCREEN_HEIGHT - BAND_HEIGHT, BAR_WIDTH, BAR_HEIGHT);
 
-    this->bars["coolant_temp"] = BarData("", 0, 100, SCREEN_WIDTH/4 +2, SCREEN_HEIGHT*0.725, 15,SCREEN_WIDTH/2);
-    this->bars["inverter_temp"] = BarData("", 0, 100, SCREEN_WIDTH/4 +2, SCREEN_HEIGHT*0.825, 15, SCREEN_WIDTH/2);
-    this->bars["motor_temp"] = BarData("", 0, 100, SCREEN_WIDTH/4 +2, SCREEN_HEIGHT*0.925, 15,SCREEN_WIDTH/2);  
+    // this->bars["coolant_temp"] = BarData("", 0, 100, SCREEN_WIDTH/4 +20, SCREEN_HEIGHT*0.725, 15,SCREEN_WIDTH/2);
+    this->bars["coolant_temp"] = BarData("", 0, 100, SCREEN_WIDTH/4 + 50, SCREEN_HEIGHT*0.725, 15, SCREEN_WIDTH/4 - 50);
+    this->bars["inverter_temp"] = BarData("", 0, 100, SCREEN_WIDTH/4 + 75, SCREEN_HEIGHT*0.825, 15, SCREEN_WIDTH/4 - 50);
+    this->bars["motor_temp"] = BarData("", 0, 100, SCREEN_WIDTH/4 + 50, SCREEN_HEIGHT*0.925, 15, SCREEN_WIDTH/4 - 50);  
 
     //this->bars["battery_voltage"] = BarData("bv", 0, 600, SCREEN_WIDTH - BAR_WIDTH, SCREEN_HEIGHT - BAND_HEIGHT, BAR_WIDTH, BAR_HEIGHT);
     //this->bars["min_voltage"] = BarData("nv", 0, 5, SCREEN_WIDTH - 2 * BAR_WIDTH - BAR_SPACING, SCREEN_HEIGHT - BAND_HEIGHT, BAR_WIDTH, BAR_HEIGHT);
@@ -259,13 +260,14 @@ void Dash::DrawBar(Adafruit_RA8875 tft, std::string barName, float newValue, int
         // if the new height is greater than the old height, we need to fill in the difference
         // we will draw the bar to go upwards
         // the top left of the screen is 0,0
-        tft.fillRect(bar.x-newWidth, bar.y, diff, bar.height, barColor);
+        // tft.fillRect(bar.x + newWidth, bar.y, diff, bar.height, barColor);
+        tft.fillRect(bar.x + newWidth, bar.y, diff, bar.height, barColor);
     }
     else
     {
         // if the new height is less than the old height, we need to clear the difference
         // we will draw the bar to go downwards
-        tft.fillRect(bar.x- oldWidth, bar.y, diff, bar.height, backgroundColor);
+        tft.fillRect(bar.x + oldWidth, bar.y, -diff, bar.height, NORTHWESTERN_PURPLE);
     }
 
     // write the value at the bottom of the
