@@ -40,6 +40,17 @@ int coolant_temp_startY = SCREEN_HEIGHT*0.7;
 int max_cell_temp_startY = SCREEN_HEIGHT*0.8;
 int inverter_temp_startY = SCREEN_HEIGHT*0.9;
 
+//for states, after mid state, goes to last state
+int motor_temp_last_state=70;
+int motor_temp_mid_state=30;
+int inverter_current_last_state=100;
+int inverter_current_mid_state=50;
+int min_voltage_last_state=2.7;
+int min_voltage_mid_state=3.2;
+int battery_voltage_last_state=3.4;
+int battery_voltage_mid_state=3.2;
+
+
 int bar_max_size = 480;
 
 #define DEBUG
@@ -403,10 +414,10 @@ void Dash::DrawMotorState(Adafruit_RA8875 tft, int startX, int startY, int motor
 {
 int16_t color;
 int curr_motor_state = 0;
-if(motor_temp>70){
+if(motor_temp>motor_temp_last_state){
     curr_motor_state = 2;
 }
-else if(motor_temp>30){
+else if(motor_temp>motor_temp_mid_state){
     curr_motor_state = 1;
 }
 else {
@@ -472,10 +483,11 @@ void Dash::DrawInvCur(Adafruit_RA8875 tft, int inverter_current_drawn, int start
 void Dash::DrawInvCurState(Adafruit_RA8875 tft, int startX, int startY, int inverter_current_drawn, int squareSize)
 {
 int curr_inverter_current_drawn_state = 0;
-if(inverter_current_drawn>100){
+
+if(inverter_current_drawn>inverter_current_last_state){
     curr_inverter_current_drawn_state = 2;
 }
-else if(inverter_current_drawn>50){
+else if(inverter_current_drawn>inverter_current_mid_state){
     curr_inverter_current_drawn_state = 1;
 }
 else {
@@ -538,10 +550,11 @@ void Dash::DrawMinVolt(Adafruit_RA8875 tft, float min_voltage, int startX, int s
 void Dash::DrawMinVoltState(Adafruit_RA8875 tft, int startX, int startY, int min_voltage, int squareSize)
 {
 int curr_minVolt_state = 0;
-if(min_voltage<2.7){
+
+if(min_voltage<min_voltage_last_state){
     curr_minVolt_state = 2;
 }
-else if(min_voltage<3.2){
+else if(min_voltage<min_voltage_mid_state){
     curr_minVolt_state = 1;
 }
 else {
@@ -607,10 +620,11 @@ void Dash::DrawBatteryVolt(Adafruit_RA8875 tft, float battery_voltage, int start
 void Dash::DrawBatteryVoltState(Adafruit_RA8875 tft, int startX, int startY, int battery_voltage, int squareSize)
 {
 int curr_batteryVolt_state = 0;
-if(battery_voltage>3.4){
+
+if(battery_voltage>battery_voltage_last_state){
     curr_batteryVolt_state = 2;
 }
-else if(battery_voltage>3.2){
+else if(battery_voltage>battery_voltage_mid_state){
     curr_batteryVolt_state = 1;
 }
 else {
