@@ -20,7 +20,7 @@ void DrawCommand::draw(Adafruit_RA8875 &screen) {
             screen.textMode();
             screen.textSetCursor(this->options.options.x, this->options.options.y);
             screen.textEnlarge(this->options.options.size);
-            screen.textColor(this->options.options.color, RA8875_BLACK);
+            screen.textColor(this->options.options.color, this->options.options.bg);
             screen.textWrite(this->options.options.text);
             break;
         case FILL_SCREEN:

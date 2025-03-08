@@ -392,7 +392,7 @@ void Dash::DrawMotorState(Adafruit_RA8875 tft, int startX, int startY, int curr_
     // tft.fillCircle(SCREEN_WIDTH / 8, SCREEN_HEIGHT / 4, SCREEN_WIDTH / 8, color);
     this->command_buffer.addCommand(DrawCommand::fillCircle(SCREEN_WIDTH / 8, SCREEN_HEIGHT / 4, SCREEN_WIDTH / 8, color));
     // DrawString(tft, "MT", startX * 0.8, startY - SCREEN_WIDTH / 9, 5, RA8875_BLACK, color);
-    this->command_buffer.addCommand(DrawCommand::drawText(startX * 0.8, startY - SCREEN_WIDTH / 9, 5, RA8875_BLACK, "MT", 5));
+    this->command_buffer.addCommand(DrawCommand::drawText(startX * 0.8, startY - SCREEN_WIDTH / 9, 5, RA8875_BLACK,RA8875_WHITE, "MT", static_cast<TextDirection>(Dash::Direction::LEFT_TO_RIGHT)));
     // drive_state = curr_motor_state;
 }
 
@@ -533,7 +533,10 @@ void Dash::DrawBatteryVolt(Adafruit_RA8875 tft, float battery_voltage, int start
     // Draw the digits
     while (rounded_battery_voltage > 0) {
         int digit = rounded_battery_voltage % 10;
-        tft.drawChar(startX + 4, startY * 0.8 + SCREEN_WIDTH / 16, digit + '0', RA8875_BLACK, RA8875_WHITE, 11);
+        char digit_char = '0' + digit;
+        char digit_str[2]={digit_char,'\0'};
+        this->command_buffer.addCommand(DrawCommand::drawText(startX + 4, startY * 0.8 + SCREEN_WIDTH / 16, 11, RA8875_WHITE,RA8875_RED, digit_str, static_cast<TextDirection>(Dash::Direction::LEFT_TO_RIGHT)));
+        //tft.drawChar(startX + 4, startY * 0.8 + SCREEN_WIDTH / 16, digit + '0', RA8875_BLACK, RA8875_WHITE, 11);
         startX -= char_width + digit_spacing;
         rounded_battery_voltage /= 10;
     }
@@ -561,7 +564,7 @@ void Dash::DrawBatteryVoltState(Adafruit_RA8875 tft, int startX, int startY, int
 
     this->command_buffer.addCommand(DrawCommand::fillCircle(SCREEN_WIDTH * 7 / 8, SCREEN_HEIGHT * 3 / 4, SCREEN_WIDTH / 8, color));
     // tft.fillCircle(SCREEN_WIDTH * 7 / 8, SCREEN_HEIGHT * 3 / 4, SCREEN_WIDTH / 8, color);
-    this->command_buffer.addCommand(DrawCommand::drawText(startX - 20, startY - SCREEN_WIDTH / 9, 5, RA8875_BLACK, "BV", 5));
+    this->command_buffer.addCommand(DrawCommand::drawText(startX - 20, startY - SCREEN_WIDTH / 9, 5, RA8875_BLACK,RA8875_WHITE, "BV", static_cast<TextDirection>(Dash::Direction::LEFT_TO_RIGHT)));
     // DrawString(tft, "BV", startX - 20, startY - SCREEN_WIDTH / 9, 5, RA8875_BLACK, color);
     // drive_state = curr_batteryVolt_state;
 }
@@ -626,6 +629,9 @@ void Dash::HandleBMSFaults(Adafruit_RA8875 tft, int startX, int startY) {
 
 void Dash::DrawString(Adafruit_RA8875 tft, std::string message, int startX, int startY, int size, int16_t color, int16_t backgroundColor, Direction dir) {
     std::cout << "don't use this" << std::endl;
+    //use this->command_buffer.drawText() instead
+
+
     // for (int i = 0; i < message.length(); i++) {
     //     switch (dir) {
     //         case LEFT_TO_RIGHT:
@@ -672,5 +678,5 @@ void Dash::RecordBMSFaults() {
 
 void Dash::HandleError(Adafruit_RA8875 tft, std::string error_message, int startX, int startY, Error type) {
     this->command_buffer.addCommand(DrawCommand::fillRect(SCREEN_WIDTH / 4, 0, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 6, RA8875_RED));
-    this->command_buffer.addCommand(DrawCommand::drawText(SCREEN_WIDTH / 4, 0, 2, RA8875_BLACK, error_message.c_str(), 2));
+    this->command_buffer.addCommand(DrawCommand::drawText(SCREEN_WIDTH / 4, 0, 2, RA8875_BLACK,RA8875_WHITE, error_message.c_str(), static_cast<TextDirection>(Dash::Direction::LEFT_TO_RIGHT)));
 }

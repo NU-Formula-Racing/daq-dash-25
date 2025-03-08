@@ -42,6 +42,7 @@ struct TextOptions {
     int y;
     int size;
     uint16_t color;
+    uint16_t bg;
     char *text;
     TextDirection direction;
 };
@@ -103,13 +104,14 @@ class DrawCommand {
         return command;
     }
 
-    static DrawCommand drawText(int x, int y, int size, uint16_t color, char *text, TextDirection direction) {
+    static DrawCommand drawText(int x, int y, int size, uint16_t color, uint16_t backcolor, char *text, TextDirection direction) {
         DrawCommand command;
         command.type = TEXT;
         command.options.options.x = x;
         command.options.options.y = y;
         command.options.options.size = size;
         command.options.options.color = color;
+        command.options.options.bg= backcolor;
         command.options.options.text = text;
         command.options.options.direction = direction;
         return command;
