@@ -243,12 +243,12 @@ void Dash::DrawBar(Adafruit_RA8875 tft, std::string barName, float newValue, int
         // if the new height is greater than the old height, we need to fill in the difference
         // we will draw the bar to go upwards
         // the top left of the screen is 0,0
-        this->command_buffer.addCommand(DrawCommand::fillRect(bar.x - newWidth, bar.y, diff, bar.height, barColor));
+        this->command_buffer.addCommand(DrawCommand::fillRect(bar.x + oldWidth, bar.y, diff, bar.height, barColor));
         // tft.fillRect(bar.x - newWidth, bar.y, diff, bar.height, barColor);
     } else {
         // if the new height is less than the old height, we need to clear the difference
         // we will draw the bar to go downwards
-        this->command_buffer.addCommand(DrawCommand::fillRect(bar.x - oldWidth, bar.y, diff, bar.height, backgroundColor));
+        this->command_buffer.addCommand(DrawCommand::fillRect(bar.x + newWidth, bar.y, -diff, bar.height, backgroundColor));
         // tft.fillRect(bar.x - oldWidth, bar.y, diff, bar.height, backgroundColor);
     }
 

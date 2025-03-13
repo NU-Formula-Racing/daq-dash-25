@@ -59,5 +59,6 @@
         "command_buffer.h": "c",
         "command_buffer.hpp": "c",
         "adafruit_ra8875.h": "c"
-    }
+    },
+    "C_Cpp.errorSquiggles": "disabled"
 }
