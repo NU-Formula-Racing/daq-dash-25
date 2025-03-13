@@ -558,7 +558,7 @@ void Dash::DrawBatteryVolt(Adafruit_RA8875 tft, float battery_voltage, int start
         int digit = rounded_battery_voltage % 10;
         char digit_char = '0' + digit;
         char digit_str[2]={digit_char,'\0'};
-        this->command_buffer.addCommand(DrawCommand::drawText(startX + 4, startY * 0.8 + SCREEN_WIDTH / 16, 11, RA8875_BLACK, color, digit_str, static_cast<TextDirection>(Dash::Direction::LEFT_TO_RIGHT)));
+        this->command_buffer.addCommand(DrawCommand::drawText(startX + 4, startY * 0.8 + SCREEN_WIDTH / 16, 11, RA8875_BLACK, RA8875_WHITE, digit_str, static_cast<TextDirection>(Dash::Direction::LEFT_TO_RIGHT)));
         //tft.drawChar(startX + 4, startY * 0.8 + SCREEN_WIDTH / 16, digit + '0', RA8875_BLACK, RA8875_WHITE, 11);
         startX -= char_width + digit_spacing;
         rounded_battery_voltage /= 10;
