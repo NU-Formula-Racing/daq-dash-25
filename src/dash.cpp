@@ -328,15 +328,15 @@ void Dash::DrawDriveState(Adafruit_RA8875 tft, int startX, int startY, int curr_
     switch (curr_drive_state) {
         case 0:
 
-            DrawString(tft, "DRIVE", SCREEN_WIDTH * 0.4, SCREEN_HEIGHT * 0.58, 5, RA8875_WHITE, color);
+            this->command_buffer.addCommand(DrawCommand::drawText(tft, "DRIVE", SCREEN_WIDTH * 0.4, SCREEN_HEIGHT * 0.58, 5, RA8875_WHITE, color));
             break;
         case 1:
 
-            DrawString(tft, "ON", SCREEN_WIDTH * 0.47, SCREEN_HEIGHT * 0.58, 5, RA8875_BLACK, color);
+            this->command_buffer.addCommand(DrawCommand::DrawString(tft, "ON", SCREEN_WIDTH * 0.47, SCREEN_HEIGHT * 0.58, 5, RA8875_BLACK, color));
             break;
         case 2:
 
-            DrawString(tft, "OFF", SCREEN_WIDTH * 0.45, SCREEN_HEIGHT * 0.58, 5, RA8875_WHITE, color);
+            this->command_buffer.addCommand(DrawCommand::DrawString(tft, "OFF", SCREEN_WIDTH * 0.45, SCREEN_HEIGHT * 0.58, 5, RA8875_WHITE, color));
             break;
     }
 
