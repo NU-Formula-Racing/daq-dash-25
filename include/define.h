@@ -8,7 +8,8 @@
 #define GOLD rawRGB24toRGB565(177, 149, 61)
 #define ROSE rawRGB24toRGB565(129, 83, 85)
 #define GREEN rawRGB24toRGB565(100, 120, 84)
-
+#define FERN_GREEN rawRGB24toRGB565(70, 109, 38)
+#define INDIAN_RED rawRGB24toRGB565(207, 109, 114)
 
 #include "pin.h"
 

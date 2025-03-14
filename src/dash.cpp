@@ -208,11 +208,11 @@ void Dash::UpdateDisplay(Adafruit_RA8875 tft)
     HandleBMSFaults(tft, 8, 2);
 
     // draw the test bar
-    this->DrawBar(tft, "coolant_temp", coolant_temp, GREEN, this->backgroundColor);
+    this->DrawBar(tft, "coolant_temp", coolant_temp, FERN_GREEN, this->backgroundColor);
     this->DrawBar(tft, "inverter_temp", inverter_temp, GOLD, this->backgroundColor);
     this->DrawBar(tft, "motor_temp", max_cell_temp, RA8875_BLUE, this->backgroundColor);
 
-    //this->DrawBar(tft, "battery_voltage", battery_voltage, GREEN, this->backgroundColor);
+    //this->DrawBar(tft, "battery_voltage", battery_voltage, FERN_GREEN, this->backgroundColor);
     //this->DrawBar(tft, "min_voltage", min_voltage, GOLD, this->backgroundColor);
     //this->DrawBar(tft, "max_cell_temp", max_cell_temp, RA8875_BLUE, this->backgroundColor);
 
@@ -299,12 +299,12 @@ void Dash::DrawDriveState(Adafruit_RA8875 tft, int startX, int startY, int curr_
     // {
     //     return;
     // }
-    int16_t color = ROSE;
+    int16_t color = INDIAN_RED;
     switch (curr_drive_state)
     {
     case 0:
 
-        color = GREEN;
+        color = FERN_GREEN;
         break;
     case 1:
 
@@ -312,7 +312,7 @@ void Dash::DrawDriveState(Adafruit_RA8875 tft, int startX, int startY, int curr_
         break;
     case 2:
 
-        color = ROSE;
+        color = INDIAN_RED;
         break;
     }
     tft.fillRect(SCREEN_WIDTH/4, SCREEN_HEIGHT / 3, SCREEN_WIDTH/2, SCREEN_HEIGHT / 3, color);
@@ -385,13 +385,13 @@ else {
     switch (curr_motor_state)
     {
     case 0:
-        color = GREEN;
+        color = FERN_GREEN;
         break;
     case 1:
         color = GOLD;
         break;
     case 2:
-        color = ROSE;
+        color = INDIAN_RED;
         break;
     }
 
@@ -447,13 +447,13 @@ else {
     switch (curr_inverter_current_drawn_state)
     {
     case 0:
-        color = GREEN;
+        color = FERN_GREEN;
         break;
     case 1:
         color = GOLD;
         break;
     case 2:
-        color = ROSE;
+        color = INDIAN_RED;
         break;
     }
 
@@ -510,13 +510,13 @@ else {
     switch (curr_minVolt_state)
     {
     case 0:
-        color = GREEN;
+        color = FERN_GREEN;
         break;
     case 1:
         color = GOLD;
         break;
     case 2:
-        color = ROSE;
+        color = INDIAN_RED;
         break;
     }
 
@@ -570,17 +570,17 @@ else {
     curr_batteryVolt_state = 0;
 }
 
-    int16_t color = ROSE;
+    int16_t color = INDIAN_RED;
     switch (curr_batteryVolt_state)
     {
     case 0:
-        color = GREEN;
+        color = FERN_GREEN;
         break;
     case 1:
         color = GOLD;
         break;
     case 2:
-        color = ROSE;
+        color = INDIAN_RED;
         break;
     }
 
