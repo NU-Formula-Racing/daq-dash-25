@@ -274,19 +274,19 @@ void Dash::DrawBar(Adafruit_RA8875 tft, std::string barName, float newValue, int
 
 void Dash::DrawCoolantTemp(Adafruit_RA8875 tft, float coolant_temp, int startX, int startY)
 {
-    DrawString(tft, "CT", startX+2, startY, 5, RA8875_WHITE, RA8875_BLACK);
+    DrawString(tft, "CT", startX+2, startY, 5, RA8875_WHITE, RUSSIAN_VIOLET);
 
 }
 
 void Dash::DrawMaxCellTemp(Adafruit_RA8875 tft, float max_cell_temp, int startX, int startY)
 {
-    DrawString(tft, "MCT", startX+2, startY, 5, RA8875_WHITE, RA8875_BLACK);
+    DrawString(tft, "MCT", startX+2, startY, 5, RA8875_WHITE, RUSSIAN_VIOLET);
 
 }
 
 void Dash::DrawInverterTemp(Adafruit_RA8875 tft, int inverter_temp, int startX, int startY)
 {
-    DrawString(tft, "IT", startX+2, startY, 5, RA8875_WHITE, RA8875_BLACK);
+    DrawString(tft, "IT", startX+2, startY, 5, RA8875_WHITE, RUSSIAN_VIOLET);
 
 }
 
@@ -644,7 +644,7 @@ void Dash::HandleBMSFaults(Adafruit_RA8875 tft, int startX, int startY)
 {
     if (this->bms_faults == 0)
     {
-        tft.fillRect(SCREEN_WIDTH/2, SCREEN_HEIGHT/4, 300, 110, RA8875_BLACK); //Cover the error message
+        // tft.fillRect(SCREEN_WIDTH/2, SCREEN_HEIGHT/4, 300, 110, RA8875_BLACK); //Cover the error message
         return;
     }
 
@@ -741,7 +741,7 @@ void Dash::RecordBMSFaults()
 
 void Dash::HandleError(Adafruit_RA8875 tft, std::string error_message, int startX, int startY, Error type)
 {
-    tft.fillRect(SCREEN_WIDTH/4, 0, SCREEN_WIDTH/2, SCREEN_HEIGHT/6, ROSE);
-    DrawString(tft, error_message, SCREEN_WIDTH/4 , 0, 2, RA8875_BLACK, ROSE);
+    tft.fillRect(SCREEN_WIDTH/4, 0, SCREEN_WIDTH/2, SCREEN_HEIGHT/6, RA8875_RED);
+    DrawString(tft, error_message, SCREEN_WIDTH/4 , 0, 2, RA8875_BLACK, RA8875_RED);
 
 }
