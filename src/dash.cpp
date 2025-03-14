@@ -208,12 +208,12 @@ void Dash::UpdateDisplay(Adafruit_RA8875 tft)
     HandleBMSFaults(tft, 8, 2);
 
     // draw the test bar
-    this->DrawBar(tft, "coolant_temp", coolant_temp, RA8875_GREEN, this->backgroundColor);
-    this->DrawBar(tft, "inverter_temp", inverter_temp, RA8875_YELLOW, this->backgroundColor);
+    this->DrawBar(tft, "coolant_temp", coolant_temp, GREEN, this->backgroundColor);
+    this->DrawBar(tft, "inverter_temp", inverter_temp, GOLD, this->backgroundColor);
     this->DrawBar(tft, "motor_temp", max_cell_temp, RA8875_BLUE, this->backgroundColor);
 
-    //this->DrawBar(tft, "battery_voltage", battery_voltage, RA8875_GREEN, this->backgroundColor);
-    //this->DrawBar(tft, "min_voltage", min_voltage, RA8875_YELLOW, this->backgroundColor);
+    //this->DrawBar(tft, "battery_voltage", battery_voltage, GREEN, this->backgroundColor);
+    //this->DrawBar(tft, "min_voltage", min_voltage, GOLD, this->backgroundColor);
     //this->DrawBar(tft, "max_cell_temp", max_cell_temp, RA8875_BLUE, this->backgroundColor);
 
     timer_group.Tick(millis());
@@ -299,20 +299,20 @@ void Dash::DrawDriveState(Adafruit_RA8875 tft, int startX, int startY, int curr_
     // {
     //     return;
     // }
-    int16_t color = RA8875_RED;
+    int16_t color = ROSE;
     switch (curr_drive_state)
     {
     case 0:
 
-        color = RA8875_GREEN;
+        color = GREEN;
         break;
     case 1:
 
-        color = RA8875_YELLOW;
+        color = GOLD;
         break;
     case 2:
 
-        color = RA8875_RED;
+        color = ROSE;
         break;
     }
     tft.fillRect(SCREEN_WIDTH/4, SCREEN_HEIGHT / 3, SCREEN_WIDTH/2, SCREEN_HEIGHT / 3, color);
@@ -385,13 +385,13 @@ else {
     switch (curr_motor_state)
     {
     case 0:
-        color = RA8875_GREEN;
+        color = GREEN;
         break;
     case 1:
-        color = RA8875_YELLOW;
+        color = GOLD;
         break;
     case 2:
-        color = RA8875_RED;
+        color = ROSE;
         break;
     }
 
@@ -447,13 +447,13 @@ else {
     switch (curr_inverter_current_drawn_state)
     {
     case 0:
-        color = RA8875_GREEN;
+        color = GREEN;
         break;
     case 1:
-        color = RA8875_YELLOW;
+        color = GOLD;
         break;
     case 2:
-        color = RA8875_RED;
+        color = ROSE;
         break;
     }
 
@@ -510,13 +510,13 @@ else {
     switch (curr_minVolt_state)
     {
     case 0:
-        color = RA8875_GREEN;
+        color = GREEN;
         break;
     case 1:
-        color = RA8875_YELLOW;
+        color = GOLD;
         break;
     case 2:
-        color = RA8875_RED;
+        color = ROSE;
         break;
     }
 
@@ -570,17 +570,17 @@ else {
     curr_batteryVolt_state = 0;
 }
 
-    int16_t color = RA8875_RED;
+    int16_t color = ROSE;
     switch (curr_batteryVolt_state)
     {
     case 0:
-        color = RA8875_GREEN;
+        color = GREEN;
         break;
     case 1:
-        color = RA8875_YELLOW;
+        color = GOLD;
         break;
     case 2:
-        color = RA8875_RED;
+        color = ROSE;
         break;
     }
 
@@ -741,7 +741,7 @@ void Dash::RecordBMSFaults()
 
 void Dash::HandleError(Adafruit_RA8875 tft, std::string error_message, int startX, int startY, Error type)
 {
-    tft.fillRect(SCREEN_WIDTH/4, 0, SCREEN_WIDTH/2, SCREEN_HEIGHT/6, RA8875_RED);
-    DrawString(tft, error_message, SCREEN_WIDTH/4 , 0, 2, RA8875_BLACK, RA8875_RED);
+    tft.fillRect(SCREEN_WIDTH/4, 0, SCREEN_WIDTH/2, SCREEN_HEIGHT/6, ROSE);
+    DrawString(tft, error_message, SCREEN_WIDTH/4 , 0, 2, RA8875_BLACK, ROSE);
 
 }

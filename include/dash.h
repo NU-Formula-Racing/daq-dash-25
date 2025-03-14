@@ -67,7 +67,7 @@ public:
     void Initialize();
     void UpdateDisplay(Adafruit_RA8875 tft);
 
-    void DrawBackground(Adafruit_RA8875 tft, int16_t color = RA8875_BLACK);
+    void DrawBackground(Adafruit_RA8875 tft, int16_t color = RUSSIAN_VIOLET);
     void DrawBar(Adafruit_RA8875 tft, std::string barName, float newValue, int16_t barColor, int16_t backgroundColor);
     float WheelSpeedAvg(float fl_wheel_speed, float fr_wheel_speed);
     void DrawDriveState(Adafruit_RA8875 tft, int startX, int startY, int curr_drive_state, int squareSize, float wheel_speed, int wheel_speed_startX, int wheel_speed_startY);
