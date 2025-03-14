@@ -70,12 +70,7 @@ public:
     void DrawBackground(Adafruit_RA8875 tft, int16_t color = RA8875_BLACK);
     void DrawBar(Adafruit_RA8875 tft, std::string barName, float newValue, int16_t barColor, int16_t backgroundColor);
     float WheelSpeedAvg(float fl_wheel_speed, float fr_wheel_speed);
-    void DrawWheelSpeed(Adafruit_RA8875 tft, float wheel_speed, int startX, int startY);
-    void DrawMotorTemp(Adafruit_RA8875 tft, float motor_temp, int startX, int startY);
-    void DrawInvCur(Adafruit_RA8875 tft, int inverter_current_drawn, int startX, int startY);
-    void DrawMinVolt(Adafruit_RA8875 tft, float min_voltage, int startX, int startY);
-    void DrawBatteryVolt(Adafruit_RA8875 tft, float battery_temp, int startX, int startY);
-    void DrawDriveState(Adafruit_RA8875 tft, int startX, int startY, int curr_drive_state, int squareSize);
+    void DrawDriveState(Adafruit_RA8875 tft, int startX, int startY, int curr_drive_state, int squareSize, float wheel_speed, int wheel_speed_startX, int wheel_speed_startY);
     void DrawMotorState(Adafruit_RA8875 tft, int startX, int startY, int motor_temp, int squareSize);
     void DrawInvCurState(Adafruit_RA8875 tft, int startX, int startY, int curr_accum_state, int squareSize);
     void DrawMinVoltState(Adafruit_RA8875 tft, int startX, int startY, int curr_minVolt_state, int squareSize);
