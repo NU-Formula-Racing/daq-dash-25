@@ -1,7 +1,9 @@
 #ifndef __PIN_TEENSY41_H__
 #define __PIN_TEENSY41_H__
 
+#include <Arduino.h>
 #include <stdint.h>
+
 
 //pins_arduino.h
 // #define PIN_SPI_SS    (10)
@@ -16,8 +18,11 @@
 //dash.h
 #define RA8875_INT 6
 #define RA8875_WAIT 5
-#define RA8875_RESET 4
-#define RA8875_CS 10
+#define RA8875_RESET 19
+#define RA8875_CS PIN_SPI_SS
+#define RA8875_LITE 18
+
+#define INTERNAL_LED 13
 
 //other pins
 // drive can tx   1
