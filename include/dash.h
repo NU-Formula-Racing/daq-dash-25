@@ -84,7 +84,7 @@ public:
     void HandleBMSFaults(Adafruit_RA8875 tft, int startX, int startY);
 
 private:
-    CAN g_can_bus{};
+    TeensyCAN<3> g_can_bus{};
     VirtualTimerGroup timer_group{};
 
     // Coolant Signals
@@ -107,9 +107,9 @@ private:
     CANSignal<uint32_t, 32, 32, CANTemplateConvertFloat(0.0001), CANTemplateConvertFloat(0.0),false> inverter_current_draw_ah_charged{};
     CANTXMessage<2> rx_inverter_current_draw{g_can_bus, 0x283, 8, 100, inverter_current_draw_ah_drawn, inverter_current_draw_ah_charged};
 
-    // VCU Signals
+    // ECU Signals
     CANSignal<int, 0, 8, CANTemplateConvertFloat(1), CANTemplateConvertFloat(0), false> drive_state_signal;
-    CANRXMessage<1> rx_drive_state{g_can_bus, 0x000, drive_state_signal};
+    CANRXMessage<1> rx_drive_state{g_can_bus, 0x206, drive_state_signal};
 
     // IMD Signals
     CANSignal<int16_t, 0, 16, CANTemplateConvertFloat(1), CANTemplateConvertFloat(0)> imd_resistance_signal;
@@ -127,7 +127,7 @@ private:
     CANSignal<bool, 6, 1, CANTemplateConvertFloat(1), CANTemplateConvertFloat(0), false> bms_fault_external_kill_signal;
     CANSignal<bool, 7, 1, CANTemplateConvertFloat(1), CANTemplateConvertFloat(0), false> bms_fault_open_wire_signal;
     CANRXMessage<8> rx_bms_faults{
-        g_can_bus, 0x250, [this]() {
+        g_can_bus, 0x151, [this]() {
                                     RecordBMSFaults();
                                   },
                                   bms_fault_summary_signal, 
@@ -147,7 +147,7 @@ private:
     CANSignal<float, 32, 8, CANTemplateConvertFloat(0.012), CANTemplateConvertFloat(2), false> bms_min_cell_voltage_signal;
     CANSignal<float, 40, 8, CANTemplateConvertFloat(0.5), CANTemplateConvertFloat(0), false> bms_soc_signal;
     CANRXMessage<6> rx_bms_status{
-        g_can_bus, 0x241, bms_state_signal, bms_max_cell_temp_signal, bms_min_cell_temp_signal, bms_max_cell_voltage_signal, bms_min_cell_voltage_signal, bms_soc_signal};   
+        g_can_bus, 0x152, bms_state_signal, bms_max_cell_temp_signal, bms_min_cell_temp_signal, bms_max_cell_voltage_signal, bms_min_cell_voltage_signal, bms_soc_signal};   
 
     // BMS SOE Signals
     CANSignal<float, 0, 12, CANTemplateConvertFloat(0.1), CANTemplateConvertFloat(0), false> bms_max_discharge_signal;
@@ -156,7 +156,7 @@ private:
     CANSignal<float, 40, 8, CANTemplateConvertFloat(1), CANTemplateConvertFloat(-40), false> bms_battery_temperature_signal;
     CANSignal<float, 48, 16, CANTemplateConvertFloat(0.01), CANTemplateConvertFloat(0), false> bms_battery_current_signal;
     CANRXMessage<5> rx_bms_soe{
-        g_can_bus, 0x240, bms_max_discharge_signal, bms_max_regen_current_signal, bms_battery_voltage_signal, bms_battery_temperature_signal, bms_battery_current_signal};
+        g_can_bus, 0x150, bms_max_discharge_signal, bms_max_regen_current_signal, bms_battery_voltage_signal, bms_battery_temperature_signal, bms_battery_current_signal};
 
 
     float prev_wheel_speed = -1;

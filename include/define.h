@@ -11,10 +11,10 @@
 #define FERN_GREEN rawRGB24toRGB565(70, 109, 38)
 #define INDIAN_RED rawRGB24toRGB565(207, 109, 114)
 
-#define SP28_ANGLE 21
-#define CLK_ROTARY 23
-#define DT_ROTARY 22
-#define SW_ROTARY 21
+#define SP28_ANGLE 0
+#define CLK_ROTARY 0
+#define DT_ROTARY 0
+#define SW_ROTARY 0
 
 #include "pin.h"
 

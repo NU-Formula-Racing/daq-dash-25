@@ -16,8 +16,8 @@
 // static const uint8_t SCK = 13;
 
 //dash.h
-#define RA8875_INT 6
-#define RA8875_WAIT 5
+#define RA8875_INT 21
+#define RA8875_WAIT 20
 #define RA8875_RESET 19
 #define RA8875_CS PIN_SPI_SS
 #define RA8875_LITE 18
