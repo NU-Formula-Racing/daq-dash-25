@@ -23,6 +23,8 @@
 #define MASK(x) (1 << x)
 
 #define FORCE_DRAW false
+// #define DEBUG false
+
 
 int drive_state_startX = SCREEN_WIDTH / 2;
 int drive_state_startY = SCREEN_HEIGHT / 2 - 160;
@@ -64,37 +66,25 @@ void Dash::GetCAN() {
 }
 
 void Dash::Initialize() {
-    g_can_bus.Initialize(ICAN::BaudRate::kBaud1M);
-
+    g_can_bus.Initialize(ICAN::BaudRate::kBaud500K);
     g_can_bus.RegisterRXMessage(rx_wheel_speeds);
+    g_can_bus.RegisterRXMessage(rx_drive_state);
+    g_can_bus.RegisterRXMessage(rx_inverter_temp_status);
+    // g_can_bus.RegisterRXMessage(rx_inverter_current_draw);
+    g_can_bus.RegisterRXMessage(rx_bms_faults);
+    g_can_bus.RegisterRXMessage(rx_bms_status);
+    g_can_bus.RegisterRXMessage(rx_coolant_state);
 
-    timer_group.AddTimer(10, [this]() { this->GetCAN(); });
 
-    // // write the WAIT pin high, so the RA8875 can communicate
-    // pinMode(RA8875_WAIT, OUTPUT);
-    // digitalWrite(RA8875_WAIT, HIGH);
-
-    // create bars
-    // this->circles["motor_temp"] = CircleData("Motor Temp", 20, 70, 0, SCREEN_HEIGHT - BAND_HEIGHT, CIRCLE_DIAMETER);
-    // this->circles["motor_temp"] = CircleData("Motor Temp", 20, 70, 0, SCREEN_HEIGHT - BAND_HEIGHT, BAR_WIDTH, BAR_HEIGHT);
-
-    // this->bars["coolant_temp"] = BarData("", 0, 100, SCREEN_WIDTH/4 +20, SCREEN_HEIGHT*0.725, 15,SCREEN_WIDTH/2);
     this->bars["coolant_temp"] = BarData("", 0, 100, SCREEN_WIDTH / 4 + 90, SCREEN_HEIGHT * 0.725, 15, SCREEN_WIDTH / 2 - 90);
     this->bars["inverter_temp"] = BarData("", 0, 100, SCREEN_WIDTH / 4 + 90, SCREEN_HEIGHT * 0.825, 15, SCREEN_WIDTH / 2 - 90);
     this->bars["motor_temp"] = BarData("", 0, 100, SCREEN_WIDTH / 4 + 90, SCREEN_HEIGHT * 0.925, 15, SCREEN_WIDTH / 2 - 90);
-
-    // this->bars["battery_voltage"] = BarData("bv", 0, 600, SCREEN_WIDTH - BAR_WIDTH, SCREEN_HEIGHT - BAND_HEIGHT, BAR_WIDTH, BAR_HEIGHT);
-    // this->bars["min_voltage"] = BarData("nv", 0, 5, SCREEN_WIDTH - 2 * BAR_WIDTH - BAR_SPACING, SCREEN_HEIGHT - BAND_HEIGHT, BAR_WIDTH, BAR_HEIGHT);
-    // this->bars["max_cell_temp"] = BarData("mt", 0, 100, SCREEN_WIDTH - 3 * BAR_WIDTH - 2 * BAR_SPACING, SCREEN_HEIGHT - BAND_HEIGHT, BAR_WIDTH, BAR_HEIGHT);
 }
 
 void Dash::DrawBackground(Adafruit_RA8875 tft, int16_t color) {
     this->backgroundColor = color;
     // black out the screen
     tft.fillScreen(color);
-
-    int border = 20;
-    int rect_height = 200;
     // draw outlines
     // MIDDLE DRIVE RECT
     tft.drawRect(SCREEN_WIDTH / 4, SCREEN_HEIGHT / 3, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 3, RA8875_WHITE);
@@ -127,9 +117,9 @@ float Dash::WheelSpeedAvg(float fl_wheel_speed, float fr_wheel_speed) {
 
 void Dash::UpdateDisplay(Adafruit_RA8875 tft) {
 #ifndef DEBUG
-    float fl_wheel_speed = static_cast<float>(fl_wheel_speed_signal);  //
-    float fr_wheel_speed = static_cast<float>(fr_wheel_speed_signal);  //
-    int curr_drive_state = static_cast<int>(drive_state_signal);       //
+    float fl_wheel_speed = static_cast<float>(fl_wheel_speed_signal);
+    float fr_wheel_speed = static_cast<float>(fr_wheel_speed_signal);
+    uint8_t curr_drive_state = static_cast<uint8_t>(drive_state_signal);     
     int imd_status = static_cast<int>(imd_status_signal);
     float coolant_temp = static_cast<float>(coolant_temp_signal);            //
     int inverter_temp = static_cast<int>(inverter_temp_status_igbt_temp);    // unknown
@@ -158,8 +148,10 @@ void Dash::UpdateDisplay(Adafruit_RA8875 tft) {
 #endif
     float avg_wheel_speed = fl_wheel_speed + fr_wheel_speed / 2;
 
-    // if (this->prev_wheel_speed != avg_wheel_speed)
-    DrawDriveState(tft, drive_state_startX, drive_state_startY, curr_drive_state, 8, avg_wheel_speed, wheel_speed_startX, wheel_speed_startY);
+    if (this->prev_drive_state != curr_drive_state || FORCE_DRAW) {
+        DrawDriveState(tft, drive_state_startX, drive_state_startY, curr_drive_state, 8, avg_wheel_speed, wheel_speed_startX, wheel_speed_startY);
+        this->prev_drive_state = curr_drive_state;
+    }
     // this->prev_wheel_speed = avg_wheel_speed;
     if (this->prev_motor_temp != motor_temp || FORCE_DRAW) {
         DrawMotorState(tft, motor_temp_startX, motor_temp_startY, motor_temp, 8);
@@ -265,36 +257,37 @@ void Dash::DrawInverterTemp(Adafruit_RA8875 tft, int inverter_temp, int startX, 
 }
 
 // Draws drive state on screen based on CAN signal
-void Dash::DrawDriveState(Adafruit_RA8875 tft, int startX, int startY, int curr_drive_state, int squareSize, float wheel_speed, int wheel_speed_startX, int wheel_speed_startY) {
+void Dash::DrawDriveState(Adafruit_RA8875 tft, int startX, int startY, uint8_t curr_drive_state, int squareSize, float wheel_speed, int wheel_speed_startX, int wheel_speed_startY) {
     int16_t color = INDIAN_RED;
     switch (curr_drive_state) {
         case 0:
-
-            color = FERN_GREEN;
+            color = INDIAN_RED;
             break;
         case 1:
-
             color = GOLD;
             break;
         case 2:
-
+            color = FERN_GREEN;
+            break;
+        default:
             color = INDIAN_RED;
             break;
     }
+
     tft.fillRect(SCREEN_WIDTH / 4, SCREEN_HEIGHT / 3, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 3, color);
 
     switch (curr_drive_state) {
         case 0:
-
-            DrawString(tft, "DRIVE", SCREEN_WIDTH * 0.4, SCREEN_HEIGHT * 0.58, 5, RA8875_WHITE, color);
+            DrawString(tft, "OFF", SCREEN_WIDTH * 0.4, SCREEN_HEIGHT * 0.58, 5, RA8875_WHITE, color);
             break;
         case 1:
-
-            DrawString(tft, "ON", SCREEN_WIDTH * 0.47, SCREEN_HEIGHT * 0.58, 5, RA8875_BLACK, color);
+            DrawString(tft, "NEUTRAL", SCREEN_WIDTH * 0.47, SCREEN_HEIGHT * 0.58, 5, RA8875_BLACK, color);
             break;
         case 2:
-
-            DrawString(tft, "OFF", SCREEN_WIDTH * 0.45, SCREEN_HEIGHT * 0.58, 5, RA8875_WHITE, color);
+            DrawString(tft, "DRIVE", SCREEN_WIDTH * 0.45, SCREEN_HEIGHT * 0.58, 5, RA8875_WHITE, color);
+            break;
+        default:
+            DrawString(tft, "ERROR", SCREEN_WIDTH * 0.45, SCREEN_HEIGHT * 0.58, 5, RA8875_WHITE, color);
             break;
     }
 
@@ -544,6 +537,12 @@ void Dash::HandleBMSFaults(Adafruit_RA8875 tft, int startX, int startY) {
     if (this->bms_faults == 0) {
         return;
     }
+
+    if (this->prev_bms_faults == this->bms_faults) {
+        return;
+    }
+
+    this->prev_bms_faults = this->bms_faults;
 
     // there is a fault
     std::cout << "DETECTED: BMS Faults: " << std::bitset<8>(bms_faults).to_string() << std::endl;

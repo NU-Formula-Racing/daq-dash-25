@@ -59,6 +59,7 @@
         "bit": "cpp",
         "compare": "cpp",
         "concepts": "cpp",
-        "numbers": "cpp"
+        "numbers": "cpp",
+        "*.tpp": "cpp"
     }
 }

@@ -11,6 +11,7 @@
 // VirtualTimerGroup read_timer;
 
 #define DEFAULT_VALUE -100
+#define DEFAULT_VALUE_UNSIGNED 255
 
 class Dash {
    public:
@@ -52,7 +53,7 @@ class Dash {
     void DrawBackground(Adafruit_RA8875 tft, int16_t color = RUSSIAN_VIOLET);
     void DrawBar(Adafruit_RA8875 tft, std::string barName, float newValue, int16_t barColor, int16_t backgroundColor);
     float WheelSpeedAvg(float fl_wheel_speed, float fr_wheel_speed);
-    void DrawDriveState(Adafruit_RA8875 tft, int startX, int startY, int curr_drive_state, int squareSize, float wheel_speed, int wheel_speed_startX, int wheel_speed_startY);
+    void DrawDriveState(Adafruit_RA8875 tft, int startX, int startY, uint8_t curr_drive_state, int squareSize, float wheel_speed, int wheel_speed_startX, int wheel_speed_startY);
     void DrawMotorState(Adafruit_RA8875 tft, int startX, int startY, int motor_temp, int squareSize);
     void DrawInvCurState(Adafruit_RA8875 tft, int startX, int startY, int curr_accum_state, int squareSize);
     void DrawMinVoltState(Adafruit_RA8875 tft, int startX, int startY, int curr_minVolt_state, int squareSize);
@@ -90,7 +91,7 @@ class Dash {
     CANTXMessage<2> rx_inverter_current_draw{g_can_bus, 0x283, 8, 100, inverter_current_draw_ah_drawn, inverter_current_draw_ah_charged};
 
     // ECU Signals
-    CANSignal<int, 0, 8, CANTemplateConvertFloat(1), CANTemplateConvertFloat(0), false> drive_state_signal;
+    CANSignal<uint8_t, 0, 8, CANTemplateConvertFloat(1), CANTemplateConvertFloat(0), false> drive_state_signal;
     CANRXMessage<1> rx_drive_state{g_can_bus, 0x206, drive_state_signal};
 
     // BMS Signals
@@ -129,6 +130,7 @@ class Dash {
     CANRXMessage<5> rx_bms_soe{
         g_can_bus, 0x150, bms_max_discharge_signal, bms_max_regen_current_signal, bms_battery_voltage_signal, bms_battery_temperature_signal, bms_battery_current_signal};
 
+    uint8_t prev_drive_state = DEFAULT_VALUE_UNSIGNED;
     float prev_wheel_speed = DEFAULT_VALUE;
     float prev_motor_temp = DEFAULT_VALUE;
     float prev_inverter_current_drawn = DEFAULT_VALUE;
@@ -140,6 +142,7 @@ class Dash {
     float prev_inverter_temp = DEFAULT_VALUE;
     Error error = NO_ERROR;
     uint8_t bms_faults = 0;
+    uint8_t prev_bms_faults = 0;
     int16_t backgroundColor = NORTHWESTERN_PURPLE;
     std::map<std::string, BarData> bars;
 
