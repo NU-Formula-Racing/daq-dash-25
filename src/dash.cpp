@@ -61,11 +61,15 @@ float motor_temp;
 int drive_state = -1;
 bool drive_state_drawn = false;
 
+bool ifBMSfault=false;
+bool ifIMDfault=false;
+
 void Dash::GetCAN() {
     g_can_bus.Tick();
 }
 
 void Dash::Initialize() {
+    digitalWrite(INDICATOR_LED,LOW);
     g_can_bus.Initialize(ICAN::BaudRate::kBaud500K);
     g_can_bus.RegisterRXMessage(rx_wheel_speeds);
     g_can_bus.RegisterRXMessage(rx_drive_state);
@@ -184,6 +188,9 @@ void Dash::UpdateDisplay(Adafruit_RA8875 tft) {
     }
 
     // draw IMD status
+    if(ifBMSfault==false & ifIMDfault==false){
+        digitalWrite(INDICATOR_LED, LOW);
+    }
     DrawIMDStatus(tft, 8, 2, imd_status, 32);
     HandleBMSFaults(tft, 8, 2);
 
@@ -517,17 +524,23 @@ void Dash::DrawIMDStatus(Adafruit_RA8875 tft, int startX, int startY, int imd_st
     switch (imd_status) {
         case -10:
             status = "IMD:Short Circuit";
+            ifIMDfault=true;
             break;
         case -5:
             status = "IMD:Loading";
+            ifIMDfault=true;
             break;
         case -25:
             status = "IMD:Connection Fault";
+            ifIMDfault=true;
+            break; //added
         case -20:
             status = "IMD:Device Error";
+            ifIMDfault=true;
             break;
         default:
             return;
+            ifIMDfault=false;
     }
 
     HandleError(tft, status, startX, startY, IMD_FAULT);
@@ -535,6 +548,7 @@ void Dash::DrawIMDStatus(Adafruit_RA8875 tft, int startX, int startY, int imd_st
 
 void Dash::HandleBMSFaults(Adafruit_RA8875 tft, int startX, int startY) {
     if (this->bms_faults == 0) {
+        ifBMSfault=false;
         return;
     }
 
@@ -546,6 +560,7 @@ void Dash::HandleBMSFaults(Adafruit_RA8875 tft, int startX, int startY) {
 
     // there is a fault
     std::cout << "DETECTED: BMS Faults: " << std::bitset<8>(bms_faults).to_string() << std::endl;
+    ifBMSfault=true;
     std::string error_message = "BMS:";
 
     if (this->bms_faults & MASK(1)) {
@@ -623,4 +638,7 @@ void Dash::RecordBMSFaults() {
 void Dash::HandleError(Adafruit_RA8875 tft, std::string error_message, int startX, int startY, Error type) {
     tft.fillRect(SCREEN_WIDTH / 4, 0, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 6, RA8875_RED);
     DrawString(tft, error_message, SCREEN_WIDTH / 4, 0, 2, RA8875_BLACK, RA8875_RED);
+    if(ifBMSfault==true || ifIMDfault==true){
+        digitalWrite(INDICATOR_LED, HIGH);
+    }
 }

@@ -24,6 +24,8 @@
 
 #define INTERNAL_LED 13
 
+#define INDICATOR_LED 17 //is this right?
+
 //other pins
 // drive can tx   1
 // drive can rx    0
