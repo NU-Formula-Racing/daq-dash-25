@@ -547,7 +547,7 @@ void Dash::DrawIMDStatus(Adafruit_RA8875 tft, int startX, int startY, int imd_st
 }
 
 void Dash::HandleBMSFaults(Adafruit_RA8875 tft, int startX, int startY) {
-    if (this->bms_faults == 0) {
+    if (this->bms_faults == 0) { //order or no fault?
         ifBMSfault=false;
         return;
     }
