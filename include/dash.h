@@ -34,7 +34,9 @@ class Dash {
     enum Error {
         NO_ERROR,
         BMS_FAULT,
-        IMD_FAULT
+        IMD_FAULT,
+        ECU_FAULT,
+        INVERTER_FAULT
     };
 
     enum Direction {
@@ -55,6 +57,7 @@ class Dash {
     float WheelSpeedAvg(float fl_wheel_speed, float fr_wheel_speed);
     void DrawDriveState(Adafruit_RA8875 tft, int startX, int startY, uint8_t curr_drive_state, int squareSize, float wheel_speed, int wheel_speed_startX, int wheel_speed_startY);
     void DrawMaxCellTemp(Adafruit_RA8875 tft, float max_cell_temp, int startX, int startY);
+    void DrawMinCellTemp(Adafruit_RA8875 tft, float min_cell_temp, int startX, int startY);
     void DrawIMDStatus(Adafruit_RA8875 tft, int startX, int startY, int imd_status, int squareSize);
     void HandleError(Adafruit_RA8875 tft, std::string error_message, int startX, int startY, Error type);
     void DrawString(Adafruit_RA8875 tft, std::string message, int startX, int startY, int size, int16_t color, int16_t backgroundColor, Direction dir = LEFT_TO_RIGHT);
@@ -124,7 +127,7 @@ class Dash {
     // PDM Bat Volt Signals
     CANSignal<float, 0, 16, CANTemplateConvertFloat(1.0), CANTemplateConvertFloat(0), false> pdm_bat_volt;
     CANSignal<bool, 16, 8, CANTemplateConvertFloat(1.0), CANTemplateConvertFloat(0.0), false> pdm_bat_volt_warning;
-    CANRXMessage<2> can_bus_pdm_bat_volt{
+    CANRXMessage<2> rx_pdm_bat_volt{
         g_can_bus, 0x291, pdm_bat_volt, pdm_bat_volt_warning};
 
     // ECU Implausibility
@@ -134,14 +137,16 @@ class Dash {
     CANSignal<bool, 24, 8, CANTemplateConvertFloat(1.0), CANTemplateConvertFloat(0), false> ecu_implausibility_brake_invalid_imp;
     CANSignal<bool, 32, 8, CANTemplateConvertFloat(1.0), CANTemplateConvertFloat(0), false> ecu_implausibility_appss_invalid_imp;
 
-    CANRXMessage<5> can_bus_ecu_implausibility{
+    CANRXMessage<5> rx_ecu_implausibility{
         g_can_bus, 0x204, ecu_implausibility_present, ecu_implausibility_appss_disagreement_imp, 
         ecu_implausibility_bppc_imp, ecu_implausibility_brake_invalid_imp, ecu_implausibility_appss_invalid_imp};
 
     uint8_t prev_drive_state = DEFAULT_VALUE_UNSIGNED;
     float prev_wheel_speed = DEFAULT_VALUE;
-    float prev_inverter_current_drawn = DEFAULT_VALUE;
+    float prev_hv_bat_volt = DEFAULT_VALUE;
+    float prev_lv_bat_volt = DEFAULT_VALUE;
     float prev_max_cell_temp = DEFAULT_VALUE;
+    float prev_min_cell_temp = DEFAULT_VALUE;
     Error error = NO_ERROR;
     uint8_t bms_faults = 0;
     uint8_t prev_bms_faults = 0;

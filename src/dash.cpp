@@ -63,6 +63,8 @@ bool drive_state_drawn = false;
 
 bool ifBMSfault=false;
 bool ifIMDfault=false;
+bool ifECUfault=false;
+bool ifInverterfault=false;
 
 void Dash::GetCAN() {
     g_can_bus.Tick();
@@ -73,12 +75,11 @@ void Dash::Initialize() {
     g_can_bus.Initialize(ICAN::BaudRate::kBaud500K);
     g_can_bus.RegisterRXMessage(rx_wheel_speeds);
     g_can_bus.RegisterRXMessage(rx_drive_state);
-    g_can_bus.RegisterRXMessage(rx_inverter_temp_status);
     // g_can_bus.RegisterRXMessage(rx_inverter_current_draw);
     g_can_bus.RegisterRXMessage(rx_bms_faults);
     g_can_bus.RegisterRXMessage(rx_bms_status);
-    g_can_bus.RegisterRXMessage(rx_coolant_state);
-
+    g_can_bus.RegisterRXMessage(rx_pdm_bat_volt);
+    g_can_bus.RegisterRXMessage(rx_ecu_implausibility);
 
     this->bars["coolant_temp"] = BarData("", 0, 100, SCREEN_WIDTH / 4 + 90, SCREEN_HEIGHT * 0.725, 15, SCREEN_WIDTH / 2 - 90);
     this->bars["inverter_temp"] = BarData("", 0, 100, SCREEN_WIDTH / 4 + 90, SCREEN_HEIGHT * 0.825, 15, SCREEN_WIDTH / 2 - 90);
@@ -125,13 +126,11 @@ void Dash::UpdateDisplay(Adafruit_RA8875 tft) {
     float fr_wheel_speed = static_cast<float>(fr_wheel_speed_signal);
     uint8_t curr_drive_state = static_cast<uint8_t>(drive_state_signal);     
     int imd_status = static_cast<int>(imd_status_signal);
-    float coolant_temp = static_cast<float>(coolant_temp_signal);            //
-    int inverter_temp = static_cast<int>(inverter_temp_status_igbt_temp);    // unknown
-    int motor_temp = static_cast<int>(inverter_temp_status_motor_temp);      // unknown
-    float battery_voltage = static_cast<float>(bms_battery_voltage_signal);  //
-    float min_voltage = static_cast<float>(bms_min_cell_voltage_signal);
-    float max_cell_temp = static_cast<float>(bms_max_cell_temp_signal);  //
-    float inverter_current_drawn = static_cast<uint32_t>(inverter_current_draw_ah_drawn);
+    float max_cell_temp = static_cast<float>(bms_max_cell_temp_signal); 
+    float min_cell_temp = static_cast<float>(bms_min_cell_temp_signal);
+    float hv_bat_volt = static_cast<float>(bms_battery_voltage_signal);
+    float lv_bat_volt = static_cast<float>(pdm_bat_volt);
+
 #else
     // we should change the drive state for testing
     // cycle based on time
@@ -157,34 +156,13 @@ void Dash::UpdateDisplay(Adafruit_RA8875 tft) {
         this->prev_drive_state = curr_drive_state;
     }
     // this->prev_wheel_speed = avg_wheel_speed;
-    if (this->prev_motor_temp != motor_temp || FORCE_DRAW) {
-        DrawMotorState(tft, motor_temp_startX, motor_temp_startY, motor_temp, 8);
-        this->prev_motor_temp = motor_temp;
-    }
-
-    if (this->prev_inverter_current_drawn != inverter_current_drawn || FORCE_DRAW) {
-        DrawInvCurState(tft, inverter_current_drawn_startX, inverter_current_drawn_startY, inverter_current_drawn, 8);
-        this->prev_inverter_current_drawn = inverter_current_drawn;
-    }
-    if (this->prev_min_volt != min_voltage || FORCE_DRAW) {
-        DrawMinVoltState(tft, min_volt_startX, min_volt_startY, min_voltage, 8);
-        this->prev_min_volt = min_voltage;
-    }
-    if (this->prev_bat_volt != battery_voltage || FORCE_DRAW) {
-        DrawBatteryVoltState(tft, battery_volt_startX, battery_volt_startY, battery_voltage, 8);
-        this->prev_bat_volt = battery_voltage;
-    }
-    if (this->prev_coolant_temp != coolant_temp || FORCE_DRAW) {
-        DrawCoolantTemp(tft, coolant_temp, coolant_temp_startX, coolant_temp_startY);
-        this->prev_coolant_temp = coolant_temp;
+    if (this->prev_hv_bat_volt != hv_bat_volt || FORCE_DRAW) {
+        DrawBatteryVoltState(tft, battery_volt_startX, battery_volt_startY, hv_bat_volt, 8);
+        this->prev_hv_bat_volt = hv_bat_volt;
     }
     if (this->prev_max_cell_temp != max_cell_temp || FORCE_DRAW) {
         DrawMaxCellTemp(tft, max_cell_temp, max_cell_temp_startX, max_cell_temp_startY);
         this->prev_max_cell_temp = max_cell_temp;
-    }
-    if (this->prev_inverter_temp != inverter_temp || FORCE_DRAW) {
-        DrawInverterTemp(tft, inverter_temp, inverter_temp_startX, inverter_temp_startY);
-        this->prev_inverter_temp = inverter_temp;
     }
 
     // draw IMD status
@@ -255,16 +233,12 @@ void Dash::DrawBar(Adafruit_RA8875 tft, std::string barName, float newValue, int
 
 // COME HERE NEXT TIME TO DRAW THE NUMBER IN THE MIDDLE. ALSO, CHANGE DRAWCHAR FOR OTHER DRAW STATE CIRCLES AND THE MIDDLE RECTANGLE BC FULL WORDS
 
-void Dash::DrawCoolantTemp(Adafruit_RA8875 tft, float coolant_temp, int startX, int startY) {
-    DrawString(tft, "CT", startX + 2, startY, 5, RA8875_WHITE, RUSSIAN_VIOLET);
-}
-
 void Dash::DrawMaxCellTemp(Adafruit_RA8875 tft, float max_cell_temp, int startX, int startY) {
     DrawString(tft, "MCT", startX + 2, startY, 5, RA8875_WHITE, RUSSIAN_VIOLET);
 }
 
-void Dash::DrawInverterTemp(Adafruit_RA8875 tft, int inverter_temp, int startX, int startY) {
-    DrawString(tft, "IT", startX + 2, startY, 5, RA8875_WHITE, RUSSIAN_VIOLET);
+void Dash::DrawMinCellTemp(Adafruit_RA8875 tft, float min_cell_temp, int startX, int startY) {
+    // []
 }
 
 // Draws drive state on screen based on CAN signal
