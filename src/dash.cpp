@@ -259,6 +259,11 @@ void Dash::DrawMinCellTemp(Adafruit_RA8875 tft, float min_cell_temp, int startX,
 void Dash::DrawDriveState(Adafruit_RA8875 tft, int startX, int startY, uint8_t curr_drive_state, int squareSize, float wheel_speed, int wheel_speed_startX, int wheel_speed_startY, bool ifErrorScreen) {
     //dont need wheel speed start x y anymore i think
     int16_t color = INDIAN_RED;
+    int driveRectw= startX;
+    int driveRecth= startY*2;
+    int digit_spacing = 8;
+    int char_width = 80;
+    int draw_digit_size = 13;
     if(ifErrorScreen==false){
         int driveRectw= startX;
         int driveRecth= startY*2;
