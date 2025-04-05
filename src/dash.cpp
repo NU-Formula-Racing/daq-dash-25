@@ -26,8 +26,8 @@
 // #define DEBUG false
 
 
-int drive_state_startX = SCREEN_WIDTH / 2;
-int drive_state_startY = SCREEN_HEIGHT / 2 - 160;
+int drive_state_startX = SCREEN_WIDTH / 4;
+int drive_state_startY = SCREEN_HEIGHT / 3;
 int motor_temp_startX = SCREEN_WIDTH / 8;
 int motor_temp_startY = SCREEN_HEIGHT / 4;
 int inverter_current_drawn_startX = SCREEN_WIDTH / 8;
@@ -69,6 +69,7 @@ bool ifBMSfault=false;
 bool ifIMDfault=false;
 bool ifECUfault=false;
 bool ifInverterfault=false;
+bool ifErrorScreen =false;
 
 void Dash::GetCAN() {
     g_can_bus.Tick();
@@ -160,7 +161,7 @@ void Dash::UpdateDisplay(Adafruit_RA8875 tft) {
 #endif
     float avg_wheel_speed = fl_wheel_speed + fr_wheel_speed / 2;
     if (this->prev_drive_state != curr_drive_state || FORCE_DRAW) {
-        DrawDriveState(tft, drive_state_startX, drive_state_startY, curr_drive_state, 8, avg_wheel_speed, wheel_speed_startX, wheel_speed_startY);
+        DrawDriveState(tft, drive_state_startX, drive_state_startY, curr_drive_state, 8, avg_wheel_speed, wheel_speed_startX, wheel_speed_startY, ifErrorScreen);
         this->prev_drive_state = curr_drive_state;
     }
     // this->prev_wheel_speed = avg_wheel_speed;
@@ -254,8 +255,23 @@ void Dash::DrawMinCellTemp(Adafruit_RA8875 tft, float min_cell_temp, int startX,
 }
 
 // Draws drive state on screen based on CAN signal
-void Dash::DrawDriveState(Adafruit_RA8875 tft, int startX, int startY, uint8_t curr_drive_state, int squareSize, float wheel_speed, int wheel_speed_startX, int wheel_speed_startY) {
+// Draws drive state on screen based on CAN signal
+void Dash::DrawDriveState(Adafruit_RA8875 tft, int startX, int startY, uint8_t curr_drive_state, int squareSize, float wheel_speed, int wheel_speed_startX, int wheel_speed_startY, bool ifErrorScreen) {
+    //dont need wheel speed start x y anymore i think
     int16_t color = INDIAN_RED;
+    if(ifErrorScreen==false){
+        int driveRectw= startX;
+        int driveRecth= startY*2;
+        int digit_spacing = 8;
+        int char_width = 80;
+        int draw_digit_size = 13;
+    }else{
+        int driveRectw= startX/2;
+        int driveRecth= startY;
+        int digit_spacing = 4;
+        int char_width = 40;
+        int draw_digit_size = 6;
+    }
     switch (curr_drive_state) {
         case 0:
             color = INDIAN_RED;
@@ -270,29 +286,30 @@ void Dash::DrawDriveState(Adafruit_RA8875 tft, int startX, int startY, uint8_t c
             color = INDIAN_RED;
             break;
     }
-
-    tft.fillRect(SCREEN_WIDTH / 4, SCREEN_HEIGHT / 3, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 3, color);
-
+    tft.fillRect(startX, startY, driveRectw, driveRecth, color);
+//change sizes via if statement 
     switch (curr_drive_state) {
         case 0:
-            DrawString(tft, "OFF", SCREEN_WIDTH * 0.4, SCREEN_HEIGHT * 0.58, 5, RA8875_WHITE, color);
+            DrawString(tft, "OFF", startX * 4 * 0.4, startY * 3 * 0.58, 5, RA8875_WHITE, color);
+            //DrawString(tft, "OFF", SCREEN_WIDTH * 0.4, SCREEN_HEIGHT * 0.58, 5, RA8875_WHITE, color);
             break;
         case 1:
-            DrawString(tft, "NEUTRAL", SCREEN_WIDTH * 0.47, SCREEN_HEIGHT * 0.58, 5, RA8875_BLACK, color);
+            DrawString(tft, "NEUTRAL", startX * 4 * 0.47, startY * 3 * 0.58, 5, RA8875_BLACK, color);
+            //DrawString(tft, "NEUTRAL", SCREEN_WIDTH * 0.47, SCREEN_HEIGHT * 0.58, 5, RA8875_BLACK, color);
             break;
         case 2:
-            DrawString(tft, "DRIVE", SCREEN_WIDTH * 0.45, SCREEN_HEIGHT * 0.58, 5, RA8875_WHITE, color);
+            DrawString(tft, "DRIVE", startX * 4 * 0.45, startY * 3 * 0.58, 5, RA8875_WHITE, color);
             break;
         default:
-            DrawString(tft, "ERROR", SCREEN_WIDTH * 0.45, SCREEN_HEIGHT * 0.58, 5, RA8875_WHITE, color);
+            DrawString(tft, "ERROR", startX * 4 * 0.45, startY * 3 * 0.58, 5, RA8875_WHITE, color);
             break;
     }
 
     drive_state = curr_drive_state;
     int rounded_wheel_speed = round(wheel_speed);
 
-    int digit_spacing = 8;
-    int char_width = 80;
+    //int digit_spacing = 8;
+    //int char_width = 80;
 
     startX -= char_width / 2;
 
@@ -307,7 +324,7 @@ void Dash::DrawDriveState(Adafruit_RA8875 tft, int startX, int startY, uint8_t c
     // Draw the digits
     while (rounded_wheel_speed > 0) {
         int digit = rounded_wheel_speed % 10;
-        tft.drawChar(wheel_speed_startX, wheel_speed_startY, digit + '0', RA8875_BLACK, color, 13);
+        tft.drawChar(startX * 2 + 40, startY * 3 * 0.34, digit + '0', RA8875_BLACK, color, draw_digit_size);
         wheel_speed_startX -= char_width + digit_spacing;
         rounded_wheel_speed /= 10;
     }
@@ -620,12 +637,37 @@ void Dash::RecordBMSFaults() {
 }
 
 void Dash::HandleError(Adafruit_RA8875 tft, std::string error_message, int startX, int startY, Error type) {
-    tft.fillRect(SCREEN_WIDTH / 4, 0, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 6, RA8875_RED);
-    DrawString(tft, error_message, SCREEN_WIDTH / 4, 0, 2, RA8875_BLACK, RA8875_RED);
     if(ifBMSfault==true || ifIMDfault==true){
         digitalWrite(INDICATOR_LED, HIGH);
     }
     if(ifBMSfault==true || ifIMDfault==true || ifECUfault==true  || ifInverterfault==true ){
         tft.fillScreen(RA8875_RED);
     }
+    //make it so that the draw drive state and wheel state are small and off to the side and the error messages are big in the center
+    switch (this->prev_drive_state) {
+        case 0:
+            DrawString(tft, "OFF", 20, 20, 5, RA8875_WHITE, RA8875_RED);
+            break;
+        case 1:
+            DrawString(tft, "NEUTRAL", 20, 20, 5, RA8875_WHITE, RA8875_YELLOW);
+            break;
+        case 2:
+            DrawString(tft, "DRIVE", 20, 20, 5, RA8875_WHITE, RA8875_GREEN);
+            break;
+        default:
+            DrawString(tft, "ERROR", 20, 20, 5, RA8875_WHITE, RA8875_RED);
+            break;
+    }
+
+    int rounded_wheel_speed= round(this->prev_wheel_speed);
+    std::string speed_str = std::to_string(rounded_wheel_speed);
+    int wheelx=20;
+    int wheely=30;
+    int char_space=5;
+    for (char ch : speed_str){
+        tft.drawChar(wheelx, wheely, ch, RA8875_WHITE, RA8875_RED, 1);
+        wheelx += char_space;
+    }
+
+    DrawString(tft, error_message, SCREEN_WIDTH / 2, SCREEN_HEIGHT/2, 4, RA8875_BLACK, RA8875_RED);
 }
