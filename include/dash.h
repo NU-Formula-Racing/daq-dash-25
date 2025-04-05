@@ -54,26 +54,17 @@ class Dash {
     void DrawBar(Adafruit_RA8875 tft, std::string barName, float newValue, int16_t barColor, int16_t backgroundColor);
     float WheelSpeedAvg(float fl_wheel_speed, float fr_wheel_speed);
     void DrawDriveState(Adafruit_RA8875 tft, int startX, int startY, uint8_t curr_drive_state, int squareSize, float wheel_speed, int wheel_speed_startX, int wheel_speed_startY);
-    void DrawMotorState(Adafruit_RA8875 tft, int startX, int startY, int motor_temp, int squareSize);
-    void DrawInvCurState(Adafruit_RA8875 tft, int startX, int startY, int curr_accum_state, int squareSize);
-    void DrawMinVoltState(Adafruit_RA8875 tft, int startX, int startY, int curr_minVolt_state, int squareSize);
-    void DrawBatteryVoltState(Adafruit_RA8875 tft, int startX, int startY, int curr_batteryVolt_state, int squareSize);
-    void DrawCoolantTemp(Adafruit_RA8875 tft, float coolant_temp, int startX, int startY);
     void DrawMaxCellTemp(Adafruit_RA8875 tft, float max_cell_temp, int startX, int startY);
-    void DrawInverterTemp(Adafruit_RA8875 tft, int inverter_temp, int startX, int startY);
     void DrawIMDStatus(Adafruit_RA8875 tft, int startX, int startY, int imd_status, int squareSize);
     void HandleError(Adafruit_RA8875 tft, std::string error_message, int startX, int startY, Error type);
     void DrawString(Adafruit_RA8875 tft, std::string message, int startX, int startY, int size, int16_t color, int16_t backgroundColor, Direction dir = LEFT_TO_RIGHT);
     void HandleBMSFaults(Adafruit_RA8875 tft, int startX, int startY);
+    void HandleECUFaults(Adafruit_RA8875 tft, int startX, int startY);
+    void HandleInverterFaults(Adafruit_RA8875 tft, int startX, int startY);
 
    private:
     TeensyCAN<3> g_can_bus{};
     VirtualTimerGroup timer_group{};
-
-    // Coolant Signals
-    CANSignal<float, 0, 16, CANTemplateConvertFloat(1), CANTemplateConvertFloat(-40), false> coolant_temp_signal;
-    CANSignal<float, 16, 16, CANTemplateConvertFloat(1), CANTemplateConvertFloat(0), false> coolant_flow_signal;
-    CANRXMessage<2> rx_coolant_state{g_can_bus, 0x420, coolant_temp_signal, coolant_flow_signal};
 
     // Wheel Speed Signals
     CANSignal<float, 16, 16, CANTemplateConvertFloat(0.01), CANTemplateConvertFloat(0), true> fl_wheel_speed_signal;
@@ -149,14 +140,8 @@ class Dash {
 
     uint8_t prev_drive_state = DEFAULT_VALUE_UNSIGNED;
     float prev_wheel_speed = DEFAULT_VALUE;
-    float prev_motor_temp = DEFAULT_VALUE;
     float prev_inverter_current_drawn = DEFAULT_VALUE;
-    float prev_min_volt = DEFAULT_VALUE;
-    float prev_bat_volt = DEFAULT_VALUE;
-    float prev_fr_wheel_speed = DEFAULT_VALUE;
-    float prev_coolant_temp = DEFAULT_VALUE;
     float prev_max_cell_temp = DEFAULT_VALUE;
-    float prev_inverter_temp = DEFAULT_VALUE;
     Error error = NO_ERROR;
     uint8_t bms_faults = 0;
     uint8_t prev_bms_faults = 0;
