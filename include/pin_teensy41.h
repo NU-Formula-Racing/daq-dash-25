@@ -21,6 +21,7 @@
 #define RA8875_RESET 19
 #define RA8875_CS PIN_SPI_SS
 #define RA8875_LITE 18
+#define PIEZZO_INPUT 14
 
 #define INTERNAL_LED 13
 
