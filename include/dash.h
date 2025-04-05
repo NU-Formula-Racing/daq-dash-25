@@ -130,6 +130,23 @@ class Dash {
     CANRXMessage<5> rx_bms_soe{
         g_can_bus, 0x150, bms_max_discharge_signal, bms_max_regen_current_signal, bms_battery_voltage_signal, bms_battery_temperature_signal, bms_battery_current_signal};
 
+    // PDM Bat Volt Signals
+    CANSignal<float, 0, 16, CANTemplateConvertFloat(1.0), CANTemplateConvertFloat(0), false> pdm_bat_volt;
+    CANSignal<bool, 16, 8, CANTemplateConvertFloat(1.0), CANTemplateConvertFloat(0.0), false> pdm_bat_volt_warning;
+    CANRXMessage<2> can_bus_pdm_bat_volt{
+        g_can_bus, 0x291, pdm_bat_volt, pdm_bat_volt_warning};
+
+    // ECU Implausibility
+    CANSignal<bool, 0, 8, CANTemplateConvertFloat(1.0), CANTemplateConvertFloat(0), false> ecu_implausibility_present;
+    CANSignal<bool, 8, 8, CANTemplateConvertFloat(1.0), CANTemplateConvertFloat(0), false> ecu_implausibility_appss_disagreement_imp;
+    CANSignal<bool, 16, 8, CANTemplateConvertFloat(1.0), CANTemplateConvertFloat(0), false> ecu_implausibility_bppc_imp;
+    CANSignal<bool, 24, 8, CANTemplateConvertFloat(1.0), CANTemplateConvertFloat(0), false> ecu_implausibility_brake_invalid_imp;
+    CANSignal<bool, 32, 8, CANTemplateConvertFloat(1.0), CANTemplateConvertFloat(0), false> ecu_implausibility_appss_invalid_imp;
+
+    CANRXMessage<5> can_bus_ecu_implausibility{
+        g_can_bus, 0x204, ecu_implausibility_present, ecu_implausibility_appss_disagreement_imp, 
+        ecu_implausibility_bppc_imp, ecu_implausibility_brake_invalid_imp, ecu_implausibility_appss_invalid_imp};
+
     uint8_t prev_drive_state = DEFAULT_VALUE_UNSIGNED;
     float prev_wheel_speed = DEFAULT_VALUE;
     float prev_motor_temp = DEFAULT_VALUE;
