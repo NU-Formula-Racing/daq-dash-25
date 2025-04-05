@@ -7,10 +7,14 @@
 #include "Adafruit_GFX.h"
 #include "Adafruit_RA8875.h"
 #include "define.h"
+#include "songs.h"
+#include "sound.h"
 
 Adafruit_RA8875 tft = Adafruit_RA8875(RA8875_CS, RA8875_RESET);
 Dash dashboard;
 
+Song song{100, cMajor};
+SoundDriver soundDriver{PIEZZO_INPUT};
 
 void setup() {
     // initialize serial communication, when done, turn internal LED off
@@ -35,9 +39,14 @@ void setup() {
     tft.PWM1out(255);
     dashboard.Initialize();
     dashboard.DrawBackground(tft);
+
+    soundDriver.initialize();
+    soundDriver.setSong(song);
 }
 
 void loop() {
     dashboard.GetCAN();
     dashboard.UpdateDisplay(tft);
+    soundDriver.playSong();
+
 }
