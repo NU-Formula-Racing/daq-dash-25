@@ -152,7 +152,6 @@ void Dash::UpdateDisplay(Adafruit_RA8875 tft) {
 
 #endif
     float avg_wheel_speed = fl_wheel_speed + fr_wheel_speed / 2;
-
     if (this->prev_drive_state != curr_drive_state || FORCE_DRAW) {
         DrawDriveState(tft, drive_state_startX, drive_state_startY, curr_drive_state, 8, avg_wheel_speed, wheel_speed_startX, wheel_speed_startY);
         this->prev_drive_state = curr_drive_state;
@@ -192,9 +191,13 @@ void Dash::UpdateDisplay(Adafruit_RA8875 tft) {
     if(ifBMSfault==false & ifIMDfault==false){
         digitalWrite(INDICATOR_LED, LOW);
     }
+    if(ifBMSfault==false & ifIMDfault==false & ifECUfault==false  & ifInverterfault==false ){
+        tft.fillScreen(this->backgroundColor);
+    }
     DrawIMDStatus(tft, 8, 2, imd_status, 32);
     HandleBMSFaults(tft, 8, 2);
-    HandleInverterFaults(tft, 8, 2);
+    HandleInverterFaults(tft, 8, 3);
+    HandleECUFaults(tft, 8, 2);
     // draw the test bar
     this->DrawBar(tft, "coolant_temp", coolant_temp, FERN_GREEN, this->backgroundColor);
     this->DrawBar(tft, "inverter_temp", inverter_temp, GOLD, this->backgroundColor);
@@ -650,6 +653,50 @@ void Dash::HandleECUFaults(Adafruit_RA8875 tft, int startX, int startY) {
     HandleError(tft, error_message, startX, startY, BMS_FAULT);
 }
 
+void Dash::HandleInverterFaults(Adafruit_RA8875 tft, int startX, int startY) {
+    if (this->bms_faults == 0) { //order or no fault?
+        ifBMSfault=false;
+        return;
+    }
+
+    if (this->prev_bms_faults == this->bms_faults) {
+        return;
+    }
+
+    this->prev_bms_faults = this->bms_faults;
+
+    // there is a fault
+    std::cout << "DETECTED: BMS Faults: " << std::bitset<8>(bms_faults).to_string() << std::endl;
+    ifBMSfault=true;
+    std::string error_message = "BMS:";
+
+    if (this->bms_faults & MASK(1)) {
+        error_message += "UV,";  // under voltage
+    }
+    if (this->bms_faults & MASK(2)) {
+        error_message += "OV,";  // over voltage
+    }
+    if (this->bms_faults & MASK(3)) {
+        error_message += "UT,";  // under temperature
+    }
+    if (this->bms_faults & MASK(4)) {
+        error_message += "OT,";  // over temperature
+    }
+    if (this->bms_faults & MASK(5)) {
+        error_message += "OC,";  // over current
+    }
+    if (this->bms_faults & MASK(6)) {
+        error_message += "EK,";  // external kill
+    }
+    if (this->bms_faults & MASK(7)) {
+        error_message += "OW,";  // open wire
+    }
+
+    // remove the last comma
+    error_message.pop_back();
+    HandleError(tft, error_message, startX, startY, BMS_FAULT);
+}
+
 int Dash::CalcBarHeight(float value, float min, float max, int maxHeight) {
     int lerp = (value - min) / (max - min) * maxHeight;
     // clamp the value between 0 and maxHeight
@@ -685,5 +732,8 @@ void Dash::HandleError(Adafruit_RA8875 tft, std::string error_message, int start
     DrawString(tft, error_message, SCREEN_WIDTH / 4, 0, 2, RA8875_BLACK, RA8875_RED);
     if(ifBMSfault==true || ifIMDfault==true){
         digitalWrite(INDICATOR_LED, HIGH);
+    }
+    if(ifBMSfault==true || ifIMDfault==true || ifECUfault==true  || ifInverterfault==true ){
+        tft.fillScreen(RA8875_RED);
     }
 }
