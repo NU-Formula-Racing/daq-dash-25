@@ -140,6 +140,7 @@ void Dash::UpdateDisplay(Adafruit_RA8875 tft) {
     int curr_drive_state = (millis() / 1000) % 3;          //
     int imd_status = millis() > 5000 ? -10 : 0;            //
     this->bms_faults = millis() > 10000 ? 0b11111111 : 0;  //
+    this->inverter_faults = millis() > 10000 ? 0b11111111 : 0;  //
 
     float coolant_temp = (millis() / 100) % 100;  //
     int inverter_temp = (millis() / 20) % 100;
@@ -193,7 +194,7 @@ void Dash::UpdateDisplay(Adafruit_RA8875 tft) {
     }
     DrawIMDStatus(tft, 8, 2, imd_status, 32);
     HandleBMSFaults(tft, 8, 2);
-
+    HandleInverterFaults(tft, 8, 2);
     // draw the test bar
     this->DrawBar(tft, "coolant_temp", coolant_temp, FERN_GREEN, this->backgroundColor);
     this->DrawBar(tft, "inverter_temp", inverter_temp, GOLD, this->backgroundColor);
@@ -603,6 +604,50 @@ void Dash::DrawString(Adafruit_RA8875 tft, std::string message, int startX, int 
                 break;
         }
     }
+}
+
+void Dash::HandleECUFaults(Adafruit_RA8875 tft, int startX, int startY) {
+    if (this->bms_faults == 0) { //order or no fault?
+        ifBMSfault=false;
+        return;
+    }
+
+    if (this->prev_bms_faults == this->bms_faults) {
+        return;
+    }
+
+    this->prev_bms_faults = this->bms_faults;
+
+    // there is a fault
+    std::cout << "DETECTED: BMS Faults: " << std::bitset<8>(bms_faults).to_string() << std::endl;
+    ifBMSfault=true;
+    std::string error_message = "BMS:";
+
+    if (this->bms_faults & MASK(1)) {
+        error_message += "UV,";  // under voltage
+    }
+    if (this->bms_faults & MASK(2)) {
+        error_message += "OV,";  // over voltage
+    }
+    if (this->bms_faults & MASK(3)) {
+        error_message += "UT,";  // under temperature
+    }
+    if (this->bms_faults & MASK(4)) {
+        error_message += "OT,";  // over temperature
+    }
+    if (this->bms_faults & MASK(5)) {
+        error_message += "OC,";  // over current
+    }
+    if (this->bms_faults & MASK(6)) {
+        error_message += "EK,";  // external kill
+    }
+    if (this->bms_faults & MASK(7)) {
+        error_message += "OW,";  // open wire
+    }
+
+    // remove the last comma
+    error_message.pop_back();
+    HandleError(tft, error_message, startX, startY, BMS_FAULT);
 }
 
 int Dash::CalcBarHeight(float value, float min, float max, int maxHeight) {
