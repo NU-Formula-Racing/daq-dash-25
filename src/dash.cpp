@@ -52,8 +52,8 @@ int inverter_current_last_state = 100;
 int inverter_current_mid_state = 50;
 int min_voltage_last_state = 2.7;
 int min_voltage_mid_state = 3.2;
-int battery_voltage_last_state = 3.4;
-int battery_voltage_mid_state = 3.2;
+int hv_battery_voltage_last_state = 3.4;
+int hv_battery_voltage_mid_state = 3.2;
 
 int bar_max_size = 480;
 
@@ -157,7 +157,7 @@ void Dash::UpdateDisplay(Adafruit_RA8875 tft) {
     }
     // this->prev_wheel_speed = avg_wheel_speed;
     if (this->prev_hv_bat_volt != hv_bat_volt || FORCE_DRAW) {
-        DrawBatteryVoltState(tft, battery_volt_startX, battery_volt_startY, hv_bat_volt, 8);
+        DrawHVBatVoltState(tft, battery_volt_startX, battery_volt_startY, hv_bat_volt, 8);
         this->prev_hv_bat_volt = hv_bat_volt;
     }
     if (this->prev_max_cell_temp != max_cell_temp || FORCE_DRAW) {
@@ -350,18 +350,18 @@ void Dash::DrawMotorState(Adafruit_RA8875 tft, int startX, int startY, int motor
     }
 }
 
-void Dash::DrawInvCurState(Adafruit_RA8875 tft, int startX, int startY, int inverter_current_drawn, int squareSize) {
-    int curr_inverter_current_drawn_state = 0;
+void Dash::DrawHVBatVoltState(Adafruit_RA8875 tft, int startX, int startY, int hv_bat_volt, int squareSize) {
+    int curr_hv_bat_volt_state = 0;
 
-    if (inverter_current_drawn > inverter_current_last_state) {
-        curr_inverter_current_drawn_state = 2;
-    } else if (inverter_current_drawn > inverter_current_mid_state) {
-        curr_inverter_current_drawn_state = 1;
+    if (hv_bat_volt > hv_battery_voltage_last_state) {
+        curr_hv_bat_volt_state = 2;
+    } else if (hv_bat_volt > hv_battery_voltage_mid_state) {
+        curr_hv_bat_volt_state = 1;
     } else {
-        curr_inverter_current_drawn_state = 0;
+        curr_hv_bat_volt_state = 0;
     }
     int16_t color;
-    switch (curr_inverter_current_drawn_state) {
+    switch (curr_hv_bat_volt_state) {
         case 0:
             color = FERN_GREEN;
             break;
@@ -376,7 +376,7 @@ void Dash::DrawInvCurState(Adafruit_RA8875 tft, int startX, int startY, int inve
     tft.fillCircle(SCREEN_WIDTH / 8, SCREEN_HEIGHT * 3 / 4, SCREEN_WIDTH / 8, color);
     DrawString(tft, "IC", startX * 0.8, startY - SCREEN_WIDTH / 9, 5, RA8875_BLACK, color);
     // drive_state = curr_accum_state;
-    int rounded_inverter_current_drawn = round(inverter_current_drawn);
+    int rounded_hv_bat_volt = round(hv_bat_volt);
 
     int digit_spacing = -14;
     int char_width = 80;
@@ -384,19 +384,19 @@ void Dash::DrawInvCurState(Adafruit_RA8875 tft, int startX, int startY, int inve
     startX -= char_width / 2;
 
     // Making a naive assumption that 0 <= wheel speed < 100
-    if (inverter_current_drawn > 99) {
+    if (hv_bat_volt > 99) {
         startX += char_width;
-    } else if (inverter_current_drawn > 9) {
+    } else if (hv_bat_volt > 9) {
         // Digits must be off center for double digit numbers
         startX += char_width / 2;
     }
 
     // Draw the digits
-    while (rounded_inverter_current_drawn > 0) {
-        int digit = rounded_inverter_current_drawn % 10;
+    while (rounded_hv_bat_volt > 0) {
+        int digit = rounded_hv_bat_volt % 10;
         tft.drawChar(startX + 4, startY * 0.8 + SCREEN_WIDTH / 16, digit + '0', RA8875_BLACK, color, 11);
         startX -= char_width + digit_spacing;
-        rounded_inverter_current_drawn /= 10;
+        rounded_hv_bat_volt /= 10;
     }
 }
 
