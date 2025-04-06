@@ -62,6 +62,7 @@ enum NotePitch : int8_t {
     N_AS,  // A# (semitone 10)
     N_BB,  // Bb (semitone 10)
     N_B,   // B (semitone 11)
+    N_REST,
     N_PITCH_COUNT
 };
 
@@ -83,7 +84,8 @@ static const std::array<float, N_PITCH_COUNT> __lutPitch = {
     440.00f,  // A4
     466.16f,  // A#4
     466.16f,  // Bb4
-    493.88f   // B4
+    493.88f,   // B4
+    0.0f // rest
 };
 
 //--------------------------------------------------
@@ -127,6 +129,8 @@ static int8_t getSemitone(NotePitch pitch) {
             return 10;
         case N_B:
             return 11;
+        case N_REST:
+            return N_REST;
         default:
             return 0;
     }
@@ -160,6 +164,8 @@ static NotePitch semitoneToNotePitch(int8_t semitone) {
             return N_AS;
         case 11:
             return N_B;
+        case N_REST:
+            return N_REST;
         default:
             return N_C;
     }
@@ -333,13 +339,21 @@ class SoundDriver {
         
         if (!over) {
             Serial.printf("Progressing to index %d, time %d, next %d, note %d\n", _currentIndex, elapsedTime, _events[_currentIndex + 1].time, event.frequency);
-            tone(_piezoInput, event.frequency);
+            // tone(_piezoInput, event.frequency);
+            if (event.frequency == 0)
+            {
+                analogWrite(_piezoInput, 0);
+                return;
+            }
+
+            analogWriteFrequency(_piezoInput, event.frequency);
+            analogWrite(_piezoInput, 220);
         } else {
             // we are done with the song
             _state = S_NOT_PLAYING;
             // Serial.println("Done playing!");
             _startTime = 0;
-            noTone(_piezoInput);
+            analogWrite(_piezoInput, 0);
         }
     }
 

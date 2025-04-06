@@ -14,7 +14,7 @@
 Adafruit_RA8875 tft = Adafruit_RA8875(RA8875_CS, RA8875_RESET);
 Dash dashboard;
 
-Song song{200, cMajor};
+Song song{312, goU};
 SoundDriver soundDriver{PIEZO_INPUT};
 
 void setup() {
@@ -40,8 +40,8 @@ void setup() {
     // tft.PWM1out(255);
     // dashboard.Initialize();
     // dashboard.DrawBackground(tft);
-
     soundDriver.initialize();
+    song.shift(-2);
     soundDriver.setSong(song);
 }
 
