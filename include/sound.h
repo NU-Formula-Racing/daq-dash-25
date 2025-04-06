@@ -129,8 +129,6 @@ static int8_t getSemitone(NotePitch pitch) {
             return 10;
         case N_B:
             return 11;
-        case N_REST:
-            return N_REST;
         default:
             return 0;
     }
@@ -164,8 +162,6 @@ static NotePitch semitoneToNotePitch(int8_t semitone) {
             return N_AS;
         case 11:
             return N_B;
-        case N_REST:
-            return N_REST;
         default:
             return N_C;
     }
@@ -211,6 +207,8 @@ class Song {
         // For each note, compute the absolute semitone index, apply the shift, and update.
         for (auto &note : notes) {
             // Compute absolute semitone index: base octave (4) + note.octave gives the actual octave.
+            if (note.pitch == N_REST) continue;
+
             int absoluteOctave = 4 + note.octave;
             int globalSemitone = absoluteOctave * 12 + getSemitone(note.pitch);
             globalSemitone += steps;
