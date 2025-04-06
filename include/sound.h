@@ -185,7 +185,7 @@ class Note {
 
 struct DriverEvent {
     uint32_t time;    // Time in milliseconds from the song start
-    float frequency;  // the frequency
+    uint16_t frequency; // the frequency
 };
 
 //--------------------------------------------------
@@ -235,18 +235,17 @@ class Song {
 
             float baseFreq = __lutPitch[note.pitch];
             float freq = baseFreq * powf(2, note.octave);
-            if (freq <= 0.0f) continue;
 
-            float periodMs = 1000.0f / freq;       // One full cycle = 1000 / freq milliseconds
-            float halfPeriodMs = periodMs / 2.0f;  // Half-period for square wave toggle
-            int numToggles = static_cast<int>(durationMs / halfPeriodMs);
+            DriverEvent event = {
+                .time = currentTime,
+                .frequency = freq
+            };
 
-            // Generate high/low toggles
-            for (int i = 0; i < numToggles; ++i) {
-                bool high = (i % 2 == 0);  // Even = HIGH, Odd = LOW
-                events.push_back({currentTime, high ? 1.0f : 0.0f});
-                currentTime += static_cast<uint32_t>(halfPeriodMs);
-            }
+            Serial.printf("Pusing back event %d (%d, %d)", events.size(), currentTime, durationMs);
+
+            events.push_back(event);
+
+            currentTime += static_cast<uint32_t>(durationMs);
         }
 
         return events;
@@ -265,51 +264,86 @@ enum SoundDriverState {
 class SoundDriver {
    public:
     SoundDriver(uint8_t piezoInput)
-        : _piezoInput(piezoInput), _timePlaying(0), _state(S_NOT_PLAYING) {}
+        : _piezoInput(piezoInput), _startTime(0), _state(S_NOT_PLAYING) {}
 
     void initialize() {
-        pinMode(_piezoInput, OUTPUT);
+        pinMode(_piezoInput, OUTPUT);        
     }
 
     // Set the current song (if not already playing) and load its events.
     void setSong(Song song) {
         if (_state == S_PLAYING) {
+            Serial.println("Cannot set song, currently playing!");
             return;
         }
+        Serial.println("Setting song!");
         _events = song.generateEvents();
+        Serial.println("Done setting song!");
         // Reset time when a new song is loaded.
-        _timePlaying = millis();
+        _startTime = millis();
+        _currentIndex = 0;
+        _prevIndex = 1;
+
+        // print out the events
+        for (int i = 0; i < _events.size(); i++) {
+            Serial.printf("%d : %d millis, %d\n",
+                i, _events[i].time, _events[i].frequency
+            );
+        }
     }
 
     SoundDriverState getState() const { return _state; }
 
     // Call this method repeatedly (for example, in the Arduino loop())
     // to process scheduled events.
-    void playSong(bool forceReset = true) {
-        if (forceReset) _timePlaying = millis();
+    void playSong(bool forceReset = false) {
+        if (forceReset) _startTime = millis();
         _state = S_PLAYING;
 
-        uint32_t elapsedTime = millis() - _timePlaying;
+        uint32_t elapsedTime = millis() - _startTime;
 
-        auto it = std::upper_bound(
-            _events.begin(), _events.end(), elapsedTime,
-            [](uint32_t t, const DriverEvent &e) { return t < e.time; });
+        bool over = false;
+        while (elapsedTime > _events[_currentIndex].time) {
+            _currentIndex++;
+            if (_currentIndex == _events.size()) {
+                over = true;
+                break;
+            }
+        }
 
-        if (it != _events.begin()) {
-            --it;
-            digitalWrite(_piezoInput, it->frequency > 0.5f ? HIGH : LOW);
+        if (_currentIndex != 0)
+            _currentIndex--;
+
+
+        if (_prevIndex == _currentIndex) {
+            return; // we didn't change notes
+        }
+
+        _prevIndex = _currentIndex;
+            
+        DriverEvent event = _events[_currentIndex];
+        
+        // Serial.printf("Playing %d for %dms\n", event.frequency, event.time);
+        
+        if (!over) {
+            Serial.printf("Progressing to index %d, time %d, next %d, note %d\n", _currentIndex, elapsedTime, _events[_currentIndex + 1].time, event.frequency);
+            tone(_piezoInput, event.frequency);
         } else {
             // we are done with the song
             _state = S_NOT_PLAYING;
-            _timePlaying = 0;
+            Serial.println("Done playing!");
+            _startTime = 0;
+            noTone(_piezoInput);
         }
     }
 
    private:
     uint8_t _piezoInput;
-    uint32_t _timePlaying;
+    uint32_t _startTime;
     SoundDriverState _state;
     std::vector<DriverEvent> _events;
+    size_t _currentIndex;
+    size_t _prevIndex;
 };
 
 #endif // __SOUND_H__
