@@ -14,7 +14,7 @@
 Adafruit_RA8875 tft = Adafruit_RA8875(RA8875_CS, RA8875_RESET);
 Dash dashboard;
 
-Song song{312, goU};
+Song song{312*2, goU};
 SoundDriver soundDriver{PIEZO_INPUT};
 
 void setup() {
@@ -43,6 +43,9 @@ void setup() {
     soundDriver.initialize();
     song.shift(-2);
     soundDriver.setSong(song);
+    // analogWriteFrequency(PIEZO_INPUT, 2700);
+    // analogWrite(PIEZO_INPUT, 215);
+
 }
 
 void loop() {
