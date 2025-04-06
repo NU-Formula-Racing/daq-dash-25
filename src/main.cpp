@@ -14,7 +14,7 @@
 Adafruit_RA8875 tft = Adafruit_RA8875(RA8875_CS, RA8875_RESET);
 Dash dashboard;
 
-Song song{100, cMajor};
+Song song{200, cMajor};
 SoundDriver soundDriver{PIEZO_INPUT};
 
 void setup() {

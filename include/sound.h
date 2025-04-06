@@ -175,8 +175,8 @@ class Note {
     NoteDuration duration;
     int8_t octave;  // Relative to the 4th octave (0 means octave 4)
 
-    Note(NotePitch pitch, NoteDuration duration, int8_t octave = 0)
-        : pitch(pitch), duration(duration), octave(octave) {}
+    Note(NotePitch pitch, NoteDuration duration, int8_t octave = 4)
+        : pitch(pitch), duration(duration), octave(octave - 4) {}
 };
 
 //--------------------------------------------------
@@ -234,11 +234,11 @@ class Song {
             float durationMs = wholeDurationMs * __lutDuration[note.duration];
 
             float baseFreq = __lutPitch[note.pitch];
-            float freq = baseFreq * powf(2, note.octave);
+            float freq = baseFreq * pow(2, note.octave);
 
             DriverEvent event = {
                 .time = currentTime,
-                .frequency = freq
+                .frequency = static_cast<uint16_t>(freq)
             };
 
             Serial.printf("Pusing back event %d (%d, %d)", events.size(), currentTime, durationMs);
@@ -247,6 +247,13 @@ class Song {
 
             currentTime += static_cast<uint32_t>(durationMs);
         }
+
+        DriverEvent final = {
+            .time = currentTime,
+            .frequency = 0
+        };
+
+        events.push_back(final);
 
         return events;
     }
@@ -285,7 +292,7 @@ class SoundDriver {
         _prevIndex = 1;
 
         // print out the events
-        for (int i = 0; i < _events.size(); i++) {
+        for (size_t i = 0; i < _events.size(); i++) {
             Serial.printf("%d : %d millis, %d\n",
                 i, _events[i].time, _events[i].frequency
             );
@@ -296,8 +303,7 @@ class SoundDriver {
 
     // Call this method repeatedly (for example, in the Arduino loop())
     // to process scheduled events.
-    void playSong(bool forceReset = false) {
-        if (forceReset) _startTime = millis();
+    void playSong() {
         _state = S_PLAYING;
 
         uint32_t elapsedTime = millis() - _startTime;
@@ -331,7 +337,7 @@ class SoundDriver {
         } else {
             // we are done with the song
             _state = S_NOT_PLAYING;
-            Serial.println("Done playing!");
+            // Serial.println("Done playing!");
             _startTime = 0;
             noTone(_piezoInput);
         }
