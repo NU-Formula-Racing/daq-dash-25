@@ -1,6 +1,11 @@
-#include <string>
-#include <CAN.h>
+#ifndef __DRIVE_BUS_H__
+#define __DRIVE_BUS_H__
+
 #include <Arduino.h>
+#include <CAN.h>
+
+#include <string>
+
 #include "virtualTimer.h"
 
 struct DriveBusData {
@@ -13,7 +18,7 @@ struct DriveBusData {
 };
 
 class DriveBus {
-    public:
+   public:
     // returns imuatable reference to _data
     const DriveBusData &getData() const;
 
@@ -25,7 +30,7 @@ class DriveBus {
 
    private:
     DriveBusData _data;
-    CAN<1> _driveBus;
+    TeensyCAN<1> _driveBus;
     VirtualTimerGroup timer_group{};
     // all of the CAN message stuff and setup
 
@@ -72,6 +77,7 @@ class DriveBus {
     MakeSignedCANSignal(bool, 6, 1, 1, 0) bms_fault_external_kill_signal;
     MakeSignedCANSignal(bool, 7, 1, 1, 0) bms_fault_open_wire_signal;
     CANRXMessage<8> rx_bms_faults{
-        g_can_bus, 0x151, bms_fault_summary_signal, bms_fault_under_voltage_signal, bms_fault_over_voltage_signal, bms_fault_under_temperature_signal, bms_fault_over_temperature_signal, bms_fault_over_current_signal, bms_fault_external_kill_signal, bms_fault_open_wire_signal};
-
+        _driveBus, 0x151, bms_fault_summary_signal, bms_fault_under_voltage_signal, bms_fault_over_voltage_signal, bms_fault_under_temperature_signal, bms_fault_over_temperature_signal, bms_fault_over_current_signal, bms_fault_external_kill_signal, bms_fault_open_wire_signal};
 };
+
+#endif  // __DRIVE_BUS_H__

@@ -1,10 +1,10 @@
-#include "drivebus.h"
+#include "can/drive_bus.h"
 
-void DriveBus::GetCAN() {
-    this->_driveBus.Tick();
+const DriveBusData& DriveBus::getData() const {
+    return _data;
 }
 
-void DriveBus::Initialize() {
+void DriveBus::initialize() {
     _driveBus.Initialize(ICAN::BaudRate::kBaud500K);
 
     _driveBus.RegisterRXMessage(rx_fl_wheel_speed);
@@ -17,7 +17,7 @@ void DriveBus::Initialize() {
     _driveBus.RegisterRXMessage(rx_bms_faults);
 }
 
-void DriveBus::Update() {
+void DriveBus::update() {
     this->_data.wheelSpeeds[0] = fl_wheel_speed_signal;
     this->_data.wheelSpeeds[1] = fr_wheel_speed_signal;
     this->_data.wheelSpeeds[2] = bl_wheel_speed_signal;
@@ -37,8 +37,4 @@ void DriveBus::Update() {
     this->_data.faults[5] = bms_fault_over_current_signal;
     this->_data.faults[6] = bms_fault_external_kill_signal;
     this->_data.faults[7] = bms_fault_open_wire_signal;
-}
-
-const DriveBusData& DriveBus::getData() const {
-    return this->_data;
 }

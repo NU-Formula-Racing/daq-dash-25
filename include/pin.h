@@ -22,6 +22,8 @@
 #define PIEZO_INPUT A8
 
 #define INTERNAL_LED 13
+#define INDICATOR_LED 17 //is this right?
+
 
 //other pins
 // drive can tx   1
