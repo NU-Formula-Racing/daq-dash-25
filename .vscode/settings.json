@@ -61,5 +61,6 @@
         "concepts": "cpp",
         "numbers": "cpp",
         "*.tpp": "cpp"
-    }
+    },
+    "C_Cpp.errorSquiggles": "disabled"
 }
