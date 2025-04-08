@@ -2,6 +2,7 @@
 #define __PRIMATIVES_H__
 
 #include "texture.h"
+#include "vec.h"
 
 enum DisplayPrimativesType {
     PRIM_LINE,
@@ -19,12 +20,35 @@ struct DisplayPrimativeOptions {
     float outlineWidth;
 };
 
-struct PrimLine;
-struct PrimSquare;
-struct PrimCircle;
-struct PrimTri;
-struct PrimEllipse;
-struct PrimRoundedSquare;
+struct PrimLine {
+    Vec2 start, end;
+};
+
+struct PrimSquare {
+    Vec2 topLeft, bottomRight;
+    float rotation;
+};
+
+struct PrimCircle {
+    Vec2 center;
+    float radius;
+};
+
+struct PrimTri {
+    Vec2 a, b, c;
+};
+
+struct PrimEllipse {
+    Vec2 center;
+    float a, b;
+    float rotation;
+};
+
+struct PrimRoundedSquare {
+    Vec2 topLeft, bottomRight;
+    float rotation;
+    float radius;
+};
 
 union DisplayPrimativeDescription {
     PrimLine lineOpt;
@@ -32,7 +56,7 @@ union DisplayPrimativeDescription {
     PrimCircle circleOpt;
     PrimTri triOpt;
     PrimEllipse elipseOpt;
-    PrimSquare roundSquareOpt;
+    PrimRoundedSquare roundSquareOpt;
 };
 
 struct DisplayPrimative {
@@ -41,15 +65,22 @@ struct DisplayPrimative {
     DisplayPrimativeOptions options;
     DisplayPrimativeDescription desc;
 
-    static DisplayPrimative line(DisplayPrimativeOptions options, PrimLine lineDesc) { return DisplayPrimative(PRIM_LINE, options, lineDesc); }
-    static DisplayPrimative square(DisplayPrimativeOptions options, PrimSquare squareDesc) { return DisplayPrimative(PRIM_SQUARE, options, squareDesc); }
-    static DisplayPrimative circle(DisplayPrimativeOptions options, PrimCircle circleDesc) { return DisplayPrimative(PRIM_CIRCLE, options, circleDesc); }
-    static DisplayPrimative tri(DisplayPrimativeOptions options, PrimTri triDesc) { return DisplayPrimative(PRIM_TRI, options, triDesc); }
-    static DisplayPrimative ellipse(DisplayPrimativeOptions options, PrimEllipse ellipseDesc) { return DisplayPrimative(PRIM_ELLIPSE, options, ellipseDesc); }
-    static DisplayPrimative roundedSquare(DisplayPrimativeOptions options, PrimSquare roundSquareDesc) { return DisplayPrimative(PRIM_ROUNDED_SQUARE, options, roundSquareDesc); }
+    static DisplayPrimative line(DisplayPrimativeOptions options, PrimLine lineDesc) {
+        return DisplayPrimative(PRIM_LINE, options, (DisplayPrimativeDescription) {
+            .lineOpt = lineDesc
+        });
+    }
+
+    static DisplayPrimative square(DisplayPrimativeOptions options, PrimSquare squareDesc) { 
+        return DisplayPrimative(PRIM_SQUARE, options, (DisplayPrimativeDescription){
+            .squareOpt = squareDesc
+        });
+    }
+
+
 
    private:
     DisplayPrimative(DisplayPrimativesType primType, DisplayPrimativeOptions primOptions, DisplayPrimativeDescription primDesc) : type(primType), options(primOptions), desc(primDesc) {}
-}
+};
 
 #endif  // __PRIMATIVES_H__

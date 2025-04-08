@@ -26,7 +26,7 @@ struct Color {
     }
 
     static Color lerp(const Color &a, const Color &b, float t) {
-        return (1 - t) * a + t * b;
+        return a * (1 - t) + b * t;
     }
 
     Color &operator=(const Color &c) {
@@ -80,17 +80,6 @@ struct Color {
         return l;
     }
 
-    std::string toString() const {
-        float fr = this->toFloat(r);
-        float fg = this->toFloat(g);
-        float fb = this->toFloat(b);
-        float fa = this->toFloat(a);
-
-        std::stringstream ss;
-        ss << "(" << fr << ", " << fg << ", " << fb << ", " << fa << ")";
-        return ss.str();
-    }
-
    private:
     /// @brief converts 0-255 to 0-1 (char to float)
     static inline float toFloat(uint8_t c) {
@@ -100,6 +89,33 @@ struct Color {
     /// @brief converts 0-1 to 0-255 (float to char)
     static inline uint8_t toChar(float f) {
         return (uint8_t)(f * 255.0f);
+    }
+};
+
+struct TextureSettings {
+    uint16_t width, height;
+};
+
+class Texture {
+   public:
+    const TextureSettings settings;
+
+    Texture(TextureSettings settings) : settings(settings) {
+        // _data = new Color[](settings.width * settings.height);
+    }
+
+    uint16_t width() const { return settings.width; }
+    uint16_t height() const { return settings.height; }
+
+    Color get(uint16_t x, uint16_t y) const {
+        return _data[getIndex(x, y)];
+    }
+
+   private:
+    Color _data[];
+
+    size_t getIndex(uint16_t x, uint16_t y) const {
+        return y * settings.width + x;
     }
 };
 
