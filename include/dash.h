@@ -55,11 +55,12 @@ class Dash {
     void DrawBackground(Adafruit_RA8875 tft, int16_t color = RUSSIAN_VIOLET);
     void DrawBar(Adafruit_RA8875 tft, std::string barName, float newValue, int16_t barColor, int16_t backgroundColor);
     float WheelSpeedAvg(float fl_wheel_speed, float fr_wheel_speed);
-    void DrawDriveState(Adafruit_RA8875 tft, int startX, int startY, uint8_t curr_drive_state, int squareSize, float wheel_speed, int wheel_speed_startX, int wheel_speed_startY, bool ifErrorScreen);    
-    void DrawMaxCellTemp(Adafruit_RA8875 tft, float max_cell_temp, int startX, int startY);
-    void DrawMinCellTemp(Adafruit_RA8875 tft, float min_cell_temp, int startX, int startY);
-    void DrawHVBatVoltState(Adafruit_RA8875 tft, int startX, int startY, int hv_bat_volt, int squareSize);
-    void DrawLVBatVoltState(Adafruit_RA8875 tft, int startX, int startY, int lv_bat_volt, int squareSize);
+    void DrawDriveState(Adafruit_RA8875 tft, int startX, int startY, uint8_t curr_drive_state, int squareSize, float wheel_speed, int wheel_speed_startX, int wheel_speed_startY, bool ifErrorScreen);
+    void Dash::DrawState(Adafruit_RA8875 tft, int startX, int startY, int display_value, int squareSize, int laststate, int midstate);    
+    // void DrawMaxCellTemp(Adafruit_RA8875 tft, float max_cell_temp, int startX, int startY);
+    // void DrawMinCellTemp(Adafruit_RA8875 tft, float min_cell_temp, int startX, int startY);
+    // void DrawHVBatVoltState(Adafruit_RA8875 tft, int startX, int startY, int hv_bat_volt, int squareSize);
+    // void DrawLVBatVoltState(Adafruit_RA8875 tft, int startX, int startY, int lv_bat_volt, int squareSize);
     void DrawIMDStatus(Adafruit_RA8875 tft, int startX, int startY, int imd_status, int squareSize);
     void HandleError(Adafruit_RA8875 tft, std::string error_message, int startX, int startY, Error type);
     void DrawString(Adafruit_RA8875 tft, std::string message, int startX, int startY, int size, int16_t color, int16_t backgroundColor, Direction dir = LEFT_TO_RIGHT);
