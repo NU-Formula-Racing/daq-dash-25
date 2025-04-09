@@ -1,0 +1,17 @@
+#include <SD.h>
+#include <SPI.h>
+
+#include "can/drive_bus.h"
+
+class Logger {
+    public:
+    void initialize();
+
+    void log();
+
+    void close();
+
+    private:
+    DriveBus drive_bus;
+    File file;
+};
