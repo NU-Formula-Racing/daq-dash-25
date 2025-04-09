@@ -18,7 +18,7 @@ void Logger::initialize() {
     // open up the file here
     // log_dd_mm_yy_time ->>> CORRECTION ":" is not supported in filenames so changed all instances with "_"
 
-    std::string filename = "log_" + std::to_string(day()) + "_" + std::to_string(month()) + "_" + std::to_string(year());
+    std::string filename = "log_" + std::to_string(day()) + "_" + std::to_string(month()) + "_" + std::to_string(year()) + ".csv";
 
     this->file = SD.open(filename.c_str(), FILE_WRITE);
 
@@ -27,7 +27,7 @@ void Logger::initialize() {
 
     std::string header = "time, wheelspeed_FL, wheelspeed_FR, wheelspeed_BL, wheelspeed_BR, driveState," 
                          "HVVoltage, LVVoltage, batteryTemp, Fault_Summary, Undervoltage_Fault, Overvoltage_Fault, Undertemperature_Fault,"
-                         "Overtemperature_Fault, Overcurrent_Fault, External_Kill_Fault, Open_Wire_Fault";
+                         "Overtemperature_Fault, Overcurrent_Fault, External_Kill_Fault, Open_Wire_Fault\n";
     
     file.write(header.c_str());
 
@@ -51,6 +51,8 @@ void Logger::log() {
     for (const auto& fault : data.faults) {
         line = line + "," + std::to_string(fault);
     }
+
+    line = line + "\n";
 
     this->file.write(line.c_str());
 
