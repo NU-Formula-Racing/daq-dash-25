@@ -8,8 +8,8 @@
 
 #include "virtualTimer.h"
 
-#define NUM_TEMP_CELLS 79
-#define NUM_VOLT_CELLS 139
+#define NUM_TEMP_CELLS 80
+#define NUM_VOLT_CELLS 140
 
 struct DataBusData {
     float cellTemperatures[NUM_TEMP_CELLS];
