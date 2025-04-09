@@ -18,14 +18,16 @@ class DriveBus {
     const DriveBusData &getData() const;
 
     // does any of the initialization stuff
-    void initialize();
+    void Initialize();
+
+    void GetCAN();
 
     // takes all of the can signals, and populates the DriveBusData
-    void update();
+    void Update();
 
    private:
     DriveBusData _data;
-    CAN<1> _driveBus;
+    TeensyCAN<1> _driveBus;
     VirtualTimerGroup timer_group{};
     // all of the CAN message stuff and setup
 
@@ -72,6 +74,6 @@ class DriveBus {
     MakeSignedCANSignal(bool, 6, 1, 1, 0) bms_fault_external_kill_signal;
     MakeSignedCANSignal(bool, 7, 1, 1, 0) bms_fault_open_wire_signal;
     CANRXMessage<8> rx_bms_faults{
-        g_can_bus, 0x151, bms_fault_summary_signal, bms_fault_under_voltage_signal, bms_fault_over_voltage_signal, bms_fault_under_temperature_signal, bms_fault_over_temperature_signal, bms_fault_over_current_signal, bms_fault_external_kill_signal, bms_fault_open_wire_signal};
+        _driveBus, 0x151, bms_fault_summary_signal, bms_fault_under_voltage_signal, bms_fault_over_voltage_signal, bms_fault_under_temperature_signal, bms_fault_over_temperature_signal, bms_fault_over_current_signal, bms_fault_external_kill_signal, bms_fault_open_wire_signal};
 
 };

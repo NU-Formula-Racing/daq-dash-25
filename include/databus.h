@@ -9,7 +9,7 @@
 struct DataBusData {
     float cellTemperatures[NUM_TEMP_CELLS];
     float cellVoltages[NUM_VOLT_CELLS];
-}
+};
 
 class DataBus {
     public:
@@ -30,4 +30,4 @@ class DataBus {
     CANRXMessage<3> rx_pdm_current{_dataBus, 0x290, gen_amps_signal, fan_amps_signal, pump_amps_signal};
 
     
-}
+};
