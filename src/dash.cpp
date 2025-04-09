@@ -247,13 +247,7 @@ void Dash::DrawBar(Adafruit_RA8875 tft, std::string barName, float newValue, int
 
 // COME HERE NEXT TIME TO DRAW THE NUMBER IN THE MIDDLE. ALSO, CHANGE DRAWCHAR FOR OTHER DRAW STATE CIRCLES AND THE MIDDLE RECTANGLE BC FULL WORDS
 
-void Dash::DrawMaxCellTemp(Adafruit_RA8875 tft, float max_cell_temp, int startX, int startY) {
-    DrawString(tft, "MCT", startX + 2, startY, 5, RA8875_WHITE, RUSSIAN_VIOLET);
-}
 
-void Dash::DrawMinCellTemp(Adafruit_RA8875 tft, float min_cell_temp, int startX, int startY) {
-    // []
-}
 
 // Draws drive state on screen based on CAN signal
 // Draws drive state on screen based on CAN signal
