@@ -29,15 +29,15 @@
 int drive_state_startX = SCREEN_WIDTH / 4;
 int drive_state_startY = SCREEN_HEIGHT / 3;
 int hv_bat_volt_startX = SCREEN_WIDTH / 8;
-int hv_bat_volt_startY = SCREEN_HEIGHT / 4;
+int hv_bat_volt_startY = SCREEN_HEIGHT / 4 + 30;
 int lv_bat_volt_startX = SCREEN_WIDTH / 8;
-int lv_bat_volt_startY = SCREEN_HEIGHT * 3 / 4;
+int lv_bat_volt_startY = SCREEN_HEIGHT * 3 / 4 + 30;
 int wheel_speed_startX = SCREEN_WIDTH / 2 + 40;
 int wheel_speed_startY = SCREEN_HEIGHT * 0.34;
 int max_cell_temp_startX = SCREEN_WIDTH * 7 / 8;
-int max_cell_temp_startY = SCREEN_HEIGHT / 4;
+int max_cell_temp_startY = SCREEN_HEIGHT / 4 + 30;
 int min_cell_temp_startX = SCREEN_WIDTH * 7 / 8;
-int min_cell_temp_startY = SCREEN_HEIGHT * 3 / 4;
+int min_cell_temp_startY = SCREEN_HEIGHT * 3 / 4 + 30;
 
 
 // for states, after mid state, goes to last state
@@ -97,14 +97,6 @@ void Dash::DrawBackground(Adafruit_RA8875 tft, int16_t color) {
     tft.drawRect(SCREEN_WIDTH / 4, SCREEN_HEIGHT / 3, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 3, RA8875_WHITE);
     // COOLANT, MAX CELL, INTERVERT TEMPS RECT
     tft.drawRect(SCREEN_WIDTH / 4, SCREEN_HEIGHT * 2 / 3, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 3, RA8875_WHITE);
-    // MOTOR TEMP CIRC TOP LEFT
-    tft.drawCircle(SCREEN_WIDTH / 8, SCREEN_HEIGHT / 4, SCREEN_WIDTH / 8, RA8875_WHITE);
-    // ACCUM TEMP CIRC BOTTOM LEFT
-    tft.drawCircle(SCREEN_WIDTH / 8, SCREEN_HEIGHT * 3 / 4, SCREEN_WIDTH / 8, RA8875_WHITE);
-    // MIN VOLTAGE CIRC TOP RIGHT
-    tft.drawCircle(SCREEN_WIDTH * 7 / 8, SCREEN_HEIGHT / 4, SCREEN_WIDTH / 8, RA8875_WHITE);
-    // BATTERY VOLTAGE CIRC BOTTOM RIGHT
-    tft.drawCircle(SCREEN_WIDTH * 7 / 8, SCREEN_HEIGHT * 3 / 4, SCREEN_WIDTH / 8, RA8875_WHITE);
 
     // write circle labels
     DrawString(tft, "HV Battery Voltage", hv_bat_volt_startX * 0.8, hv_bat_volt_startY - SCREEN_WIDTH / 9, 5, RA8875_BLACK, color);
@@ -155,6 +147,9 @@ void Dash::UpdateDisplay(Adafruit_RA8875 tft) {
     float battery_voltage = (millis() / 100) % 100;  //
     float min_voltage = (millis() / 20) % 100;       //
     float max_cell_temp = (millis() / 10) % 100;     //
+    float min_cell_temp = (millis() / 10) % 100;
+    float hv_bat_volt = (millis() / 100) % 100;
+    float lv_bat_volt = (millis() / 100) % 100;
 
 #endif
     float avg_wheel_speed = fl_wheel_speed + fr_wheel_speed / 2;
@@ -172,12 +167,12 @@ void Dash::UpdateDisplay(Adafruit_RA8875 tft) {
         this->prev_lv_bat_volt = lv_bat_volt;
     }
     if (this->prev_max_cell_temp != max_cell_temp || FORCE_DRAW) {
-        DrawState(tft, max_cell_temp, max_cell_temp_startX, max_cell_temp_startY, 8,  max_cell_temp_mid_state, max_cell_temp_last_state);
+        DrawState(tft, max_cell_temp_startX, max_cell_temp_startY, max_cell_temp, 8,  max_cell_temp_mid_state, max_cell_temp_last_state);
         this->prev_max_cell_temp = max_cell_temp;
     }
     if (this->prev_min_cell_temp != min_cell_temp || FORCE_DRAW) {
-        DrawState(tft, min_cell_temp, min_cell_temp_startX, min_cell_temp_startY, 8, max_cell_temp_mid_state, max_cell_temp_last_state);
-        this->prev_max_cell_temp = max_cell_temp;
+        DrawState(tft, min_cell_temp_startX, min_cell_temp_startY, min_cell_temp, 8, min_cell_temp_mid_state, min_cell_temp_last_state);
+        this->prev_min_cell_temp = min_cell_temp;
     }
 
     // draw IMD status
@@ -185,7 +180,7 @@ void Dash::UpdateDisplay(Adafruit_RA8875 tft) {
         digitalWrite(INDICATOR_LED, LOW);
     }
     if(ifBMSfault==false & ifIMDfault==false & ifECUfault==false  & ifInverterfault==false ){
-        tft.fillScreen(this->backgroundColor);
+        // tft.fillScreen(this->backgroundColor);
     }
     DrawIMDStatus(tft, 8, 2, imd_status, 32);
     HandleBMSFaults(tft, 8, 2);
@@ -544,7 +539,7 @@ void Dash::DrawState(Adafruit_RA8875 tft, int startX, int startY, int display_va
             break;
     }
 
-    tft.fillCircle(SCREEN_WIDTH / 8, SCREEN_HEIGHT * 3 / 4, SCREEN_WIDTH / 8, color);
+    tft.fillCircle(startX, startY, SCREEN_WIDTH / 10, color);
     // DrawString(tft, "IC", startX * 0.8, startY - SCREEN_WIDTH / 9, 5, RA8875_BLACK, color);
     // drive_state = curr_accum_state;
     int rounded_display_value = round(display_value);
