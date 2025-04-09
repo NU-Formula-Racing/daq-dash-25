@@ -109,7 +109,8 @@ void Dash::DrawBackground(Adafruit_RA8875 tft, int16_t color) {
     // write circle labels
     DrawString(tft, "HV Battery Voltage", hv_bat_volt_startX * 0.8, hv_bat_volt_startY - SCREEN_WIDTH / 9, 5, RA8875_BLACK, color);
     DrawString(tft, "LV Battery Voltage", lv_bat_volt_startX * 0.8, lv_bat_volt_startY - SCREEN_WIDTH / 9, 5, RA8875_BLACK, color);
-
+    DrawString(tft, "Max Cell Temp", lv_bat_volt_startX * 0.8, lv_bat_volt_startY - SCREEN_WIDTH / 9, 5, RA8875_BLACK, color);
+    DrawString(tft, "Min Cell Temp", lv_bat_volt_startX * 0.8, lv_bat_volt_startY - SCREEN_WIDTH / 9, 5, RA8875_BLACK, color);
     // write text beneath the bars
     // iterate
     for (auto &bar : this->bars) {
@@ -190,60 +191,10 @@ void Dash::UpdateDisplay(Adafruit_RA8875 tft) {
     HandleBMSFaults(tft, 8, 2);
     HandleInverterFaults(tft, 8, 3);
     HandleECUFaults(tft, 8, 2);
-    // draw the test bar
-    // this->DrawBar(tft, "coolant_temp", coolant_temp, FERN_GREEN, this->backgroundColor);
-    // this->DrawBar(tft, "inverter_temp", inverter_temp, GOLD, this->backgroundColor);
-    // this->DrawBar(tft, "motor_temp", max_cell_temp, RA8875_BLUE, this->backgroundColor);
-
-    // this->DrawBar(tft, "battery_voltage", battery_voltage, FERN_GREEN, this->backgroundColor);
-    // this->DrawBar(tft, "min_voltage", min_voltage, GOLD, this->backgroundColor);
-    // this->DrawBar(tft, "max_cell_temp", max_cell_temp, RA8875_BLUE, this->backgroundColor);
 
     timer_group.Tick(millis());
 }
 
-void Dash::DrawBar(Adafruit_RA8875 tft, std::string barName, float newValue, int16_t barColor, int16_t backgroundColor) {
-    // get the bar if any
-    if (this->bars.find(barName) == this->bars.end()) {
-        return;
-    }
-
-    BarData &bar = this->bars[barName];
-
-    // are the values the same?
-    if (bar.value == newValue) {
-        return;
-    }
-
-    // calculate the height of the bar
-    int newWidth = CalcBarWidth(newValue, bar.min, bar.max, bar.maxWidth);
-    int oldWidth = CalcBarWidth(bar.value, bar.min, bar.max, bar.maxWidth);
-
-    if (newWidth == oldWidth) {
-        return;
-    }
-
-    // draw the bar
-    int diff = newWidth - oldWidth;
-    bar.value = newValue;
-
-    // std::cout << "Drawing bar " << barName << " with value " << newValue << " and height " << newHeight << std::endl;
-
-    if (diff > 0) {
-        // if the new height is greater than the old height, we need to fill in the difference
-        // we will draw the bar to go upwards
-        // the top left of the screen is 0,0
-        // tft.fillRect(bar.x + newWidth, bar.y, diff, bar.height, barColor);
-        tft.fillRect(bar.x + oldWidth, bar.y, diff, bar.height, barColor);
-    } else {
-        // if the new height is less than the old height, we need to clear the difference
-        // we will draw the bar to go downwards
-        // tft.fillRect(bar.x + oldWidth, bar.y, -diff, bar.height, NORTHWESTERN_PURPLE);
-        tft.fillRect(bar.x + newWidth, bar.y, -diff, bar.height, backgroundColor);
-    }
-
-    // write the value at the bottom of the
-}
 
 // COME HERE NEXT TIME TO DRAW THE NUMBER IN THE MIDDLE. ALSO, CHANGE DRAWCHAR FOR OTHER DRAW STATE CIRCLES AND THE MIDDLE RECTANGLE BC FULL WORDS
 
@@ -329,108 +280,6 @@ void Dash::DrawDriveState(Adafruit_RA8875 tft, int startX, int startY, uint8_t c
         rounded_wheel_speed /= 10;
     }
 }
-
-// Draws high voltage battery voltage circle
-// void Dash::DrawHVBatVoltState(Adafruit_RA8875 tft, int startX, int startY, int hv_bat_volt, int squareSize) {
-//     int curr_hv_bat_volt_state = 0;
-
-//     if (hv_bat_volt > hv_battery_voltage_last_state) {
-//         curr_hv_bat_volt_state = 2;
-//     } else if (hv_bat_volt > hv_battery_voltage_mid_state) {
-//         curr_hv_bat_volt_state = 1;
-//     } else {
-//         curr_hv_bat_volt_state = 0;
-//     }
-//     int16_t color;
-//     switch (curr_hv_bat_volt_state) {
-//         case 0:
-//             color = FERN_GREEN;
-//             break;
-//         case 1:
-//             color = GOLD;
-//             break;
-//         case 2:
-//             color = INDIAN_RED;
-//             break;
-//     }
-
-//     tft.fillCircle(SCREEN_WIDTH / 8, SCREEN_HEIGHT * 3 / 4, SCREEN_WIDTH / 8, color);
-//     DrawString(tft, "IC", startX * 0.8, startY - SCREEN_WIDTH / 9, 5, RA8875_BLACK, color);
-//     // drive_state = curr_accum_state;
-//     int rounded_hv_bat_volt = round(hv_bat_volt);
-
-//     int digit_spacing = -14;
-//     int char_width = 80;
-
-//     startX -= char_width / 2;
-
-//     // Making a naive assumption that 0 <= wheel speed < 100
-//     if (hv_bat_volt > 99) {
-//         startX += char_width;
-//     } else if (hv_bat_volt > 9) {
-//         // Digits must be off center for double digit numbers
-//         startX += char_width / 2;
-//     }
-
-//     // Draw the digits
-//     while (rounded_hv_bat_volt > 0) {
-//         int digit = rounded_hv_bat_volt % 10;
-//         tft.drawChar(startX + 4, startY * 0.8 + SCREEN_WIDTH / 16, digit + '0', RA8875_BLACK, color, 11);
-//         startX -= char_width + digit_spacing;
-//         rounded_hv_bat_volt /= 10;
-//     }
-// }
-
-// Draws low voltage battery voltage circle
-// void Dash::DrawLVBatVoltState(Adafruit_RA8875 tft, int startX, int startY, int lv_bat_volt, int squareSize) {
-//     int curr_lv_bat_volt_state = 0;
-
-//     if (lv_bat_volt > lv_battery_voltage_last_state) {
-//         curr_lv_bat_volt_state = 2;
-//     } else if (lv_bat_volt > lv_battery_voltage_mid_state) {
-//         curr_lv_bat_volt_state = 1;
-//     } else {
-//         curr_lv_bat_volt_state = 0;
-//     }
-//     int16_t color;
-//     switch (curr_lv_bat_volt_state) {
-//         case 0:
-//             color = FERN_GREEN;
-//             break;
-//         case 1:
-//             color = GOLD;
-//             break;
-//         case 2:
-//             color = INDIAN_RED;
-//             break;
-//     }
-
-//     tft.fillCircle(SCREEN_WIDTH / 8, SCREEN_HEIGHT * 3 / 4, SCREEN_WIDTH / 8, color);
-//     DrawString(tft, "IC", startX * 0.8, startY - SCREEN_WIDTH / 9, 5, RA8875_BLACK, color);
-//     // drive_state = curr_accum_state;
-//     int rounded_lv_bat_volt = round(lv_bat_volt);
-
-//     int digit_spacing = -14;
-//     int char_width = 80;
-
-//     startX -= char_width / 2;
-
-//     // Making a naive assumption that 0 <= wheel speed < 100
-//     if (lv_bat_volt > 99) {
-//         startX += char_width;
-//     } else if (lv_bat_volt > 9) {
-//         // Digits must be off center for double digit numbers
-//         startX += char_width / 2;
-//     }
-
-//     // Draw the digits
-//     while (rounded_lv_bat_volt > 0) {
-//         int digit = rounded_lv_bat_volt % 10;
-//         tft.drawChar(startX + 4, startY * 0.8 + SCREEN_WIDTH / 16, digit + '0', RA8875_BLACK, color, 11);
-//         startX -= char_width + digit_spacing;
-//         rounded_lv_bat_volt /= 10;
-//     }
-// }
 
 void Dash::DrawIMDStatus(Adafruit_RA8875 tft, int startX, int startY, int imd_status, int squareSize) {
     std::string status;
