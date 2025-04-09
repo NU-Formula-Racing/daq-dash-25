@@ -1,6 +1,6 @@
 #include "logger.h"
 #include <TimeLib.h>
-#include <String>
+#include <string>
 
 const int chipSelect = BUILTIN_SDCARD;
 
@@ -25,9 +25,9 @@ void Logger::initialize() {
     // write the header
     // time, wheelspeed_FL, wheelspeed_fr ....
 
-    std::string header = "time, wheelspeed_FL, wheelspeed_FR, wheelspeed_BL, wheelspeed_BR, driveState, 
-                            HVVoltage, LVVoltage, batteryTemp, Fault_Summary, Undervoltage_Fault, Overvoltage_Fault, Undertemperature_Fault, 
-                            Overtemperature_Fault, Overcurrent_Fault, External_Kill_Fault, Open_Wire_Fault";
+    std::string header = "time, wheelspeed_FL, wheelspeed_FR, wheelspeed_BL, wheelspeed_BR, driveState," 
+                         "HVVoltage, LVVoltage, batteryTemp, Fault_Summary, Undervoltage_Fault, Overvoltage_Fault, Undertemperature_Fault,"
+                         "Overtemperature_Fault, Overcurrent_Fault, External_Kill_Fault, Open_Wire_Fault";
     
     file.write(header.c_str());
 
@@ -40,7 +40,7 @@ void Logger::log() {
     std::string line = "";
 
 
-    line = line + std::to_string(hour()) + "," + std::to_string(minute()) + "," std::to_string(second()) + ",";
+    line = line + std::to_string(hour()) + "," + std::to_string(minute()) + "," + std::to_string(second()) + ",";
 
     for (const auto& wheel : data.wheelSpeeds) {
         line = line + std::to_string(wheel) + ",";
@@ -52,7 +52,7 @@ void Logger::log() {
         line = line + "," + std::to_string(fault);
     }
 
-    this->file.write(line);
+    this->file.write(line.c_str());
 
 
 }
