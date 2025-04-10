@@ -142,14 +142,10 @@ void Dash::UpdateDisplay(Adafruit_RA8875 tft) {
     this->bms_faults = millis() > 10000 ? 0b11111111 : 0;  //
     // this->inverter_faults = millis() > 10000 ? 0b11111111 : 0;  //
 
-    float coolant_temp = (millis() / 100) % 100;  //
-    int inverter_temp = (millis() / 20) % 100;
-    int inverter_current_drawn = (millis() / 20) % 100;
-    float motor_temp = (millis() / 10) % 100;
-    float battery_voltage = (millis() / 100) % 100;  //
-    float min_voltage = (millis() / 20) % 100;       //
-    float max_cell_temp = (millis() / 10) % 100;     //
-    float min_cell_temp = (millis() / 10) % 100;
+    // float max_cell_temp = (millis() / 10) % 100;     //
+    // float min_cell_temp = (millis() / 10) % 100;
+    float max_cell_temp = (millis() / 1000);     //
+    float min_cell_temp = (millis() / 1000);
     float hv_bat_volt = (millis() / 100) % 100;
     float lv_bat_volt = (millis() / 100) % 100;
 
