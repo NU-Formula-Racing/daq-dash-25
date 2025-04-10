@@ -51,10 +51,10 @@ int hv_battery_voltage_last_state = 3.4;
 int hv_battery_voltage_mid_state = 3.2;
 int lv_battery_voltage_last_state = 3.5;
 int lv_battery_voltage_mid_state = 3.1; // min 2.7
-int max_cell_temp_last_state = 2;
-int max_cell_temp_mid_state = 1;
-int min_cell_temp_last_state = 3;
-int min_cell_temp_mid_state = 2;
+int max_cell_temp_last_state = 50; // max 50 celsius
+int max_cell_temp_mid_state = 45; 
+int min_cell_temp_last_state = 15;
+int min_cell_temp_mid_state = 11; // min 8 celsius
 
 int bar_max_size = 480;
 
@@ -202,24 +202,20 @@ void Dash::UpdateDisplay(Adafruit_RA8875 tft) {
 void Dash::DrawDriveState(Adafruit_RA8875 tft, int startX, int startY, uint8_t curr_drive_state, int squareSize, float wheel_speed, int wheel_speed_startX, int wheel_speed_startY, bool ifErrorScreen) {
     //dont need wheel speed start x y anymore i think
     int16_t color = INDIAN_RED;
-    int driveRectw= startX*2;
-    int driveRecth= startY;
-    int digit_spacing = 8;
-    int char_width = 80;
-    int draw_digit_size = 13;
-    if(ifErrorScreen==false){
-        int driveRectw= startX;
-        int driveRecth= startY*2;
-        int digit_spacing = 8;
-        int char_width = 80;
-        int draw_digit_size = 13;
-    }else{
-        int driveRectw= startX/2;
-        int driveRecth= startY;
-        int digit_spacing = 4;
-        int char_width = 40;
-        int draw_digit_size = 6;
-    }
+     int driveRectw= startX*2;
+     int driveRecth= startY;
+     int digit_spacing = 8;
+     int char_width = 80;
+     int draw_digit_size = 13;
+
+    //  int16_t color = INDIAN_RED;
+    //  int driveRectw = startX;
+    //  int driveRecth= startY/2;
+    //  int digit_spacing = 4;
+    //  int char_width = 40;
+    //  int draw_digit_size = 6;
+    //  startX= startX * 4 * 0.4;
+    //  startY= startY * 5;
     switch (curr_drive_state) {
         case 0:
             color = INDIAN_RED;
@@ -238,15 +234,15 @@ void Dash::DrawDriveState(Adafruit_RA8875 tft, int startX, int startY, uint8_t c
 //change sizes via if statement 
     switch (curr_drive_state) {
         case 0:
-            DrawString(tft, "OFF", startX * 4 * 0.4, startY * 3 * 0.58, 5, RA8875_WHITE, color);
+            DrawString(tft, "OFF", startX * 4 * 0.45, startY * 3 * 0.58, 5, RA8875_WHITE, color);
             //DrawString(tft, "OFF", SCREEN_WIDTH * 0.4, SCREEN_HEIGHT * 0.58, 5, RA8875_WHITE, color);
             break;
         case 1:
-            DrawString(tft, "NEUTRAL", startX * 4 * 0.47, startY * 3 * 0.58, 5, RA8875_BLACK, color);
+            DrawString(tft, "NEUTRAL", startX * 4 * 0.38, startY * 3 * 0.58, 5, RA8875_BLACK, color);
             //DrawString(tft, "NEUTRAL", SCREEN_WIDTH * 0.47, SCREEN_HEIGHT * 0.58, 5, RA8875_BLACK, color);
             break;
         case 2:
-            DrawString(tft, "DRIVE", startX * 4 * 0.45, startY * 3 * 0.58, 5, RA8875_WHITE, color);
+            DrawString(tft, "DRIVE", startX * 4 * 0.4, startY * 3 * 0.58, 5, RA8875_WHITE, color);
             break;
         default:
             DrawString(tft, "ERROR", startX * 4 * 0.45, startY * 3 * 0.58, 5, RA8875_WHITE, color);
@@ -272,7 +268,8 @@ void Dash::DrawDriveState(Adafruit_RA8875 tft, int startX, int startY, uint8_t c
     // Draw the digits
     while (rounded_wheel_speed > 0) {
         int digit = rounded_wheel_speed % 10;
-        tft.drawChar(startX * 2 + 40, startY * 3 * 0.34, digit + '0', RA8875_BLACK, color, draw_digit_size);
+        // tft.drawChar(startX * 2 + 40, startY * 3 * 0.34, digit + '0', RA8875_BLACK, color, draw_digit_size);
+        tft.drawChar(wheel_speed_startX, wheel_speed_startY, digit + '0', RA8875_BLACK, color, draw_digit_size);
         wheel_speed_startX -= char_width + digit_spacing;
         rounded_wheel_speed /= 10;
     }
