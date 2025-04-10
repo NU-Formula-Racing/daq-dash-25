@@ -23,7 +23,7 @@
 #define MASK(x) (1 << x)
 
 #define FORCE_DRAW false
-// #define DEBUG false
+#define DEBUG false
 
 
 int drive_state_startX = SCREEN_WIDTH / 4;
@@ -95,14 +95,16 @@ void Dash::DrawBackground(Adafruit_RA8875 tft, int16_t color) {
     // draw outlines
     // MIDDLE DRIVE RECT
     tft.drawRect(SCREEN_WIDTH / 4, SCREEN_HEIGHT / 3, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 3, RA8875_WHITE);
-    // COOLANT, MAX CELL, INTERVERT TEMPS RECT
-    tft.drawRect(SCREEN_WIDTH / 4, SCREEN_HEIGHT * 2 / 3, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 3, RA8875_WHITE);
 
     // write circle labels
-    DrawString(tft, "HV Battery Voltage", hv_bat_volt_startX * 0.8, hv_bat_volt_startY - SCREEN_WIDTH / 9, 5, RA8875_BLACK, color);
-    DrawString(tft, "LV Battery Voltage", lv_bat_volt_startX * 0.8, lv_bat_volt_startY - SCREEN_WIDTH / 9, 5, RA8875_BLACK, color);
-    DrawString(tft, "Max Cell Temp", lv_bat_volt_startX * 0.8, lv_bat_volt_startY - SCREEN_WIDTH / 9, 5, RA8875_BLACK, color);
-    DrawString(tft, "Min Cell Temp", lv_bat_volt_startX * 0.8, lv_bat_volt_startY - SCREEN_WIDTH / 9, 5, RA8875_BLACK, color);
+    DrawString(tft, "HV Battery", hv_bat_volt_startX * 0.15, hv_bat_volt_startY - SCREEN_WIDTH / 6 - 10, 3, RA8875_WHITE, color);
+    DrawString(tft, "Voltage", hv_bat_volt_startX * 0.4, hv_bat_volt_startY - SCREEN_WIDTH / 8 - 10, 3, RA8875_WHITE, color);
+    DrawString(tft, "LV Battery", lv_bat_volt_startX * 0.15, lv_bat_volt_startY - SCREEN_WIDTH / 6 - 10, 3, RA8875_WHITE, color);
+    DrawString(tft, "Voltage", lv_bat_volt_startX * 0.4, lv_bat_volt_startY - SCREEN_WIDTH / 8 - 10, 3, RA8875_WHITE, color);
+    DrawString(tft, "Max Cell", max_cell_temp_startX * 0.9, max_cell_temp_startY - SCREEN_WIDTH / 6 - 10, 3, RA8875_WHITE, color);
+    DrawString(tft, "Temp", max_cell_temp_startX * 0.95, max_cell_temp_startY - SCREEN_WIDTH / 8 - 10, 3, RA8875_WHITE, color);
+    DrawString(tft, "Min Cell", min_cell_temp_startX * 0.9, min_cell_temp_startY - SCREEN_WIDTH / 6 - 10, 3, RA8875_WHITE, color);
+    DrawString(tft, "Temp", min_cell_temp_startX * 0.95, min_cell_temp_startY - SCREEN_WIDTH / 8 - 10, 3, RA8875_WHITE, color);
     // write text beneath the bars
     // iterate
     for (auto &bar : this->bars) {
@@ -138,7 +140,7 @@ void Dash::UpdateDisplay(Adafruit_RA8875 tft) {
     int curr_drive_state = (millis() / 1000) % 3;          //
     int imd_status = millis() > 5000 ? -10 : 0;            //
     this->bms_faults = millis() > 10000 ? 0b11111111 : 0;  //
-    this->inverter_faults = millis() > 10000 ? 0b11111111 : 0;  //
+    // this->inverter_faults = millis() > 10000 ? 0b11111111 : 0;  //
 
     float coolant_temp = (millis() / 100) % 100;  //
     int inverter_temp = (millis() / 20) % 100;
@@ -182,10 +184,10 @@ void Dash::UpdateDisplay(Adafruit_RA8875 tft) {
     if(ifBMSfault==false & ifIMDfault==false & ifECUfault==false  & ifInverterfault==false ){
         // tft.fillScreen(this->backgroundColor);
     }
-    DrawIMDStatus(tft, 8, 2, imd_status, 32);
-    HandleBMSFaults(tft, 8, 2);
-    HandleInverterFaults(tft, 8, 3);
-    HandleECUFaults(tft, 8, 2);
+    // DrawIMDStatus(tft, 8, 2, imd_status, 32);
+    // HandleBMSFaults(tft, 8, 2);
+    // HandleInverterFaults(tft, 8, 3);
+    // HandleECUFaults(tft, 8, 2);
 
     timer_group.Tick(millis());
 }
@@ -200,8 +202,8 @@ void Dash::UpdateDisplay(Adafruit_RA8875 tft) {
 void Dash::DrawDriveState(Adafruit_RA8875 tft, int startX, int startY, uint8_t curr_drive_state, int squareSize, float wheel_speed, int wheel_speed_startX, int wheel_speed_startY, bool ifErrorScreen) {
     //dont need wheel speed start x y anymore i think
     int16_t color = INDIAN_RED;
-    int driveRectw= startX;
-    int driveRecth= startY*2;
+    int driveRectw= startX*2;
+    int driveRecth= startY;
     int digit_spacing = 8;
     int char_width = 80;
     int draw_digit_size = 13;
@@ -560,7 +562,8 @@ void Dash::DrawState(Adafruit_RA8875 tft, int startX, int startY, int display_va
     // Draw the digits
     while (rounded_display_value > 0) {
         int digit = rounded_display_value % 10;
-        tft.drawChar(startX + 4, startY * 0.8 + SCREEN_WIDTH / 16, digit + '0', RA8875_BLACK, color, 11);
+        // tft.drawChar(startX + 4, startY * 0.8 + SCREEN_WIDTH / 16, digit + '0', RA8875_BLACK, color, 11);
+        tft.drawChar(startX + 4, startY - 40, digit + '0', RA8875_BLACK, color, 10);
         startX -= char_width + digit_spacing;
         rounded_display_value /= 10;
     }
