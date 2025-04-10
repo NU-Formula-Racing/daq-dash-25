@@ -23,20 +23,20 @@
 #define MASK(x) (1 << x)
 
 #define FORCE_DRAW false
-// #define DEBUG false
+#define DEBUG false
 
 int drive_state_startX = SCREEN_WIDTH / 4;
 int drive_state_startY = SCREEN_HEIGHT / 3;
 int hv_bat_volt_startX = SCREEN_WIDTH / 8;
-int hv_bat_volt_startY = SCREEN_HEIGHT / 4;
+int hv_bat_volt_startY = SCREEN_HEIGHT / 4 + 30;
 int lv_bat_volt_startX = SCREEN_WIDTH / 8;
-int lv_bat_volt_startY = SCREEN_HEIGHT * 3 / 4;
+int lv_bat_volt_startY = SCREEN_HEIGHT * 3 / 4 + 30;
 int wheel_speed_startX = SCREEN_WIDTH / 2 + 40;
 int wheel_speed_startY = SCREEN_HEIGHT * 0.34;
 int max_cell_temp_startX = SCREEN_WIDTH * 7 / 8;
-int max_cell_temp_startY = SCREEN_HEIGHT / 4;
+int max_cell_temp_startY = SCREEN_HEIGHT / 4 + 30;
 int min_cell_temp_startX = SCREEN_WIDTH * 7 / 8;
-int min_cell_temp_startY = SCREEN_HEIGHT * 3 / 4;
+int min_cell_temp_startY = SCREEN_HEIGHT * 3 / 4 + 30;
 
 // for states, after mid state, goes to last state
 int motor_temp_last_state = 70;
@@ -49,10 +49,10 @@ int hv_battery_voltage_last_state = 3.4;
 int hv_battery_voltage_mid_state = 3.2;
 int lv_battery_voltage_last_state = 3.5;
 int lv_battery_voltage_mid_state = 3.1; // min 2.7
-int max_cell_temp_last_state = 2;
-int max_cell_temp_mid_state = 1;
-int min_cell_temp_last_state = 3;
-int min_cell_temp_mid_state = 2;
+int max_cell_temp_last_state = 50; // max 50 celsius
+int max_cell_temp_mid_state = 45; 
+int min_cell_temp_last_state = 15;
+int min_cell_temp_mid_state = 11; // min 8 celsius
 
 int bar_max_size = 480;
 
@@ -96,22 +96,16 @@ void Dash::DrawBackground(Adafruit_RA8875 tft, int16_t color)
     // draw outlines
     // MIDDLE DRIVE RECT
     tft.drawRect(SCREEN_WIDTH / 4, SCREEN_HEIGHT / 3, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 3, RA8875_WHITE);
-    // COOLANT, MAX CELL, INTERVERT TEMPS RECT
-    tft.drawRect(SCREEN_WIDTH / 4, SCREEN_HEIGHT * 2 / 3, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 3, RA8875_WHITE);
-    // MOTOR TEMP CIRC TOP LEFT
-    tft.drawCircle(SCREEN_WIDTH / 8, SCREEN_HEIGHT / 4, SCREEN_WIDTH / 8, RA8875_WHITE);
-    // ACCUM TEMP CIRC BOTTOM LEFT
-    tft.drawCircle(SCREEN_WIDTH / 8, SCREEN_HEIGHT * 3 / 4, SCREEN_WIDTH / 8, RA8875_WHITE);
-    // MIN VOLTAGE CIRC TOP RIGHT
-    tft.drawCircle(SCREEN_WIDTH * 7 / 8, SCREEN_HEIGHT / 4, SCREEN_WIDTH / 8, RA8875_WHITE);
-    // BATTERY VOLTAGE CIRC BOTTOM RIGHT
-    tft.drawCircle(SCREEN_WIDTH * 7 / 8, SCREEN_HEIGHT * 3 / 4, SCREEN_WIDTH / 8, RA8875_WHITE);
 
     // write circle labels
-    DrawString(tft, "HV Battery Voltage", hv_bat_volt_startX * 0.8, hv_bat_volt_startY - SCREEN_WIDTH / 9, 5, RA8875_BLACK, color);
-    DrawString(tft, "LV Battery Voltage", lv_bat_volt_startX * 0.8, lv_bat_volt_startY - SCREEN_WIDTH / 9, 5, RA8875_BLACK, color);
-    DrawString(tft, "Max Cell Temp", lv_bat_volt_startX * 0.8, lv_bat_volt_startY - SCREEN_WIDTH / 9, 5, RA8875_BLACK, color);
-    DrawString(tft, "Min Cell Temp", lv_bat_volt_startX * 0.8, lv_bat_volt_startY - SCREEN_WIDTH / 9, 5, RA8875_BLACK, color);
+    DrawString(tft, "HV Battery", hv_bat_volt_startX * 0.15, hv_bat_volt_startY - SCREEN_WIDTH / 6 - 10, 3, RA8875_WHITE, color);
+    DrawString(tft, "Voltage", hv_bat_volt_startX * 0.4, hv_bat_volt_startY - SCREEN_WIDTH / 8 - 10, 3, RA8875_WHITE, color);
+    DrawString(tft, "LV Battery", lv_bat_volt_startX * 0.15, lv_bat_volt_startY - SCREEN_WIDTH / 6 - 10, 3, RA8875_WHITE, color);
+    DrawString(tft, "Voltage", lv_bat_volt_startX * 0.4, lv_bat_volt_startY - SCREEN_WIDTH / 8 - 10, 3, RA8875_WHITE, color);
+    DrawString(tft, "Max Cell", max_cell_temp_startX * 0.9, max_cell_temp_startY - SCREEN_WIDTH / 6 - 10, 3, RA8875_WHITE, color);
+    DrawString(tft, "Temp", max_cell_temp_startX * 0.95, max_cell_temp_startY - SCREEN_WIDTH / 8 - 10, 3, RA8875_WHITE, color);
+    DrawString(tft, "Min Cell", min_cell_temp_startX * 0.9, min_cell_temp_startY - SCREEN_WIDTH / 6 - 10, 3, RA8875_WHITE, color);
+    DrawString(tft, "Temp", min_cell_temp_startX * 0.95, min_cell_temp_startY - SCREEN_WIDTH / 8 - 10, 3, RA8875_WHITE, color);
     // write text beneath the bars
     // iterate
     for (auto &bar : this->bars)
@@ -146,20 +140,19 @@ void Dash::UpdateDisplay(Adafruit_RA8875 tft)
 #else
     // we should change the drive state for testing
     // cycle based on time
-    float fl_wheel_speed = (millis() / 200) % 200;             //
-    float fr_wheel_speed = (millis() / 200) % 200;             //
-    int curr_drive_state = (millis() / 1000) % 3;              //
-    int imd_status = millis() > 5000 ? -10 : 0;                //
-    this->bms_faults = millis() > 10000 ? 0b11111111 : 0;      //
-    this->inverter_faults = millis() > 10000 ? 0b11111111 : 0; //
+    float fl_wheel_speed = (millis() / 200) % 200;         //
+    float fr_wheel_speed = (millis() / 200) % 200;         //
+    int curr_drive_state = (millis() / 1000) % 3;          //
+    int imd_status = millis() > 5000 ? -10 : 0;            //
+    this->bms_faults = millis() > 10000 ? 0b11111111 : 0;  //
+    // this->inverter_faults = millis() > 10000 ? 0b11111111 : 0;  //
 
-    float coolant_temp = (millis() / 100) % 100; //
-    int inverter_temp = (millis() / 20) % 100;
-    int inverter_current_drawn = (millis() / 20) % 100;
-    float motor_temp = (millis() / 10) % 100;
-    float battery_voltage = (millis() / 100) % 100; //
-    float min_voltage = (millis() / 20) % 100;      //
-    float max_cell_temp = (millis() / 10) % 100;    //
+    // float max_cell_temp = (millis() / 10) % 100;     //
+    // float min_cell_temp = (millis() / 10) % 100;
+    float max_cell_temp = (millis() / 1000);     //
+    float min_cell_temp = (millis() / 1000);
+    float hv_bat_volt = (millis() / 100) % 100;
+    float lv_bat_volt = (millis() / 100) % 100;
 
 #endif
     float avg_wheel_speed = fl_wheel_speed + fr_wheel_speed / 2;
@@ -179,15 +172,13 @@ void Dash::UpdateDisplay(Adafruit_RA8875 tft)
         DrawState(tft, lv_bat_volt_startX, lv_bat_volt_startY, lv_bat_volt, 8, lv_battery_voltage_mid_state, lv_battery_voltage_last_state);
         this->prev_lv_bat_volt = lv_bat_volt;
     }
-    if (this->prev_max_cell_temp != max_cell_temp || FORCE_DRAW)
-    {
-        DrawState(tft, max_cell_temp, max_cell_temp_startX, max_cell_temp_startY, 8, max_cell_temp_mid_state, max_cell_temp_last_state);
+    if (this->prev_max_cell_temp != max_cell_temp || FORCE_DRAW) {
+        DrawState(tft, max_cell_temp_startX, max_cell_temp_startY, max_cell_temp, 8,  max_cell_temp_mid_state, max_cell_temp_last_state);
         this->prev_max_cell_temp = max_cell_temp;
     }
-    if (this->prev_min_cell_temp != min_cell_temp || FORCE_DRAW)
-    {
-        DrawState(tft, min_cell_temp, min_cell_temp_startX, min_cell_temp_startY, 8, max_cell_temp_mid_state, max_cell_temp_last_state);
-        this->prev_max_cell_temp = max_cell_temp;
+    if (this->prev_min_cell_temp != min_cell_temp || FORCE_DRAW) {
+        DrawState(tft, min_cell_temp_startX, min_cell_temp_startY, min_cell_temp, 8, min_cell_temp_mid_state, min_cell_temp_last_state);
+        this->prev_min_cell_temp = min_cell_temp;
     }
 
     // draw IMD status
@@ -195,10 +186,7 @@ void Dash::UpdateDisplay(Adafruit_RA8875 tft)
     {
         digitalWrite(INDICATOR_LED, LOW);
     }
-    // if (ifBMSfault == false & ifIMDfault == false & ifECUfault == false & ifInverterfault == false)
-    // {
-    //     tft.fillScreen(this->backgroundColor);
-    // }
+
     DrawIMDStatus(tft, 8, 2, imd_status, 32);
     HandleBMSFaults(tft, 8, 2);
     HandleInverterFaults(tft, 8, 3);
@@ -215,60 +203,51 @@ void Dash::DrawDriveState(Adafruit_RA8875 tft, int startX, int startY, uint8_t c
 {
     // dont need wheel speed start x y anymore i think
     int16_t color = INDIAN_RED;
-    int driveRectw = startX;
-    int driveRecth = startY * 2;
-    int digit_spacing = 8;
-    int char_width = 80;
-    int draw_digit_size = 13;
-    if (ifErrorScreen == false)
-    {
-        int driveRectw = startX;
-        int driveRecth = startY * 2;
-        int digit_spacing = 8;
-        int char_width = 80;
-        int draw_digit_size = 13;
-    }
-    else
-    {
-        int driveRectw = startX / 2;
-        int driveRecth = startY;
-        int digit_spacing = 4;
-        int char_width = 40;
-        int draw_digit_size = 6;
-    }
-    switch (curr_drive_state)
-    {
-    case 0:
-        color = INDIAN_RED;
-        break;
-    case 1:
-        color = GOLD;
-        break;
-    case 2:
-        color = FERN_GREEN;
-        break;
-    default:
-        color = INDIAN_RED;
-        break;
+     int driveRectw= startX*2;
+     int driveRecth= startY;
+     int digit_spacing = 8;
+     int char_width = 80;
+     int draw_digit_size = 13;
+
+    //  int16_t color = INDIAN_RED;
+    //  int driveRectw = startX;
+    //  int driveRecth= startY/2;
+    //  int digit_spacing = 4;
+    //  int char_width = 40;
+    //  int draw_digit_size = 6;
+    //  startX= startX * 4 * 0.4;
+    //  startY= startY * 5;
+    switch (curr_drive_state) {
+        case 0:
+            color = INDIAN_RED;
+            break;
+        case 1:
+            color = GOLD;
+            break;
+        case 2:
+            color = FERN_GREEN;
+            break;
+        default:
+            color = INDIAN_RED;
+            break;
     }
     tft.fillRect(startX, startY, driveRectw, driveRecth, color);
-    // change sizes via if statement
-    switch (curr_drive_state)
-    {
-    case 0:
-        DrawString(tft, "OFF", startX * 4 * 0.4, startY * 3 * 0.58, 5, RA8875_WHITE, color);
-        // DrawString(tft, "OFF", SCREEN_WIDTH * 0.4, SCREEN_HEIGHT * 0.58, 5, RA8875_WHITE, color);
-        break;
-    case 1:
-        DrawString(tft, "NEUTRAL", startX * 4 * 0.47, startY * 3 * 0.58, 5, RA8875_BLACK, color);
-        // DrawString(tft, "NEUTRAL", SCREEN_WIDTH * 0.47, SCREEN_HEIGHT * 0.58, 5, RA8875_BLACK, color);
-        break;
-    case 2:
-        DrawString(tft, "DRIVE", startX * 4 * 0.45, startY * 3 * 0.58, 5, RA8875_WHITE, color);
-        break;
-    default:
-        DrawString(tft, "ERROR", startX * 4 * 0.45, startY * 3 * 0.58, 5, RA8875_WHITE, color);
-        break;
+//change sizes via if statement 
+    switch (curr_drive_state) {
+        case 0:
+            DrawString(tft, "OFF", startX * 4 * 0.45, startY * 3 * 0.58, 5, RA8875_WHITE, color);
+            //DrawString(tft, "OFF", SCREEN_WIDTH * 0.4, SCREEN_HEIGHT * 0.58, 5, RA8875_WHITE, color);
+            break;
+        case 1:
+            DrawString(tft, "NEUTRAL", startX * 4 * 0.38, startY * 3 * 0.58, 5, RA8875_BLACK, color);
+            //DrawString(tft, "NEUTRAL", SCREEN_WIDTH * 0.47, SCREEN_HEIGHT * 0.58, 5, RA8875_BLACK, color);
+            break;
+        case 2:
+            DrawString(tft, "DRIVE", startX * 4 * 0.4, startY * 3 * 0.58, 5, RA8875_WHITE, color);
+            break;
+        default:
+            DrawString(tft, "ERROR", startX * 4 * 0.45, startY * 3 * 0.58, 5, RA8875_WHITE, color);
+            break;
     }
 
     drive_state = curr_drive_state;
@@ -294,7 +273,8 @@ void Dash::DrawDriveState(Adafruit_RA8875 tft, int startX, int startY, uint8_t c
     while (rounded_wheel_speed > 0)
     {
         int digit = rounded_wheel_speed % 10;
-        tft.drawChar(startX * 2 + 40, startY * 3 * 0.34, digit + '0', RA8875_BLACK, color, draw_digit_size);
+        // tft.drawChar(startX * 2 + 40, startY * 3 * 0.34, digit + '0', RA8875_BLACK, color, draw_digit_size);
+        tft.drawChar(wheel_speed_startX, wheel_speed_startY, digit + '0', RA8875_BLACK, color, draw_digit_size);
         wheel_speed_startX -= char_width + digit_spacing;
         rounded_wheel_speed /= 10;
     }
@@ -720,7 +700,7 @@ void Dash::DrawState(Adafruit_RA8875 tft, int startX, int startY, int display_va
         break;
     }
 
-    tft.fillCircle(SCREEN_WIDTH / 8, SCREEN_HEIGHT * 3 / 4, SCREEN_WIDTH / 8, color);
+    tft.fillCircle(startX, startY, SCREEN_WIDTH / 10, color);
     // DrawString(tft, "IC", startX * 0.8, startY - SCREEN_WIDTH / 9, 5, RA8875_BLACK, color);
     // drive_state = curr_accum_state;
     int rounded_display_value = round(display_value);
@@ -745,7 +725,8 @@ void Dash::DrawState(Adafruit_RA8875 tft, int startX, int startY, int display_va
     while (rounded_display_value > 0)
     {
         int digit = rounded_display_value % 10;
-        tft.drawChar(startX + 4, startY * 0.8 + SCREEN_WIDTH / 16, digit + '0', RA8875_BLACK, color, 11);
+        // tft.drawChar(startX + 4, startY * 0.8 + SCREEN_WIDTH / 16, digit + '0', RA8875_BLACK, color, 11);
+        tft.drawChar(startX + 4, startY - 40, digit + '0', RA8875_BLACK, color, 10);
         startX -= char_width + digit_spacing;
         rounded_display_value /= 10;
     }
