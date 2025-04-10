@@ -195,10 +195,10 @@ void Dash::UpdateDisplay(Adafruit_RA8875 tft)
     {
         digitalWrite(INDICATOR_LED, LOW);
     }
-    if (ifBMSfault == false & ifIMDfault == false & ifECUfault == false & ifInverterfault == false)
-    {
-        tft.fillScreen(this->backgroundColor);
-    }
+    // if (ifBMSfault == false & ifIMDfault == false & ifECUfault == false & ifInverterfault == false)
+    // {
+    //     tft.fillScreen(this->backgroundColor);
+    // }
     DrawIMDStatus(tft, 8, 2, imd_status, 32);
     HandleBMSFaults(tft, 8, 2);
     HandleInverterFaults(tft, 8, 3);
