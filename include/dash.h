@@ -13,9 +13,11 @@
 #define DEFAULT_VALUE -100
 #define DEFAULT_VALUE_UNSIGNED 255
 
-class Dash {
-   public:
-    struct BarData {
+class Dash
+{
+public:
+    struct BarData
+    {
         std::string displayName;
         float min;
         float max;
@@ -31,7 +33,8 @@ class Dash {
             : displayName(displayName), min(min), max(max), value(min), x(startX), y(startY), height(height), maxWidth(maxWidth) {}
     };
 
-    enum Error {
+    enum Error
+    {
         NO_ERROR,
         BMS_FAULT,
         IMD_FAULT,
@@ -39,7 +42,8 @@ class Dash {
         INVERTER_FAULT
     };
 
-    enum Direction {
+    enum Direction
+    {
         LEFT_TO_RIGHT,
         UP_TO_DOWN
     };
@@ -56,7 +60,7 @@ class Dash {
     void DrawBar(Adafruit_RA8875 tft, std::string barName, float newValue, int16_t barColor, int16_t backgroundColor);
     float WheelSpeedAvg(float fl_wheel_speed, float fr_wheel_speed);
     void DrawDriveState(Adafruit_RA8875 tft, int startX, int startY, uint8_t curr_drive_state, int squareSize, float wheel_speed, int wheel_speed_startX, int wheel_speed_startY, bool ifErrorScreen);
-    void Dash::DrawState(Adafruit_RA8875 tft, int startX, int startY, int display_value, int squareSize, int laststate, int midstate);    
+    void Dash::DrawState(Adafruit_RA8875 tft, int startX, int startY, int display_value, int squareSize, int laststate, int midstate);
     // void DrawMaxCellTemp(Adafruit_RA8875 tft, float max_cell_temp, int startX, int startY);
     // void DrawMinCellTemp(Adafruit_RA8875 tft, float min_cell_temp, int startX, int startY);
     // void DrawHVBatVoltState(Adafruit_RA8875 tft, int startX, int startY, int hv_bat_volt, int squareSize);
@@ -68,7 +72,7 @@ class Dash {
     void HandleECUFaults(Adafruit_RA8875 tft, int startX, int startY);
     void HandleInverterFaults(Adafruit_RA8875 tft, int startX, int startY);
 
-   private:
+private:
     TeensyCAN<3> g_can_bus{};
     VirtualTimerGroup timer_group{};
 
@@ -85,7 +89,11 @@ class Dash {
     // Inverter Current Signals
     CANSignal<uint32_t, 0, 32, CANTemplateConvertFloat(0.0001), CANTemplateConvertFloat(0.0), false> inverter_current_draw_ah_drawn{};
     CANSignal<uint32_t, 32, 32, CANTemplateConvertFloat(0.0001), CANTemplateConvertFloat(0.0), false> inverter_current_draw_ah_charged{};
-    CANTXMessage<2> rx_inverter_current_draw{g_can_bus, 0x283, 8, 100, inverter_current_draw_ah_drawn, inverter_current_draw_ah_charged};
+    CANRXMessage<2> rx_inverter_current_draw{g_can_bus, 0x283, inverter_current_draw_ah_drawn, inverter_current_draw_ah_charged};
+
+    // Inverter Fault Signal
+    CANSignal<uint8_t, 0, 8, CANTemplateConvertFloat(1), CANTemplateConvertFloat(0.0), false> inverter_fault_status{};
+    CANRXMessage<1> rx_inverter_fault_status{g_can_bus, 0x280, inverter_fault_status};
 
     // ECU Signals
     CANSignal<uint8_t, 0, 8, CANTemplateConvertFloat(1), CANTemplateConvertFloat(0), false> drive_state_signal;
@@ -102,7 +110,8 @@ class Dash {
     CANSignal<bool, 6, 1, CANTemplateConvertFloat(1), CANTemplateConvertFloat(0), false> bms_fault_external_kill_signal;
     CANSignal<bool, 7, 1, CANTemplateConvertFloat(1), CANTemplateConvertFloat(0), false> bms_fault_open_wire_signal;
     CANRXMessage<8> rx_bms_faults{
-        g_can_bus, 0x151, [this]() {
+        g_can_bus, 0x151, [this]()
+        {
             RecordBMSFaults();
         },
         bms_fault_summary_signal, bms_fault_under_voltage_signal, bms_fault_over_voltage_signal, bms_fault_under_temperature_signal, bms_fault_over_temperature_signal, bms_fault_over_current_signal, bms_fault_external_kill_signal, bms_fault_open_wire_signal};
@@ -141,7 +150,7 @@ class Dash {
     CANSignal<bool, 32, 8, CANTemplateConvertFloat(1.0), CANTemplateConvertFloat(0), false> ecu_implausibility_appss_invalid_imp;
 
     CANRXMessage<5> rx_ecu_implausibility{
-        g_can_bus, 0x204, ecu_implausibility_present, ecu_implausibility_appss_disagreement_imp, 
+        g_can_bus, 0x204, ecu_implausibility_present, ecu_implausibility_appss_disagreement_imp,
         ecu_implausibility_bppc_imp, ecu_implausibility_brake_invalid_imp, ecu_implausibility_appss_invalid_imp};
 
     uint8_t prev_drive_state = DEFAULT_VALUE_UNSIGNED;
@@ -155,6 +164,12 @@ class Dash {
     uint8_t prev_bms_faults = 0;
     int16_t backgroundColor = NORTHWESTERN_PURPLE;
     std::map<std::string, BarData> bars;
+
+    // new variables
+    uint8_t ecu_faults = 0;
+    uint8_t prev_ecu_faults = 0;
+    uint8_t inverter_faults = 0;
+    uint8_t prev_inverter_faults = 0;
 
     int CalcBarHeight(float value, float min, float max, int maxHeight);
     int CalcBarWidth(float value, float min, float max, int maxWidth);

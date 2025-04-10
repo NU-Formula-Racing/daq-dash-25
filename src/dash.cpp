@@ -25,7 +25,6 @@
 #define FORCE_DRAW false
 #define DEBUG false
 
-
 int drive_state_startX = SCREEN_WIDTH / 4;
 int drive_state_startY = SCREEN_HEIGHT / 3;
 int hv_bat_volt_startX = SCREEN_WIDTH / 8;
@@ -38,7 +37,6 @@ int max_cell_temp_startX = SCREEN_WIDTH * 7 / 8;
 int max_cell_temp_startY = SCREEN_HEIGHT / 4 + 30;
 int min_cell_temp_startX = SCREEN_WIDTH * 7 / 8;
 int min_cell_temp_startY = SCREEN_HEIGHT * 3 / 4 + 30;
-
 
 // for states, after mid state, goes to last state
 int motor_temp_last_state = 70;
@@ -62,18 +60,20 @@ float motor_temp;
 int drive_state = -1;
 bool drive_state_drawn = false;
 
-bool ifBMSfault=false;
-bool ifIMDfault=false;
-bool ifECUfault=false;
-bool ifInverterfault=false;
-bool ifErrorScreen =false;
+bool ifBMSfault = false;
+bool ifIMDfault = false;
+bool ifECUfault = false;
+bool ifInverterfault = false;
+bool ifErrorScreen = false;
 
-void Dash::GetCAN() {
+void Dash::GetCAN()
+{
     g_can_bus.Tick();
 }
 
-void Dash::Initialize() {
-    digitalWrite(INDICATOR_LED,LOW);
+void Dash::Initialize()
+{
+    digitalWrite(INDICATOR_LED, LOW);
     g_can_bus.Initialize(ICAN::BaudRate::kBaud500K);
     g_can_bus.RegisterRXMessage(rx_wheel_speeds);
     g_can_bus.RegisterRXMessage(rx_drive_state);
@@ -88,7 +88,8 @@ void Dash::Initialize() {
     // this->bars["motor_temp"] = BarData("", 0, 100, SCREEN_WIDTH / 4 + 90, SCREEN_HEIGHT * 0.925, 15, SCREEN_WIDTH / 2 - 90);
 }
 
-void Dash::DrawBackground(Adafruit_RA8875 tft, int16_t color) {
+void Dash::DrawBackground(Adafruit_RA8875 tft, int16_t color)
+{
     this->backgroundColor = color;
     // black out the screen
     tft.fillScreen(color);
@@ -107,27 +108,31 @@ void Dash::DrawBackground(Adafruit_RA8875 tft, int16_t color) {
     DrawString(tft, "Temp", min_cell_temp_startX * 0.95, min_cell_temp_startY - SCREEN_WIDTH / 8 - 10, 3, RA8875_WHITE, color);
     // write text beneath the bars
     // iterate
-    for (auto &bar : this->bars) {
+    for (auto &bar : this->bars)
+    {
         BarData &data = bar.second;
         DrawString(tft, data.displayName, data.x, data.y + 10, 4, RA8875_WHITE, RA8875_BLACK);
     }
 
-    if (this->error != NO_ERROR) {
+    if (this->error != NO_ERROR)
+    {
         return;
     }
 }
 
-float Dash::WheelSpeedAvg(float fl_wheel_speed, float fr_wheel_speed) {
+float Dash::WheelSpeedAvg(float fl_wheel_speed, float fr_wheel_speed)
+{
     return (fl_wheel_speed + fr_wheel_speed) / 2;
 }
 
-void Dash::UpdateDisplay(Adafruit_RA8875 tft) {
+void Dash::UpdateDisplay(Adafruit_RA8875 tft)
+{
 #ifndef DEBUG
     float fl_wheel_speed = static_cast<float>(fl_wheel_speed_signal);
     float fr_wheel_speed = static_cast<float>(fr_wheel_speed_signal);
-    uint8_t curr_drive_state = static_cast<uint8_t>(drive_state_signal);     
+    uint8_t curr_drive_state = static_cast<uint8_t>(drive_state_signal);
     int imd_status = static_cast<int>(imd_status_signal);
-    float max_cell_temp = static_cast<float>(bms_max_cell_temp_signal); 
+    float max_cell_temp = static_cast<float>(bms_max_cell_temp_signal);
     float min_cell_temp = static_cast<float>(bms_min_cell_temp_signal);
     float hv_bat_volt = static_cast<float>(bms_battery_voltage_signal);
     float lv_bat_volt = static_cast<float>(pdm_bat_volt);
@@ -151,16 +156,19 @@ void Dash::UpdateDisplay(Adafruit_RA8875 tft) {
 
 #endif
     float avg_wheel_speed = fl_wheel_speed + fr_wheel_speed / 2;
-    if (this->prev_drive_state != curr_drive_state || FORCE_DRAW) {
+    if (this->prev_drive_state != curr_drive_state || FORCE_DRAW)
+    {
         DrawDriveState(tft, drive_state_startX, drive_state_startY, curr_drive_state, 8, avg_wheel_speed, wheel_speed_startX, wheel_speed_startY, ifErrorScreen);
         this->prev_drive_state = curr_drive_state;
     }
     // this->prev_wheel_speed = avg_wheel_speed;
-    if (this->prev_hv_bat_volt != hv_bat_volt || FORCE_DRAW) {
+    if (this->prev_hv_bat_volt != hv_bat_volt || FORCE_DRAW)
+    {
         DrawState(tft, hv_bat_volt_startX, hv_bat_volt_startY, hv_bat_volt, 8, hv_battery_voltage_mid_state, hv_battery_voltage_last_state);
         this->prev_hv_bat_volt = hv_bat_volt;
     }
-    if (this->prev_lv_bat_volt != lv_bat_volt || FORCE_DRAW) {
+    if (this->prev_lv_bat_volt != lv_bat_volt || FORCE_DRAW)
+    {
         DrawState(tft, lv_bat_volt_startX, lv_bat_volt_startY, lv_bat_volt, 8, lv_battery_voltage_mid_state, lv_battery_voltage_last_state);
         this->prev_lv_bat_volt = lv_bat_volt;
     }
@@ -174,29 +182,26 @@ void Dash::UpdateDisplay(Adafruit_RA8875 tft) {
     }
 
     // draw IMD status
-    if(ifBMSfault==false & ifIMDfault==false){
+    if (ifBMSfault == false & ifIMDfault == false)
+    {
         digitalWrite(INDICATOR_LED, LOW);
     }
-    if(ifBMSfault==false & ifIMDfault==false & ifECUfault==false  & ifInverterfault==false ){
-        // tft.fillScreen(this->backgroundColor);
-    }
-    // DrawIMDStatus(tft, 8, 2, imd_status, 32);
-    // HandleBMSFaults(tft, 8, 2);
-    // HandleInverterFaults(tft, 8, 3);
-    // HandleECUFaults(tft, 8, 2);
+
+    DrawIMDStatus(tft, 8, 2, imd_status, 32);
+    HandleBMSFaults(tft, 8, 2);
+    HandleInverterFaults(tft, 8, 3);
+    HandleECUFaults(tft, 8, 2);
 
     timer_group.Tick(millis());
 }
 
-
 // COME HERE NEXT TIME TO DRAW THE NUMBER IN THE MIDDLE. ALSO, CHANGE DRAWCHAR FOR OTHER DRAW STATE CIRCLES AND THE MIDDLE RECTANGLE BC FULL WORDS
 
-
-
 // Draws drive state on screen based on CAN signal
 // Draws drive state on screen based on CAN signal
-void Dash::DrawDriveState(Adafruit_RA8875 tft, int startX, int startY, uint8_t curr_drive_state, int squareSize, float wheel_speed, int wheel_speed_startX, int wheel_speed_startY, bool ifErrorScreen) {
-    //dont need wheel speed start x y anymore i think
+void Dash::DrawDriveState(Adafruit_RA8875 tft, int startX, int startY, uint8_t curr_drive_state, int squareSize, float wheel_speed, int wheel_speed_startX, int wheel_speed_startY, bool ifErrorScreen)
+{
+    // dont need wheel speed start x y anymore i think
     int16_t color = INDIAN_RED;
      int driveRectw= startX*2;
      int driveRecth= startY;
@@ -248,21 +253,25 @@ void Dash::DrawDriveState(Adafruit_RA8875 tft, int startX, int startY, uint8_t c
     drive_state = curr_drive_state;
     int rounded_wheel_speed = round(wheel_speed);
 
-    //int digit_spacing = 8;
-    //int char_width = 80;
+    // int digit_spacing = 8;
+    // int char_width = 80;
 
     startX -= char_width / 2;
 
     // Making a naive assumption that 0 <= wheel speed < 100
-    if (wheel_speed > 99) {
+    if (wheel_speed > 99)
+    {
         startX += char_width;
-    } else if (wheel_speed > 9) {
+    }
+    else if (wheel_speed > 9)
+    {
         // Digits must be off center for double digit numbers
         startX += char_width / 2;
     }
 
     // Draw the digits
-    while (rounded_wheel_speed > 0) {
+    while (rounded_wheel_speed > 0)
+    {
         int digit = rounded_wheel_speed % 10;
         // tft.drawChar(startX * 2 + 40, startY * 3 * 0.34, digit + '0', RA8875_BLACK, color, draw_digit_size);
         tft.drawChar(wheel_speed_startX, wheel_speed_startY, digit + '0', RA8875_BLACK, color, draw_digit_size);
@@ -271,40 +280,45 @@ void Dash::DrawDriveState(Adafruit_RA8875 tft, int startX, int startY, uint8_t c
     }
 }
 
-void Dash::DrawIMDStatus(Adafruit_RA8875 tft, int startX, int startY, int imd_status, int squareSize) {
+void Dash::DrawIMDStatus(Adafruit_RA8875 tft, int startX, int startY, int imd_status, int squareSize)
+{
     std::string status;
-    switch (imd_status) {
-        case -10:
-            status = "IMD:Short Circuit";
-            ifIMDfault=true;
-            break;
-        case -5:
-            status = "IMD:Loading";
-            ifIMDfault=true;
-            break;
-        case -25:
-            status = "IMD:Connection Fault";
-            ifIMDfault=true;
-            break; //added
-        case -20:
-            status = "IMD:Device Error";
-            ifIMDfault=true;
-            break;
-        default:
-            return;
-            ifIMDfault=false;
+    switch (imd_status)
+    {
+    case -10:
+        status = "IMD:Short Circuit";
+        ifIMDfault = true;
+        break;
+    case -5:
+        status = "IMD:Loading";
+        ifIMDfault = true;
+        break;
+    case -25:
+        status = "IMD:Connection Fault";
+        ifIMDfault = true;
+        break; // added
+    case -20:
+        status = "IMD:Device Error";
+        ifIMDfault = true;
+        break;
+    default:
+        return;
+        ifIMDfault = false;
     }
 
     HandleError(tft, status, startX, startY, IMD_FAULT);
 }
 
-void Dash::HandleBMSFaults(Adafruit_RA8875 tft, int startX, int startY) {
-    if (this->bms_faults == 0) { //order or no fault?
-        ifBMSfault=false;
+void Dash::HandleBMSFaults(Adafruit_RA8875 tft, int startX, int startY)
+{
+    if (this->bms_faults == 0)
+    { // order or no fault?
+        ifBMSfault = false;
         return;
     }
 
-    if (this->prev_bms_faults == this->bms_faults) {
+    if (this->prev_bms_faults == this->bms_faults)
+    {
         return;
     }
 
@@ -312,29 +326,36 @@ void Dash::HandleBMSFaults(Adafruit_RA8875 tft, int startX, int startY) {
 
     // there is a fault
     std::cout << "DETECTED: BMS Faults: " << std::bitset<8>(bms_faults).to_string() << std::endl;
-    ifBMSfault=true;
+    ifBMSfault = true;
     std::string error_message = "BMS:";
 
-    if (this->bms_faults & MASK(1)) {
-        error_message += "UV,";  // under voltage
+    if (this->bms_faults & MASK(1))
+    {
+        error_message += "UND_VOL,"; // under voltage
     }
-    if (this->bms_faults & MASK(2)) {
-        error_message += "OV,";  // over voltage
+    if (this->bms_faults & MASK(2))
+    {
+        error_message += "OVR_VOL,"; // over voltage
     }
-    if (this->bms_faults & MASK(3)) {
-        error_message += "UT,";  // under temperature
+    if (this->bms_faults & MASK(3))
+    {
+        error_message += "UND_TEMP,"; // under temperature
     }
-    if (this->bms_faults & MASK(4)) {
-        error_message += "OT,";  // over temperature
+    if (this->bms_faults & MASK(4))
+    {
+        error_message += "OVR_TEMP,"; // over temperature
     }
-    if (this->bms_faults & MASK(5)) {
-        error_message += "OC,";  // over current
+    if (this->bms_faults & MASK(5))
+    {
+        error_message += "OVR_CUR,"; // over current
     }
-    if (this->bms_faults & MASK(6)) {
-        error_message += "EK,";  // external kill
+    if (this->bms_faults & MASK(6))
+    {
+        error_message += "EXTN_KL,"; // external kill
     }
-    if (this->bms_faults & MASK(7)) {
-        error_message += "OW,";  // open wire
+    if (this->bms_faults & MASK(7))
+    {
+        error_message += "OPN_WIRE,"; // open wire
     }
 
     // remove the last comma
@@ -342,124 +363,257 @@ void Dash::HandleBMSFaults(Adafruit_RA8875 tft, int startX, int startY) {
     HandleError(tft, error_message, startX, startY, BMS_FAULT);
 }
 
-void Dash::DrawString(Adafruit_RA8875 tft, std::string message, int startX, int startY, int size, int16_t color, int16_t backgroundColor, Direction dir) {
-    for (int i = 0; i < message.length(); i++) {
-        switch (dir) {
-            case LEFT_TO_RIGHT:
-                tft.drawChar(startX + i * size * 6, startY, message[i], color, backgroundColor, size);
-                break;
-            case UP_TO_DOWN:
-                tft.drawChar(startX, startY + i * size * 8, message[i], color, backgroundColor, size);
-                break;
-            default:
-                break;
+void Dash::DrawString(Adafruit_RA8875 tft, std::string message, int startX, int startY, int size, int16_t color, int16_t backgroundColor, Direction dir)
+{
+    for (int i = 0; i < message.length(); i++)
+    {
+        switch (dir)
+        {
+        case LEFT_TO_RIGHT:
+            tft.drawChar(startX + i * size * 6, startY, message[i], color, backgroundColor, size);
+            break;
+        case UP_TO_DOWN:
+            tft.drawChar(startX, startY + i * size * 8, message[i], color, backgroundColor, size);
+            break;
+        default:
+            break;
         }
     }
 }
 
-void Dash::HandleECUFaults(Adafruit_RA8875 tft, int startX, int startY) {
-    if (this->bms_faults == 0) { //order or no fault?
-        ifBMSfault=false;
+void Dash::HandleECUFaults(Adafruit_RA8875 tft, int startX, int startY)
+{
+    if (this->ecu_faults)
+    { // order or no fault?
+        ifECUfault = false;
         return;
     }
 
-    if (this->prev_bms_faults == this->bms_faults) {
+    if (this->prev_ecu_faults == this->ecu_faults)
+    {
         return;
     }
 
-    this->prev_bms_faults = this->bms_faults;
+    this->prev_ecu_faults = this->ecu_faults;
 
     // there is a fault
-    std::cout << "DETECTED: BMS Faults: " << std::bitset<8>(bms_faults).to_string() << std::endl;
-    ifBMSfault=true;
-    std::string error_message = "BMS:";
+    std::cout << "DETECTED: ECU Faults: "; // << std::bitset<8>(bms_faults).to_string() << std::endl; //!?
+    ifECUfault = true;
+    std::string error_message = "ECU:";
 
-    if (this->bms_faults & MASK(1)) {
-        error_message += "UV,";  // under voltage
+    // error acronyms tbd
+    if (static_cast<bool>(this->ecu_implausibility_present))
+    {
+        this->ecu_faults = 1;
+        error_message += "IMPLS_PRSNT,";
     }
-    if (this->bms_faults & MASK(2)) {
-        error_message += "OV,";  // over voltage
+    if (static_cast<bool>(this->ecu_implausibility_appss_disagreement_imp))
+    {
+        this->ecu_faults = 2;
+        error_message += "IMPLS_APPS_DIS_IMP";
     }
-    if (this->bms_faults & MASK(3)) {
-        error_message += "UT,";  // under temperature
+    if (static_cast<bool>(this->ecu_implausibility_bppc_imp))
+    {
+        this->ecu_faults = 3;
+        error_message += "IMPLS_BPPC_IMP,";
     }
-    if (this->bms_faults & MASK(4)) {
-        error_message += "OT,";  // over temperature
+    if (static_cast<bool>(this->ecu_implausibility_brake_invalid_imp))
+    {
+        this->ecu_faults = 4;
+        error_message += "IMPLS_BRK_INVLD_IMP,";
     }
-    if (this->bms_faults & MASK(5)) {
-        error_message += "OC,";  // over current
-    }
-    if (this->bms_faults & MASK(6)) {
-        error_message += "EK,";  // external kill
-    }
-    if (this->bms_faults & MASK(7)) {
-        error_message += "OW,";  // open wire
+    if (static_cast<bool>(this->ecu_implausibility_appss_invalid_imp))
+    {
+        this->ecu_faults = 5;
+        error_message += "IMPLS_APPS_INVLD_IMP,";
     }
 
     // remove the last comma
     error_message.pop_back();
-    HandleError(tft, error_message, startX, startY, BMS_FAULT);
+    HandleError(tft, error_message, startX, startY, ECU_FAULT);
 }
 
-void Dash::HandleInverterFaults(Adafruit_RA8875 tft, int startX, int startY) {
-    if (this->bms_faults == 0) { //order or no fault?
-        ifBMSfault=false;
+void Dash::HandleInverterFaults(Adafruit_RA8875 tft, int startX, int startY)
+{
+    if (this->inverter_faults == 0) // made a separate variable to prevent possible direct editing of inverter_fault_status
+                                    // might not actually be useful lol b/c now I don't think the inverter_fault is ever edited
+    {                               // order or no fault?
+        ifInverterfault = false;
         return;
     }
 
-    if (this->prev_bms_faults == this->bms_faults) {
+    if (this->prev_inverter_faults == this->inverter_faults)
+    {
         return;
     }
 
-    this->prev_bms_faults = this->bms_faults;
+    this->prev_inverter_faults = this->inverter_faults;
 
     // there is a fault
-    std::cout << "DETECTED: BMS Faults: " << std::bitset<8>(bms_faults).to_string() << std::endl;
-    ifBMSfault=true;
-    std::string error_message = "BMS:";
+    std::cout << "DETECTED: Inverter Faults: "; //<< std::bitset<8>(bms_faults).to_string() << std::endl;
+    ifInverterfault = true;
+    std::string error_message = "Inverter:";
 
-    if (this->bms_faults & MASK(1)) {
-        error_message += "UV,";  // under voltage
+    // error acronyms tbd
+    if (static_cast<bool>(this->inverter_faults) && inverter_fault_status == 0x01)
+    {
+        this->inverter_faults = inverter_fault_status;
+        error_message += "OVR_VOL,"; // over voltage
     }
-    if (this->bms_faults & MASK(2)) {
-        error_message += "OV,";  // over voltage
+    if (static_cast<bool>(this->inverter_faults) && inverter_fault_status == 0x02)
+    {
+        this->inverter_faults = inverter_fault_status;
+        error_message += "UND_VOL,"; // under voltage
     }
-    if (this->bms_faults & MASK(3)) {
-        error_message += "UT,";  // under temperature
+    if (static_cast<bool>(this->inverter_faults) && inverter_fault_status == 0x03)
+    {
+        this->inverter_faults = inverter_fault_status;
+        error_message += "DRV_FLT,"; // drv fault
     }
-    if (this->bms_faults & MASK(4)) {
-        error_message += "OT,";  // over temperature
+    if (static_cast<bool>(this->inverter_faults) && inverter_fault_status == 0x04)
+    {
+        this->inverter_faults = inverter_fault_status;
+        error_message += "ABS_OVR_CUR,"; // ABS_OVER_CURRENT
     }
-    if (this->bms_faults & MASK(5)) {
-        error_message += "OC,";  // over current
+    if (static_cast<bool>(this->inverter_faults) && inverter_fault_status == 0x05)
+    {
+        this->inverter_faults = inverter_fault_status;
+        error_message += "OVR_TEMP_FET,"; // OVER_TEMP_FET
     }
-    if (this->bms_faults & MASK(6)) {
-        error_message += "EK,";  // external kill
+    if (static_cast<bool>(this->inverter_faults) && inverter_fault_status == 0x06)
+    {
+        this->inverter_faults = inverter_fault_status;
+        error_message += "OVR_TEMP_MTR,"; // OVER_TEMP_MOTOR
     }
-    if (this->bms_faults & MASK(7)) {
-        error_message += "OW,";  // open wire
+    if (static_cast<bool>(this->inverter_faults) && inverter_fault_status == 0x07)
+    {
+        this->inverter_faults = inverter_fault_status;
+        error_message += "GTE_DRV_OV,"; // GATE_DRIVER_OVER_VOLTAGE
+    }
+    if (static_cast<bool>(this->inverter_faults) && inverter_fault_status == 0x08)
+    {
+        this->inverter_faults = inverter_fault_status;
+        error_message += "GTE_DRV_UV,"; // GATE_DRIVER_UNDER_VOLTAGE
+    }
+    if (static_cast<bool>(this->inverter_faults) && inverter_fault_status == 0x09)
+    {
+        this->inverter_faults = inverter_fault_status;
+        error_message += "MCU_UV,"; // MCU_UNDER_VOLTAGE
+    }
+    if (static_cast<bool>(this->inverter_faults) && inverter_fault_status == 0x0A)
+    {
+        this->inverter_faults = inverter_fault_status;
+        error_message += "BTING_FRM_WCHDG_RST,"; // BOOTING_FROM_WATCHDOG_RESET
+    }
+    if (static_cast<bool>(this->inverter_faults) && inverter_fault_status == 0x0B)
+    {
+        this->inverter_faults = inverter_fault_status;
+        error_message += "ENCDR_SPI_FLT,"; // ENCODER_SPI_FAULT
+    }
+    if (static_cast<bool>(this->inverter_faults) && inverter_fault_status == 0x0C)
+    {
+        this->inverter_faults = inverter_fault_status;
+        error_message += "ENCDR_SICO_BLW_MAX_AMP,"; // ENCODER_SINCOS_BELOW_MIN_AMPLITUDE
+    }
+    if (static_cast<bool>(this->inverter_faults) && inverter_fault_status == 0x0D)
+    {
+        this->inverter_faults = inverter_fault_status;
+        error_message += "ENCDR_SICO_ABV_MAX_AMP,"; // ENCODER_SINCOS_ABOVE_MAX_AMPLITUDE
+    }
+    if (static_cast<bool>(this->inverter_faults) && inverter_fault_status == 0x0E)
+    {
+        this->inverter_faults = inverter_fault_status;
+        error_message += "FLASH_COR,"; // FLASH_CORRUPTION
+    }
+    if (static_cast<bool>(this->inverter_faults) && inverter_fault_status == 0x0F)
+    {
+        this->inverter_faults = inverter_fault_status;
+        error_message += "HI_OFFS_CUR_SENS1,"; // HIGH_OFFSET_CURRENT_SENSOR_1
+    }
+    if (static_cast<bool>(this->inverter_faults) && inverter_fault_status == 0x10)
+    {
+        this->inverter_faults = inverter_fault_status;
+        error_message += "HI_OFFS_CUR_SENS2,"; // HIGH_OFFSET_CURRENT_SENSOR_2
+    }
+    if (static_cast<bool>(this->inverter_faults) && inverter_fault_status == 0x11)
+    {
+        this->inverter_faults = inverter_fault_status;
+        error_message += "HI_OFFS_CUR_SENS3,"; // HIGH_OFFSET_CURRENT_SENSOR_3
+    }
+    if (static_cast<bool>(this->inverter_faults) && inverter_fault_status == 0x12)
+    {
+        this->inverter_faults = inverter_fault_status;
+        error_message += "UNBAL_CUR,"; // UNBALANCED_CURRENTS
+    }
+    if (static_cast<bool>(this->inverter_faults) && inverter_fault_status == 0x13)
+    {
+        this->inverter_faults = inverter_fault_status;
+        error_message += "BRK_FLT,";
+    }
+    if (static_cast<bool>(this->inverter_faults) && inverter_fault_status == 0x14)
+    {
+        this->inverter_faults = inverter_fault_status;
+        error_message += "RESLVR_LOT,";
+    }
+    if (static_cast<bool>(this->inverter_faults) && inverter_fault_status == 0x15)
+    {
+        this->inverter_faults = inverter_fault_status;
+        error_message += "RESLVR_DOS,";
+    }
+    if (static_cast<bool>(this->inverter_faults) && inverter_fault_status == 0x16)
+    {
+        this->inverter_faults = inverter_fault_status;
+        error_message += "RESLVR_LOS,";
+    }
+    if (static_cast<bool>(this->inverter_faults) && inverter_fault_status == 0x17)
+    {
+        this->inverter_faults = inverter_fault_status;
+        error_message += "FLSH_COR_APP_CFG,"; // FLASH_CORRUPTION_APP_CFG
+    }
+    if (static_cast<bool>(this->inverter_faults) && inverter_fault_status == 0x18)
+    {
+        this->inverter_faults = inverter_fault_status;
+        error_message += "FLSH_COR_APP_CFG,"; // FLASH_CORRUPTION_APP_CFG
+    }
+    if (static_cast<bool>(this->inverter_faults) && inverter_fault_status == 0x19)
+    {
+        this->inverter_faults = inverter_fault_status;
+        error_message += "ENCDR_NO_MAG,"; // ENCODER_NO_MAGNET
+    }
+    if (static_cast<bool>(this->inverter_faults) && inverter_fault_status == 0x1A)
+    {
+        this->inverter_faults = inverter_fault_status;
+        error_message += "ENCDR_MAG_2_STRNG,"; // ENCODER_MAGNET_TOO_STRONG
+    }
+    if (static_cast<bool>(this->inverter_faults) && inverter_fault_status == 0x1B)
+    {
+        this->inverter_faults = inverter_fault_status;
+        error_message += "PHS_FILTR_FLT,"; // PHASE_FILTER_FAULT
     }
 
     // remove the last comma
     error_message.pop_back();
-    HandleError(tft, error_message, startX, startY, BMS_FAULT);
+    HandleError(tft, error_message, startX, startY, INVERTER_FAULT);
 }
 
-int Dash::CalcBarHeight(float value, float min, float max, int maxHeight) {
+int Dash::CalcBarHeight(float value, float min, float max, int maxHeight)
+{
     int lerp = (value - min) / (max - min) * maxHeight;
     // clamp the value between 0 and maxHeight
     return lerp > maxHeight ? maxHeight : lerp < 0 ? 0
                                                    : lerp;
 }
 
-int Dash::CalcBarWidth(float value, float min, float max, int maxWidth) {
+int Dash::CalcBarWidth(float value, float min, float max, int maxWidth)
+{
     int lerp = (value - min) / (max - min) * maxWidth;
     // clamp the value between 0 and maxHeight
     return lerp > maxWidth ? maxWidth : lerp < 0 ? 0
                                                  : lerp;
 }
 
-void Dash::RecordBMSFaults() {
+void Dash::RecordBMSFaults()
+{
     uint8_t faults = 0;
     // bit mask for the faults
     faults |= static_cast<bool>(bms_fault_summary_signal) << 0;
@@ -475,63 +629,75 @@ void Dash::RecordBMSFaults() {
     bms_faults = faults;
 }
 
-void Dash::HandleError(Adafruit_RA8875 tft, std::string error_message, int startX, int startY, Error type) {
-    if(ifBMSfault==true || ifIMDfault==true){
+void Dash::HandleError(Adafruit_RA8875 tft, std::string error_message, int startX, int startY, Error type)
+{
+    if (ifBMSfault == true || ifIMDfault == true)
+    {
         digitalWrite(INDICATOR_LED, HIGH);
     }
-    if(ifBMSfault==true || ifIMDfault==true || ifECUfault==true  || ifInverterfault==true ){
+    if (ifBMSfault == true || ifIMDfault == true || ifECUfault == true || ifInverterfault == true)
+    {
         tft.fillScreen(RA8875_RED);
     }
-    //make it so that the draw drive state and wheel state are small and off to the side and the error messages are big in the center
-    switch (this->prev_drive_state) {
-        case 0:
-            DrawString(tft, "OFF", 20, 20, 5, RA8875_WHITE, RA8875_RED);
-            break;
-        case 1:
-            DrawString(tft, "NEUTRAL", 20, 20, 5, RA8875_WHITE, RA8875_YELLOW);
-            break;
-        case 2:
-            DrawString(tft, "DRIVE", 20, 20, 5, RA8875_WHITE, RA8875_GREEN);
-            break;
-        default:
-            DrawString(tft, "ERROR", 20, 20, 5, RA8875_WHITE, RA8875_RED);
-            break;
+    // make it so that the draw drive state and wheel state are small and off to the side and the error messages are big in the center
+    switch (this->prev_drive_state)
+    {
+    case 0:
+        DrawString(tft, "OFF", 20, 20, 5, RA8875_WHITE, RA8875_RED);
+        break;
+    case 1:
+        DrawString(tft, "NEUTRAL", 20, 20, 5, RA8875_WHITE, RA8875_YELLOW);
+        break;
+    case 2:
+        DrawString(tft, "DRIVE", 20, 20, 5, RA8875_WHITE, RA8875_GREEN);
+        break;
+    default:
+        DrawString(tft, "ERROR", 20, 20, 5, RA8875_WHITE, RA8875_RED);
+        break;
     }
 
-    int rounded_wheel_speed= round(this->prev_wheel_speed);
+    int rounded_wheel_speed = round(this->prev_wheel_speed);
     std::string speed_str = std::to_string(rounded_wheel_speed);
-    int wheelx=20;
-    int wheely=30;
-    int char_space=5;
-    for (char ch : speed_str){
+    int wheelx = 20;
+    int wheely = 30;
+    int char_space = 5;
+    for (char ch : speed_str)
+    {
         tft.drawChar(wheelx, wheely, ch, RA8875_WHITE, RA8875_RED, 1);
         wheelx += char_space;
     }
 
-    DrawString(tft, error_message, SCREEN_WIDTH / 2, SCREEN_HEIGHT/2, 4, RA8875_BLACK, RA8875_RED);
+    DrawString(tft, error_message, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, 4, RA8875_BLACK, RA8875_RED);
 }
 
-void Dash::DrawState(Adafruit_RA8875 tft, int startX, int startY, int display_value, int squareSize, int midstate, int laststate) {
+void Dash::DrawState(Adafruit_RA8875 tft, int startX, int startY, int display_value, int squareSize, int midstate, int laststate)
+{
     int curr_state = 0;
 
-    if (display_value > laststate) {
+    if (display_value > laststate)
+    {
         curr_state = 2;
-    } else if (display_value > midstate) {
+    }
+    else if (display_value > midstate)
+    {
         curr_state = 1;
-    } else {
+    }
+    else
+    {
         curr_state = 0;
     }
     int16_t color;
-    switch (curr_state) {
-        case 0:
-            color = FERN_GREEN;
-            break;
-        case 1:
-            color = GOLD;
-            break;
-        case 2:
-            color = INDIAN_RED;
-            break;
+    switch (curr_state)
+    {
+    case 0:
+        color = FERN_GREEN;
+        break;
+    case 1:
+        color = GOLD;
+        break;
+    case 2:
+        color = INDIAN_RED;
+        break;
     }
 
     tft.fillCircle(startX, startY, SCREEN_WIDTH / 10, color);
@@ -545,15 +711,19 @@ void Dash::DrawState(Adafruit_RA8875 tft, int startX, int startY, int display_va
     startX -= char_width / 2;
 
     // Making a naive assumption that 0 <= wheel speed < 100
-    if (display_value > 99) {
+    if (display_value > 99)
+    {
         startX += char_width;
-    } else if (display_value > 9) {
+    }
+    else if (display_value > 9)
+    {
         // Digits must be off center for double digit numbers
         startX += char_width / 2;
     }
 
     // Draw the digits
-    while (rounded_display_value > 0) {
+    while (rounded_display_value > 0)
+    {
         int digit = rounded_display_value % 10;
         // tft.drawChar(startX + 4, startY * 0.8 + SCREEN_WIDTH / 16, digit + '0', RA8875_BLACK, color, 11);
         tft.drawChar(startX + 4, startY - 40, digit + '0', RA8875_BLACK, color, 10);
