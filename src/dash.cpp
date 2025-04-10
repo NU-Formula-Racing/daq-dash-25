@@ -351,31 +351,31 @@ void Dash::HandleBMSFaults(Adafruit_RA8875 tft, int startX, int startY)
 
     if (this->bms_faults & MASK(1))
     {
-        error_message += "UV,"; // under voltage
+        error_message += "UND_VOL,"; // under voltage
     }
     if (this->bms_faults & MASK(2))
     {
-        error_message += "OV,"; // over voltage
+        error_message += "OVR_VOL,"; // over voltage
     }
     if (this->bms_faults & MASK(3))
     {
-        error_message += "UT,"; // under temperature
+        error_message += "UND_TEMP,"; // under temperature
     }
     if (this->bms_faults & MASK(4))
     {
-        error_message += "OT,"; // over temperature
+        error_message += "OVR_TEMP,"; // over temperature
     }
     if (this->bms_faults & MASK(5))
     {
-        error_message += "OC,"; // over current
+        error_message += "OVR_CUR,"; // over current
     }
     if (this->bms_faults & MASK(6))
     {
-        error_message += "EK,"; // external kill
+        error_message += "EXTN_KL,"; // external kill
     }
     if (this->bms_faults & MASK(7))
     {
-        error_message += "OW,"; // open wire
+        error_message += "OPN_WIRE,"; // open wire
     }
 
     // remove the last comma
@@ -403,14 +403,6 @@ void Dash::DrawString(Adafruit_RA8875 tft, std::string message, int startX, int 
 
 void Dash::HandleECUFaults(Adafruit_RA8875 tft, int startX, int startY)
 {
-    // if (!static_cast<bool>(this->ecu_implausibility_present) && !static_cast<bool>(this->ecu_implausibility_appss_disagreement_imp) &&
-    //     !static_cast<bool>(this->ecu_implausibility_bppc_imp) && !static_cast<bool>(this->ecu_implausibility_brake_invalid_imp) &&
-    //     !static_cast<bool>(this->ecu_implausibility_appss_invalid_imp))
-    // { // order or no fault?
-    //     ifECUfault = false;
-    //     return;
-    // }
-
     if (this->ecu_faults)
     { // order or no fault?
         ifECUfault = false;
@@ -422,7 +414,7 @@ void Dash::HandleECUFaults(Adafruit_RA8875 tft, int startX, int startY)
         return;
     }
 
-    this->prev_bms_faults = this->ecu_faults;
+    this->prev_ecu_faults = this->ecu_faults;
 
     // there is a fault
     std::cout << "DETECTED: ECU Faults: "; // << std::bitset<8>(bms_faults).to_string() << std::endl; //!?
@@ -433,23 +425,27 @@ void Dash::HandleECUFaults(Adafruit_RA8875 tft, int startX, int startY)
     if (static_cast<bool>(this->ecu_implausibility_present))
     {
         this->ecu_faults = 1;
-        error_message += "Impl,";
+        error_message += "IMPLS_PRSNT,";
     }
     if (static_cast<bool>(this->ecu_implausibility_appss_disagreement_imp))
     {
-        error_message += "APSD";
+        this->ecu_faults = 2;
+        error_message += "IMPLS_APPS_DIS_IMP";
     }
     if (static_cast<bool>(this->ecu_implausibility_bppc_imp))
     {
-        error_message += "BPPC,";
+        this->ecu_faults = 3;
+        error_message += "IMPLS_BPPC_IMP,";
     }
     if (static_cast<bool>(this->ecu_implausibility_brake_invalid_imp))
     {
-        error_message += "BkIn,";
+        this->ecu_faults = 4;
+        error_message += "IMPLS_BRK_INVLD_IMP,";
     }
     if (static_cast<bool>(this->ecu_implausibility_appss_invalid_imp))
     {
-        error_message += "APSIn,";
+        this->ecu_faults = 5;
+        error_message += "IMPLS_APPS_INVLD_IMP,";
     }
 
     // remove the last comma
@@ -459,56 +455,165 @@ void Dash::HandleECUFaults(Adafruit_RA8875 tft, int startX, int startY)
 
 void Dash::HandleInverterFaults(Adafruit_RA8875 tft, int startX, int startY)
 {
-    if (this->bms_faults == 0)
-    { // order or no fault?
-        ifBMSfault = false;
+    if (this->inverter_faults == 0) // made a separate variable to prevent possible direct editing of inverter_fault_status
+                                    // might not actually be useful lol b/c now I don't think the inverter_fault is ever edited
+    {                               // order or no fault?
+        ifInverterfault = false;
         return;
     }
 
-    if (this->prev_bms_faults == this->bms_faults)
+    if (this->prev_inverter_faults == this->inverter_faults)
     {
         return;
     }
 
-    this->prev_bms_faults = this->bms_faults;
+    this->prev_inverter_faults = this->inverter_faults;
 
     // there is a fault
-    std::cout << "DETECTED: BMS Faults: " << std::bitset<8>(bms_faults).to_string() << std::endl;
-    ifBMSfault = true;
-    std::string error_message = "BMS:";
+    std::cout << "DETECTED: Inverter Faults: "; //<< std::bitset<8>(bms_faults).to_string() << std::endl;
+    ifInverterfault = true;
+    std::string error_message = "Inverter:";
 
-    if (this->bms_faults & MASK(1))
+    // error acronyms tbd
+    if (static_cast<bool>(this->inverter_faults) && inverter_fault_status == 0x01)
     {
-        error_message += "UV,"; // under voltage
+        this->inverter_faults = inverter_fault_status;
+        error_message += "OVR_VOL,"; // over voltage
     }
-    if (this->bms_faults & MASK(2))
+    if (static_cast<bool>(this->inverter_faults) && inverter_fault_status == 0x02)
     {
-        error_message += "OV,"; // over voltage
+        this->inverter_faults = inverter_fault_status;
+        error_message += "UND_VOL,"; // under voltage
     }
-    if (this->bms_faults & MASK(3))
+    if (static_cast<bool>(this->inverter_faults) && inverter_fault_status == 0x03)
     {
-        error_message += "UT,"; // under temperature
+        this->inverter_faults = inverter_fault_status;
+        error_message += "DRV_FLT,"; // drv fault
     }
-    if (this->bms_faults & MASK(4))
+    if (static_cast<bool>(this->inverter_faults) && inverter_fault_status == 0x04)
     {
-        error_message += "OT,"; // over temperature
+        this->inverter_faults = inverter_fault_status;
+        error_message += "ABS_OVR_CUR,"; // ABS_OVER_CURRENT
     }
-    if (this->bms_faults & MASK(5))
+    if (static_cast<bool>(this->inverter_faults) && inverter_fault_status == 0x05)
     {
-        error_message += "OC,"; // over current
+        this->inverter_faults = inverter_fault_status;
+        error_message += "OVR_TEMP_FET,"; // OVER_TEMP_FET
     }
-    if (this->bms_faults & MASK(6))
+    if (static_cast<bool>(this->inverter_faults) && inverter_fault_status == 0x06)
     {
-        error_message += "EK,"; // external kill
+        this->inverter_faults = inverter_fault_status;
+        error_message += "OVR_TEMP_MTR,"; // OVER_TEMP_MOTOR
     }
-    if (this->bms_faults & MASK(7))
+    if (static_cast<bool>(this->inverter_faults) && inverter_fault_status == 0x07)
     {
-        error_message += "OW,"; // open wire
+        this->inverter_faults = inverter_fault_status;
+        error_message += "GTE_DRV_OV,"; // GATE_DRIVER_OVER_VOLTAGE
+    }
+    if (static_cast<bool>(this->inverter_faults) && inverter_fault_status == 0x08)
+    {
+        this->inverter_faults = inverter_fault_status;
+        error_message += "GTE_DRV_UV,"; // GATE_DRIVER_UNDER_VOLTAGE
+    }
+    if (static_cast<bool>(this->inverter_faults) && inverter_fault_status == 0x09)
+    {
+        this->inverter_faults = inverter_fault_status;
+        error_message += "MCU_UV,"; // MCU_UNDER_VOLTAGE
+    }
+    if (static_cast<bool>(this->inverter_faults) && inverter_fault_status == 0x0A)
+    {
+        this->inverter_faults = inverter_fault_status;
+        error_message += "BTING_FRM_WCHDG_RST,"; // BOOTING_FROM_WATCHDOG_RESET
+    }
+    if (static_cast<bool>(this->inverter_faults) && inverter_fault_status == 0x0B)
+    {
+        this->inverter_faults = inverter_fault_status;
+        error_message += "ENCDR_SPI_FLT,"; // ENCODER_SPI_FAULT
+    }
+    if (static_cast<bool>(this->inverter_faults) && inverter_fault_status == 0x0C)
+    {
+        this->inverter_faults = inverter_fault_status;
+        error_message += "ENCDR_SICO_BLW_MAX_AMP,"; // ENCODER_SINCOS_BELOW_MIN_AMPLITUDE
+    }
+    if (static_cast<bool>(this->inverter_faults) && inverter_fault_status == 0x0D)
+    {
+        this->inverter_faults = inverter_fault_status;
+        error_message += "ENCDR_SICO_ABV_MAX_AMP,"; // ENCODER_SINCOS_ABOVE_MAX_AMPLITUDE
+    }
+    if (static_cast<bool>(this->inverter_faults) && inverter_fault_status == 0x0E)
+    {
+        this->inverter_faults = inverter_fault_status;
+        error_message += "FLASH_COR,"; // FLASH_CORRUPTION
+    }
+    if (static_cast<bool>(this->inverter_faults) && inverter_fault_status == 0x0F)
+    {
+        this->inverter_faults = inverter_fault_status;
+        error_message += "HI_OFFS_CUR_SENS1,"; // HIGH_OFFSET_CURRENT_SENSOR_1
+    }
+    if (static_cast<bool>(this->inverter_faults) && inverter_fault_status == 0x10)
+    {
+        this->inverter_faults = inverter_fault_status;
+        error_message += "HI_OFFS_CUR_SENS2,"; // HIGH_OFFSET_CURRENT_SENSOR_2
+    }
+    if (static_cast<bool>(this->inverter_faults) && inverter_fault_status == 0x11)
+    {
+        this->inverter_faults = inverter_fault_status;
+        error_message += "HI_OFFS_CUR_SENS3,"; // HIGH_OFFSET_CURRENT_SENSOR_3
+    }
+    if (static_cast<bool>(this->inverter_faults) && inverter_fault_status == 0x12)
+    {
+        this->inverter_faults = inverter_fault_status;
+        error_message += "UNBAL_CUR,"; // UNBALANCED_CURRENTS
+    }
+    if (static_cast<bool>(this->inverter_faults) && inverter_fault_status == 0x13)
+    {
+        this->inverter_faults = inverter_fault_status;
+        error_message += "BRK_FLT,";
+    }
+    if (static_cast<bool>(this->inverter_faults) && inverter_fault_status == 0x14)
+    {
+        this->inverter_faults = inverter_fault_status;
+        error_message += "RESLVR_LOT,";
+    }
+    if (static_cast<bool>(this->inverter_faults) && inverter_fault_status == 0x15)
+    {
+        this->inverter_faults = inverter_fault_status;
+        error_message += "RESLVR_DOS,";
+    }
+    if (static_cast<bool>(this->inverter_faults) && inverter_fault_status == 0x16)
+    {
+        this->inverter_faults = inverter_fault_status;
+        error_message += "RESLVR_LOS,";
+    }
+    if (static_cast<bool>(this->inverter_faults) && inverter_fault_status == 0x17)
+    {
+        this->inverter_faults = inverter_fault_status;
+        error_message += "FLSH_COR_APP_CFG,"; // FLASH_CORRUPTION_APP_CFG
+    }
+    if (static_cast<bool>(this->inverter_faults) && inverter_fault_status == 0x18)
+    {
+        this->inverter_faults = inverter_fault_status;
+        error_message += "FLSH_COR_APP_CFG,"; // FLASH_CORRUPTION_APP_CFG
+    }
+    if (static_cast<bool>(this->inverter_faults) && inverter_fault_status == 0x19)
+    {
+        this->inverter_faults = inverter_fault_status;
+        error_message += "ENCDR_NO_MAG,"; // ENCODER_NO_MAGNET
+    }
+    if (static_cast<bool>(this->inverter_faults) && inverter_fault_status == 0x1A)
+    {
+        this->inverter_faults = inverter_fault_status;
+        error_message += "ENCDR_MAG_2_STRNG,"; // ENCODER_MAGNET_TOO_STRONG
+    }
+    if (static_cast<bool>(this->inverter_faults) && inverter_fault_status == 0x1B)
+    {
+        this->inverter_faults = inverter_fault_status;
+        error_message += "PHS_FILTR_FLT,"; // PHASE_FILTER_FAULT
     }
 
     // remove the last comma
     error_message.pop_back();
-    HandleError(tft, error_message, startX, startY, BMS_FAULT);
+    HandleError(tft, error_message, startX, startY, INVERTER_FAULT);
 }
 
 int Dash::CalcBarHeight(float value, float min, float max, int maxHeight)

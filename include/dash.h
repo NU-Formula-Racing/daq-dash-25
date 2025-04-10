@@ -89,7 +89,12 @@ private:
     // Inverter Current Signals
     CANSignal<uint32_t, 0, 32, CANTemplateConvertFloat(0.0001), CANTemplateConvertFloat(0.0), false> inverter_current_draw_ah_drawn{};
     CANSignal<uint32_t, 32, 32, CANTemplateConvertFloat(0.0001), CANTemplateConvertFloat(0.0), false> inverter_current_draw_ah_charged{};
-    CANTXMessage<2> rx_inverter_current_draw{g_can_bus, 0x283, 8, 100, inverter_current_draw_ah_drawn, inverter_current_draw_ah_charged};
+    CANRXMessage<1> rx_inverter_current_draw{g_can_bus, 0x283, inverter_current_draw_ah_drawn, inverter_current_draw_ah_charged};
+
+    // Inverter Fault Signal
+    // ! confirm code
+    CANSignal<uint8_t, 0, 8, CANTemplateConvertFloat(1), CANTemplateConvertFloat(0.0), false> inverter_fault_status{};
+    CANRXMessage<1> rx_inverter_fault_status{g_can_bus, 0x280, inverter_fault_status};
 
     // ECU Signals
     CANSignal<uint8_t, 0, 8, CANTemplateConvertFloat(1), CANTemplateConvertFloat(0), false> drive_state_signal;
@@ -164,6 +169,8 @@ private:
     // new variables
     uint8_t ecu_faults = 0;
     uint8_t prev_ecu_faults = 0;
+    uint8_t inverter_faults = 0;
+    uint8_t prev_inverter_faults = 0;
 
     int CalcBarHeight(float value, float min, float max, int maxHeight);
     int CalcBarWidth(float value, float min, float max, int maxWidth);
