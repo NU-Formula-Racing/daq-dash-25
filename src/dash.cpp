@@ -27,6 +27,8 @@
 
 int drive_state_startX = SCREEN_WIDTH / 4;
 int drive_state_startY = SCREEN_HEIGHT / 3;
+int error_state_startX = SCREEN_WIDTH * 0.4;
+ int error_state_startY = SCREEN_HEIGHT * 6 /8;
 int hv_bat_volt_startX = SCREEN_WIDTH / 8;
 int hv_bat_volt_startY = SCREEN_HEIGHT / 4 + 30;
 int lv_bat_volt_startX = SCREEN_WIDTH / 8;
@@ -37,7 +39,7 @@ int max_cell_temp_startX = SCREEN_WIDTH * 7 / 8;
 int max_cell_temp_startY = SCREEN_HEIGHT / 4 + 30;
 int min_cell_temp_startX = SCREEN_WIDTH * 7 / 8;
 int min_cell_temp_startY = SCREEN_HEIGHT * 3 / 4 + 30;
-int handle_error_startX = SCREEN_WIDTH / 4;
+int handle_error_startX = 0; // /4
 int handle_error_startY = SCREEN_HEIGHT / 3;
 
 // for states, after mid state, goes to last state
@@ -99,32 +101,34 @@ void Dash::DrawBackground(Adafruit_RA8875 tft, int16_t color)
 {
     this->backgroundColor = color;
     // black out the screen
-    tft.fillScreen(color);
-    // draw outlines
-    // MIDDLE DRIVE RECT
-    tft.drawRect(SCREEN_WIDTH / 4, SCREEN_HEIGHT / 3, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 3, RA8875_WHITE);
 
-    // write circle labels
-    DrawString(tft, "HV Battery", hv_bat_volt_startX * 0.15, hv_bat_volt_startY - SCREEN_WIDTH / 6 - 10, 3, RA8875_WHITE, color);
-    DrawString(tft, "Voltage", hv_bat_volt_startX * 0.4, hv_bat_volt_startY - SCREEN_WIDTH / 8 - 10, 3, RA8875_WHITE, color);
-    DrawString(tft, "LV Battery", lv_bat_volt_startX * 0.15, lv_bat_volt_startY - SCREEN_WIDTH / 6 - 10, 3, RA8875_WHITE, color);
-    DrawString(tft, "Voltage", lv_bat_volt_startX * 0.4, lv_bat_volt_startY - SCREEN_WIDTH / 8 - 10, 3, RA8875_WHITE, color);
-    DrawString(tft, "Max Cell", max_cell_temp_startX * 0.9, max_cell_temp_startY - SCREEN_WIDTH / 6 - 10, 3, RA8875_WHITE, color);
-    DrawString(tft, "Temp", max_cell_temp_startX * 0.95, max_cell_temp_startY - SCREEN_WIDTH / 8 - 10, 3, RA8875_WHITE, color);
-    DrawString(tft, "Min Cell", min_cell_temp_startX * 0.9, min_cell_temp_startY - SCREEN_WIDTH / 6 - 10, 3, RA8875_WHITE, color);
-    DrawString(tft, "Temp", min_cell_temp_startX * 0.95, min_cell_temp_startY - SCREEN_WIDTH / 8 - 10, 3, RA8875_WHITE, color);
-    // write text beneath the bars
-    // iterate
-    for (auto &bar : this->bars)
-    {
-        BarData &data = bar.second;
-        DrawString(tft, data.displayName, data.x, data.y + 10, 4, RA8875_WHITE, RA8875_BLACK);
-    }
+        tft.fillScreen(color);
+        // draw outlines
+        // MIDDLE DRIVE RECT
+        tft.drawRect(SCREEN_WIDTH / 4, SCREEN_HEIGHT / 3, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 3, RA8875_WHITE);
 
-    if (this->error != NO_ERROR)
-    {
-        return;
-    }
+        // write circle labels
+        DrawString(tft, "HV Battery", hv_bat_volt_startX * 0.15, hv_bat_volt_startY - SCREEN_WIDTH / 6 - 10, 3, RA8875_WHITE, color);
+        DrawString(tft, "Voltage", hv_bat_volt_startX * 0.4, hv_bat_volt_startY - SCREEN_WIDTH / 8 - 10, 3, RA8875_WHITE, color);
+        DrawString(tft, "LV Battery", lv_bat_volt_startX * 0.15, lv_bat_volt_startY - SCREEN_WIDTH / 6 - 10, 3, RA8875_WHITE, color);
+        DrawString(tft, "Voltage", lv_bat_volt_startX * 0.4, lv_bat_volt_startY - SCREEN_WIDTH / 8 - 10, 3, RA8875_WHITE, color);
+        DrawString(tft, "Max Cell", max_cell_temp_startX * 0.9, max_cell_temp_startY - SCREEN_WIDTH / 6 - 10, 3, RA8875_WHITE, color);
+        DrawString(tft, "Temp", max_cell_temp_startX * 0.95, max_cell_temp_startY - SCREEN_WIDTH / 8 - 10, 3, RA8875_WHITE, color);
+        DrawString(tft, "Min Cell", min_cell_temp_startX * 0.9, min_cell_temp_startY - SCREEN_WIDTH / 6 - 10, 3, RA8875_WHITE, color);
+        DrawString(tft, "Temp", min_cell_temp_startX * 0.95, min_cell_temp_startY - SCREEN_WIDTH / 8 - 10, 3, RA8875_WHITE, color);
+        // write text beneath the bars
+        // iterate
+        for (auto &bar : this->bars)
+        {
+            BarData &data = bar.second;
+            DrawString(tft, data.displayName, data.x, data.y + 10, 4, RA8875_WHITE, RA8875_BLACK);
+        }
+
+        if (this->error != NO_ERROR)
+        {
+            return;
+        }
+    
 }
 
 float Dash::WheelSpeedAvg(float fl_wheel_speed, float fr_wheel_speed)
@@ -152,8 +156,8 @@ void Dash::UpdateDisplay(Adafruit_RA8875 tft)
     int curr_drive_state = (millis() / 1000) % 3;         //
     int imd_status = millis() > 5000 ? -10 : 0;           //
     this->bms_faults = millis() > 10000 ? 0b11111111 : 0; //
-    // this->inverter_faults = millis() > 10000 ? 0b11111111 : 0;  //
-
+    this->inverter_faults = millis() > 10000 ? 0b11111111 : 0;  //
+    this->ecu_faults = millis() > 10000 ? 0b11111111 : 0; 
     // float max_cell_temp = (millis() / 10) % 100;     //
     // float min_cell_temp = (millis() / 10) % 100;
     float max_cell_temp = (millis() / 1000); //
@@ -179,6 +183,7 @@ void Dash::UpdateDisplay(Adafruit_RA8875 tft)
     // regular drive screen
     if (ifBMSfault == false && ifIMDfault == false && ifECUfault == false && ifInverterfault == false)
     {
+        ifErrorScreen = false;
         if (this->prev_drive_state != curr_drive_state || FORCE_DRAW)
         {
             DrawDriveState(tft, drive_state_startX, drive_state_startY, curr_drive_state, 8, avg_wheel_speed, wheel_speed_startX, wheel_speed_startY, ifErrorScreen);
@@ -209,7 +214,9 @@ void Dash::UpdateDisplay(Adafruit_RA8875 tft)
     // error screen
     else
     {
-        DrawErrorState(tft, drive_state_startX, drive_state_startY, curr_drive_state, 8, avg_wheel_speed, wheel_speed_startX, wheel_speed_startY, ifErrorScreen);
+        ifErrorScreen = true;
+        //tft.fillScreen(RA8875_RED);
+        DrawErrorState(tft, error_state_startX, error_state_startY, curr_drive_state, 8, avg_wheel_speed, wheel_speed_startX, wheel_speed_startY, ifErrorScreen);
         HandleError(tft, handle_error_startX, handle_error_startY);
     }
 
@@ -755,10 +762,10 @@ void Dash::HandleError(Adafruit_RA8875 tft, int startX, int startY)
     {
         digitalWrite(INDICATOR_LED, HIGH);
     }
-    if (ifBMSfault == true || ifIMDfault == true || ifECUfault == true || ifInverterfault == true)
-    {
-        tft.fillScreen(RA8875_RED);
-    }
+    // if (ifBMSfault == true || ifIMDfault == true || ifECUfault == true || ifInverterfault == true)
+    // {
+    //     tft.fillScreen(RA8875_RED);
+    // }
     // // make it so that the draw drive state and wheel state are small and off to the side and the error messages are big in the center
     // switch (this->prev_drive_state)
     // {
@@ -790,22 +797,22 @@ void Dash::HandleError(Adafruit_RA8875 tft, int startX, int startY)
     // new code: checks if there are any changes to previous error message
     if (this->imd_prev_err_str != imd_err_str)
     {
-        DrawString(tft, imd_err_str, startX, startY, 10, RA8875_BLACK, RA8875_RED);
+        DrawString(tft, imd_err_str, startX, startY, 6, RA8875_BLACK, RA8875_RED);
         this->imd_prev_err_str = imd_err_str;
     }
     if (this->prev_bms_faults != this->bms_faults)
     {
-        DrawString(tft, bms_err_str, startX, startY - 10, 10, RA8875_BLACK, RA8875_RED);
+        DrawString(tft, bms_err_str, startX, startY - 50, 6, RA8875_BLACK, RA8875_RED);
         this->prev_bms_faults = this->bms_faults;
     }
     if (this->prev_inverter_faults != this->inverter_faults)
     {
-        DrawString(tft, inverter_err_str, startX, startY - 20, 10, RA8875_BLACK, RA8875_RED);
+        DrawString(tft, inverter_err_str, startX, startY - 100, 6, RA8875_BLACK, RA8875_RED);
         this->prev_inverter_faults = this->inverter_faults;
     }
     if (this->prev_ecu_faults != this->ecu_faults)
     {
-        DrawString(tft, ecu_err_str, startX, startY - 30, 10, RA8875_BLACK, RA8875_RED);
+        DrawString(tft, ecu_err_str, startX, startY - 150, 6, RA8875_BLACK, RA8875_RED);
         this->prev_ecu_faults = this->ecu_faults;
     }
 }
