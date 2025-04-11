@@ -33,6 +33,15 @@ public:
             : displayName(displayName), min(min), max(max), value(min), x(startX), y(startY), height(height), maxWidth(maxWidth) {}
     };
 
+    // added struct
+    // struct ErrorMessageStruct
+    // {
+    //     std::string bms_error_message;
+    //     std::string imd_error_message;
+    //     std::string ecu_error_message;
+    //     std::string inverter_error_message;
+    // };
+
     enum Error
     {
         NO_ERROR,
@@ -66,11 +75,12 @@ public:
     // void DrawHVBatVoltState(Adafruit_RA8875 tft, int startX, int startY, int hv_bat_volt, int squareSize);
     // void DrawLVBatVoltState(Adafruit_RA8875 tft, int startX, int startY, int lv_bat_volt, int squareSize);
     void DrawIMDStatus(Adafruit_RA8875 tft, int startX, int startY, int imd_status, int squareSize);
-    void HandleError(Adafruit_RA8875 tft, std::string error_message, int startX, int startY, Error type);
+    void HandleError(Adafruit_RA8875 tft, int startX, int startY);
     void DrawString(Adafruit_RA8875 tft, std::string message, int startX, int startY, int size, int16_t color, int16_t backgroundColor, Direction dir = LEFT_TO_RIGHT);
     void HandleBMSFaults(Adafruit_RA8875 tft, int startX, int startY);
     void HandleECUFaults(Adafruit_RA8875 tft, int startX, int startY);
     void HandleInverterFaults(Adafruit_RA8875 tft, int startX, int startY);
+    void DrawErrorState(Adafruit_RA8875 tft, int startX, int startY, uint8_t curr_drive_state, int squareSize, float wheel_speed, int wheel_speed_startX, int wheel_speed_startY, bool ifErrorScreen);
 
 private:
     TeensyCAN<3> g_can_bus{};
@@ -170,6 +180,12 @@ private:
     uint8_t prev_ecu_faults = 0;
     uint8_t inverter_faults = 0;
     uint8_t prev_inverter_faults = 0;
+
+    // prev variables for UpdateVariable
+    std::string imd_prev_err_str = "";
+    // std::string bms_prev_err_str = "";
+    // std::string inverter_prev_err_str = "";
+    // std::string ecu_prev_err_str = "";
 
     int CalcBarHeight(float value, float min, float max, int maxHeight);
     int CalcBarWidth(float value, float min, float max, int maxWidth);

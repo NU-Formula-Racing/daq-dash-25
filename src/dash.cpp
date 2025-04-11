@@ -37,6 +37,8 @@ int max_cell_temp_startX = SCREEN_WIDTH * 7 / 8;
 int max_cell_temp_startY = SCREEN_HEIGHT / 4 + 30;
 int min_cell_temp_startX = SCREEN_WIDTH * 7 / 8;
 int min_cell_temp_startY = SCREEN_HEIGHT * 3 / 4 + 30;
+int handle_error_startX = SCREEN_WIDTH / 4;
+int handle_error_startY = SCREEN_HEIGHT / 3;
 
 // for states, after mid state, goes to last state
 int motor_temp_last_state = 70;
@@ -65,6 +67,11 @@ bool ifIMDfault = false;
 bool ifECUfault = false;
 bool ifInverterfault = false;
 bool ifErrorScreen = false;
+
+std::string imd_err_str = "";
+std::string bms_err_str = "";
+std::string inverter_err_str = "";
+std::string ecu_err_str = "";
 
 void Dash::GetCAN()
 {
@@ -155,56 +162,140 @@ void Dash::UpdateDisplay(Adafruit_RA8875 tft)
     float lv_bat_volt = (millis() / 100) % 100;
 
 #endif
+
     DrawIMDStatus(tft, 8, 2, imd_status, 32);
     HandleBMSFaults(tft, 8, 2);
     HandleInverterFaults(tft, 8, 3);
     HandleECUFaults(tft, 8, 2);
 
-    if (ifBMSfault == true || ifIMDfault == true || ifECUfault == true || ifInverterfault == true)
-    {
-        // HandleError();
-    }
-
-    float avg_wheel_speed = fl_wheel_speed + fr_wheel_speed / 2;
-    if (this->prev_drive_state != curr_drive_state || FORCE_DRAW)
-    {
-        DrawDriveState(tft, drive_state_startX, drive_state_startY, curr_drive_state, 8, avg_wheel_speed, wheel_speed_startX, wheel_speed_startY, ifErrorScreen);
-        this->prev_drive_state = curr_drive_state;
-    }
-    // this->prev_wheel_speed = avg_wheel_speed;
-    if (this->prev_hv_bat_volt != hv_bat_volt || FORCE_DRAW)
-    {
-        DrawState(tft, hv_bat_volt_startX, hv_bat_volt_startY, hv_bat_volt, 8, hv_battery_voltage_mid_state, hv_battery_voltage_last_state);
-        this->prev_hv_bat_volt = hv_bat_volt;
-    }
-    if (this->prev_lv_bat_volt != lv_bat_volt || FORCE_DRAW)
-    {
-        DrawState(tft, lv_bat_volt_startX, lv_bat_volt_startY, lv_bat_volt, 8, lv_battery_voltage_mid_state, lv_battery_voltage_last_state);
-        this->prev_lv_bat_volt = lv_bat_volt;
-    }
-    if (this->prev_max_cell_temp != max_cell_temp || FORCE_DRAW)
-    {
-        DrawState(tft, max_cell_temp_startX, max_cell_temp_startY, max_cell_temp, 8, max_cell_temp_mid_state, max_cell_temp_last_state);
-        this->prev_max_cell_temp = max_cell_temp;
-    }
-    if (this->prev_min_cell_temp != min_cell_temp || FORCE_DRAW)
-    {
-        DrawState(tft, min_cell_temp_startX, min_cell_temp_startY, min_cell_temp, 8, min_cell_temp_mid_state, min_cell_temp_last_state);
-        this->prev_min_cell_temp = min_cell_temp;
-    }
-
-    // draw IMD status
+    // LED
     if (ifBMSfault == false & ifIMDfault == false)
     {
         digitalWrite(INDICATOR_LED, LOW);
     }
 
-    DrawIMDStatus(tft, 8, 2, imd_status, 32);
-    HandleBMSFaults(tft, 8, 2);
-    HandleInverterFaults(tft, 8, 3);
-    HandleECUFaults(tft, 8, 2);
+    float avg_wheel_speed = fl_wheel_speed + fr_wheel_speed / 2;
+
+    // regular drive screen
+    if (ifBMSfault == false && ifIMDfault == false && ifECUfault == false && ifInverterfault == false)
+    {
+        if (this->prev_drive_state != curr_drive_state || FORCE_DRAW)
+        {
+            DrawDriveState(tft, drive_state_startX, drive_state_startY, curr_drive_state, 8, avg_wheel_speed, wheel_speed_startX, wheel_speed_startY, ifErrorScreen);
+            this->prev_drive_state = curr_drive_state;
+        }
+        // this->prev_wheel_speed = avg_wheel_speed;
+        if (this->prev_hv_bat_volt != hv_bat_volt || FORCE_DRAW)
+        {
+            DrawState(tft, hv_bat_volt_startX, hv_bat_volt_startY, hv_bat_volt, 8, hv_battery_voltage_mid_state, hv_battery_voltage_last_state);
+            this->prev_hv_bat_volt = hv_bat_volt;
+        }
+        if (this->prev_lv_bat_volt != lv_bat_volt || FORCE_DRAW)
+        {
+            DrawState(tft, lv_bat_volt_startX, lv_bat_volt_startY, lv_bat_volt, 8, lv_battery_voltage_mid_state, lv_battery_voltage_last_state);
+            this->prev_lv_bat_volt = lv_bat_volt;
+        }
+        if (this->prev_max_cell_temp != max_cell_temp || FORCE_DRAW)
+        {
+            DrawState(tft, max_cell_temp_startX, max_cell_temp_startY, max_cell_temp, 8, max_cell_temp_mid_state, max_cell_temp_last_state);
+            this->prev_max_cell_temp = max_cell_temp;
+        }
+        if (this->prev_min_cell_temp != min_cell_temp || FORCE_DRAW)
+        {
+            DrawState(tft, min_cell_temp_startX, min_cell_temp_startY, min_cell_temp, 8, min_cell_temp_mid_state, min_cell_temp_last_state);
+            this->prev_min_cell_temp = min_cell_temp;
+        }
+    }
+    // error screen
+    else
+    {
+        DrawErrorState(tft, drive_state_startX, drive_state_startY, curr_drive_state, 8, avg_wheel_speed, wheel_speed_startX, wheel_speed_startY, ifErrorScreen);
+        HandleError(tft, handle_error_startX, handle_error_startY);
+    }
 
     timer_group.Tick(millis());
+}
+
+void Dash::DrawErrorState(Adafruit_RA8875 tft, int startX, int startY, uint8_t curr_drive_state, int squareSize, float wheel_speed, int wheel_speed_startX, int wheel_speed_startY, bool ifErrorScreen)
+{
+    // dont need wheel speed start x y anymore i think
+    int16_t color = INDIAN_RED;
+    int driveRectw = startX / 2;
+    int driveRecth = startY / 4;
+    int digit_spacing = 4;
+    int char_width = 40;
+    int draw_digit_size = 6;
+
+    //  int16_t color = INDIAN_RED;
+    //  int driveRectw = startX;
+    //  int driveRecth= startY/2;
+    //  int digit_spacing = 4;
+    //  int char_width = 40;
+    //  int draw_digit_size = 6;
+    //  startX= startX * 4 * 0.4;
+    //  startY= startY * 5;
+    switch (curr_drive_state)
+    {
+    case 0:
+        color = INDIAN_RED;
+        break;
+    case 1:
+        color = GOLD;
+        break;
+    case 2:
+        color = FERN_GREEN;
+        break;
+    default:
+        color = INDIAN_RED;
+        break;
+    }
+    tft.fillRect(startX, startY + 30, driveRectw, driveRecth, color);
+    // change sizes via if statement
+    switch (curr_drive_state)
+    {
+    case 0:
+        DrawString(tft, "OFF", startX * 1.15, startY * 1.25, 3, RA8875_WHITE, color);
+        // DrawString(tft, "OFF", SCREEN_WIDTH * 0.4, SCREEN_HEIGHT * 0.58, 5, RA8875_WHITE, color);
+        break;
+    case 1:
+        DrawString(tft, "NEUTRAL", startX * 1.05, startY * 1.25, 3, RA8875_BLACK, color);
+        // DrawString(tft, "NEUTRAL", SCREEN_WIDTH * 0.47, SCREEN_HEIGHT * 0.58, 5, RA8875_BLACK, color);
+        break;
+    case 2:
+        DrawString(tft, "DRIVE", startX * 1.12, startY * 1.25, 3, RA8875_WHITE, color);
+        break;
+    default:
+        DrawString(tft, "ERROR", startX * 1.25, startY * 1.25, 3, RA8875_WHITE, color);
+        break;
+    }
+
+    drive_state = curr_drive_state;
+    int rounded_wheel_speed = round(wheel_speed);
+
+    // int digit_spacing = 8;
+    // int char_width = 80;
+
+    startX -= char_width / 2;
+
+    // Making a naive assumption that 0 <= wheel speed < 100
+    if (wheel_speed > 99)
+    {
+        startX += char_width;
+    }
+    else if (wheel_speed > 9)
+    {
+        // Digits must be off center for double digit numbers
+        startX += char_width / 2;
+    }
+
+    // Draw the digits
+    while (rounded_wheel_speed > 0)
+    {
+        int digit = rounded_wheel_speed % 10;
+        tft.drawChar(startX + 50, startY + 30, digit + '0', RA8875_BLACK, color, draw_digit_size);
+        wheel_speed_startX -= char_width + digit_spacing;
+        rounded_wheel_speed /= 10;
+    }
 }
 
 // COME HERE NEXT TIME TO DRAW THE NUMBER IN THE MIDDLE. ALSO, CHANGE DRAWCHAR FOR OTHER DRAW STATE CIRCLES AND THE MIDDLE RECTANGLE BC FULL WORDS
@@ -302,23 +393,29 @@ void Dash::DrawIMDStatus(Adafruit_RA8875 tft, int startX, int startY, int imd_st
     case -10:
         status = "IMD:Short Circuit";
         ifIMDfault = true;
+        imd_err_str = status;
         break;
     case -5:
         status = "IMD:Loading";
         ifIMDfault = true;
+        imd_err_str = status;
         break;
     case -25:
         status = "IMD:Connection Fault";
         ifIMDfault = true;
+        imd_err_str = status;
         break; // added
     case -20:
         status = "IMD:Device Error";
         ifIMDfault = true;
+        imd_err_str = status;
         break;
     default:
-        return;
         ifIMDfault = false;
+        return;
     }
+
+    return;
 
     // HandleError(tft, status, startX, startY, IMD_FAULT);
 }
@@ -331,12 +428,13 @@ void Dash::HandleBMSFaults(Adafruit_RA8875 tft, int startX, int startY)
         return;
     }
 
+    // ***!*************** not sure
     if (this->prev_bms_faults == this->bms_faults)
     {
         return;
     }
 
-    this->prev_bms_faults = this->bms_faults;
+    // this->prev_bms_faults = this->bms_faults;
 
     // there is a fault
     std::cout << "DETECTED: BMS Faults: " << std::bitset<8>(bms_faults).to_string() << std::endl;
@@ -375,6 +473,9 @@ void Dash::HandleBMSFaults(Adafruit_RA8875 tft, int startX, int startY)
     // remove the last comma
     error_message.pop_back();
     // HandleError(tft, error_message, startX, startY, BMS_FAULT);
+
+    bms_err_str = error_message;
+    return;
 }
 
 void Dash::DrawString(Adafruit_RA8875 tft, std::string message, int startX, int startY, int size, int16_t color, int16_t backgroundColor, Direction dir)
@@ -408,10 +509,11 @@ void Dash::HandleECUFaults(Adafruit_RA8875 tft, int startX, int startY)
         return;
     }
 
-    this->prev_ecu_faults = this->ecu_faults;
+    // this->prev_ecu_faults = this->ecu_faults;
 
     // there is a fault
-    std::cout << "DETECTED: ECU Faults: "; // << std::bitset<8>(bms_faults).to_string() << std::endl; //!?
+    std::cout
+        << "DETECTED: ECU Faults: "; // << std::bitset<8>(bms_faults).to_string() << std::endl; //!?
     ifECUfault = true;
     std::string error_message = "ECU:";
 
@@ -445,6 +547,8 @@ void Dash::HandleECUFaults(Adafruit_RA8875 tft, int startX, int startY)
     // remove the last comma
     error_message.pop_back();
     // HandleError(tft, error_message, startX, startY, ECU_FAULT);
+    ecu_err_str = error_message;
+    return;
 }
 
 void Dash::HandleInverterFaults(Adafruit_RA8875 tft, int startX, int startY)
@@ -461,7 +565,7 @@ void Dash::HandleInverterFaults(Adafruit_RA8875 tft, int startX, int startY)
         return;
     }
 
-    this->prev_inverter_faults = this->inverter_faults;
+    // this->prev_inverter_faults = this->inverter_faults;
 
     // there is a fault
     std::cout << "DETECTED: Inverter Faults: "; //<< std::bitset<8>(bms_faults).to_string() << std::endl;
@@ -608,6 +712,8 @@ void Dash::HandleInverterFaults(Adafruit_RA8875 tft, int startX, int startY)
     // remove the last comma
     error_message.pop_back();
     // HandleError(tft, error_message, startX, startY, INVERTER_FAULT);
+    inverter_err_str = error_message;
+    return;
 }
 
 int Dash::CalcBarHeight(float value, float min, float max, int maxHeight)
@@ -643,7 +749,7 @@ void Dash::RecordBMSFaults()
     bms_faults = faults;
 }
 
-void Dash::HandleError(Adafruit_RA8875 tft, std::string error_message, int startX, int startY, Error type)
+void Dash::HandleError(Adafruit_RA8875 tft, int startX, int startY)
 {
     if (ifBMSfault == true || ifIMDfault == true)
     {
@@ -653,35 +759,55 @@ void Dash::HandleError(Adafruit_RA8875 tft, std::string error_message, int start
     {
         tft.fillScreen(RA8875_RED);
     }
-    // make it so that the draw drive state and wheel state are small and off to the side and the error messages are big in the center
-    switch (this->prev_drive_state)
-    {
-    case 0:
-        DrawString(tft, "OFF", 20, 20, 5, RA8875_WHITE, RA8875_RED);
-        break;
-    case 1:
-        DrawString(tft, "NEUTRAL", 20, 20, 5, RA8875_WHITE, RA8875_YELLOW);
-        break;
-    case 2:
-        DrawString(tft, "DRIVE", 20, 20, 5, RA8875_WHITE, RA8875_GREEN);
-        break;
-    default:
-        DrawString(tft, "ERROR", 20, 20, 5, RA8875_WHITE, RA8875_RED);
-        break;
-    }
+    // // make it so that the draw drive state and wheel state are small and off to the side and the error messages are big in the center
+    // switch (this->prev_drive_state)
+    // {
+    // case 0:
+    //     DrawString(tft, "OFF", 20, 20, 5, RA8875_WHITE, RA8875_RED);
+    //     break;
+    // case 1:
+    //     DrawString(tft, "NEUTRAL", 20, 20, 5, RA8875_WHITE, RA8875_YELLOW);
+    //     break;
+    // case 2:
+    //     DrawString(tft, "DRIVE", 20, 20, 5, RA8875_WHITE, RA8875_GREEN);
+    //     break;
+    // default:
+    //     DrawString(tft, "ERROR", 20, 20, 5, RA8875_WHITE, RA8875_RED);
+    //     break;
+    // }
 
-    int rounded_wheel_speed = round(this->prev_wheel_speed);
-    std::string speed_str = std::to_string(rounded_wheel_speed);
-    int wheelx = 20;
-    int wheely = 30;
-    int char_space = 5;
-    for (char ch : speed_str)
-    {
-        tft.drawChar(wheelx, wheely, ch, RA8875_WHITE, RA8875_RED, 1);
-        wheelx += char_space;
-    }
+    // int rounded_wheel_speed = round(this->prev_wheel_speed);
+    // std::string speed_str = std::to_string(rounded_wheel_speed);
+    // int wheelx = 20;
+    // int wheely = 30;
+    // int char_space = 5;
+    // for (char ch : speed_str)
+    // {
+    //     tft.drawChar(wheelx, wheely, ch, RA8875_WHITE, RA8875_RED, 1);
+    //     wheelx += char_space;
+    // }
 
-    DrawString(tft, error_message, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, 4, RA8875_BLACK, RA8875_RED);
+    // new code: checks if there are any changes to previous error message
+    if (this->imd_prev_err_str != imd_err_str)
+    {
+        DrawString(tft, imd_err_str, startX, startY, 10, RA8875_BLACK, RA8875_RED);
+        this->imd_prev_err_str = imd_err_str;
+    }
+    if (this->prev_bms_faults != this->bms_faults)
+    {
+        DrawString(tft, bms_err_str, startX, startY - 10, 10, RA8875_BLACK, RA8875_RED);
+        this->prev_bms_faults = this->bms_faults;
+    }
+    if (this->prev_inverter_faults != this->inverter_faults)
+    {
+        DrawString(tft, inverter_err_str, startX, startY - 20, 10, RA8875_BLACK, RA8875_RED);
+        this->prev_inverter_faults = this->inverter_faults;
+    }
+    if (this->prev_ecu_faults != this->ecu_faults)
+    {
+        DrawString(tft, ecu_err_str, startX, startY - 30, 10, RA8875_BLACK, RA8875_RED);
+        this->prev_ecu_faults = this->ecu_faults;
+    }
 }
 
 void Dash::DrawState(Adafruit_RA8875 tft, int startX, int startY, int display_value, int squareSize, int midstate, int laststate)
@@ -717,31 +843,51 @@ void Dash::DrawState(Adafruit_RA8875 tft, int startX, int startY, int display_va
     tft.fillCircle(startX, startY, SCREEN_WIDTH / 10, color);
     // DrawString(tft, "IC", startX * 0.8, startY - SCREEN_WIDTH / 9, 5, RA8875_BLACK, color);
     // drive_state = curr_accum_state;
-    int rounded_display_value = round(display_value);
+    int precision = 1; // Change this to 1, 2, 3... as needed change font size, startX, startY
 
-    int digit_spacing = -14;
-    int char_width = 80;
+    int multiplier = pow(10, precision);                        // e.g., 10 for 1 decimal, 100 for 2, etc.
+    int float_as_int = (int)(display_value * multiplier + 0.5); // rounding
+
+    int digit_spacing = -8;
+    int char_width = 48;
 
     startX -= char_width / 2;
 
-    // Making a naive assumption that 0 <= wheel speed < 100
-    if (display_value > 99)
+    // Adjust for centering based on number of digits
+    int temp = float_as_int;
+    int digit_count = 0;
+    while (temp > 0)
     {
+        temp /= 10;
+        digit_count++;
+    }
+
+    if (digit_count >= 5)
+    { // e.g. 999.99
         startX += char_width;
     }
-    else if (display_value > 9)
-    {
-        // Digits must be off center for double digit numbers
+    else if (digit_count >= 3)
+    { // e.g. 10.00
         startX += char_width / 2;
     }
 
-    // Draw the digits
-    while (rounded_display_value > 0)
+    // Draw digits in reverse order (right to left)
+    int digits_drawn = 0;
+    while (float_as_int > 0 || digits_drawn <= precision)
     {
-        int digit = rounded_display_value % 10;
-        // tft.drawChar(startX + 4, startY * 0.8 + SCREEN_WIDTH / 16, digit + '0', RA8875_BLACK, color, 11);
-        tft.drawChar(startX + 4, startY - 40, digit + '0', RA8875_BLACK, color, 10);
-        startX -= char_width + digit_spacing;
-        rounded_display_value /= 10;
+        if (digits_drawn == precision)
+        {
+            // Draw decimal point
+            tft.drawChar(startX + 35, startY - 20, '.', RA8875_BLACK, color, 6);
+            startX -= char_width / 2; // Smaller space for '.'
+        }
+        else
+        {
+            int digit = float_as_int % 10;
+            tft.drawChar(startX + 35, startY - 20, digit + '0', RA8875_BLACK, color, 6);
+            startX -= char_width + digit_spacing;
+            float_as_int /= 10;
+        }
+        digits_drawn++;
     }
 }
