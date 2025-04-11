@@ -41,6 +41,7 @@ void DataBus::initialize() {
 }
 
 void DataBus::update() {
+    this->_dataBus.Tick();
     this->_data.cellVoltages[0] = cell_v_0;
     this->_data.cellVoltages[1] = cell_v_1;
     this->_data.cellVoltages[2] = cell_v_2;

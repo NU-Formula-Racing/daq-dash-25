@@ -18,6 +18,7 @@ void DriveBus::initialize() {
 }
 
 void DriveBus::update() {
+    this->_driveBus.Tick();
     this->_data.wheelSpeeds[0] = fl_wheel_speed_signal;
     this->_data.wheelSpeeds[1] = fr_wheel_speed_signal;
     this->_data.wheelSpeeds[2] = bl_wheel_speed_signal;
