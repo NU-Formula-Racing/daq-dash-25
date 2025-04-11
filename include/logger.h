@@ -2,6 +2,7 @@
 #include <SPI.h>
 
 #include "can/drive_bus.h"
+#include "can/data_bus.h"
 
 class Logger {
     public:
@@ -13,5 +14,6 @@ class Logger {
 
     private:
     DriveBus drive_bus;
+    DataBus data_bus;
     File file;
 };

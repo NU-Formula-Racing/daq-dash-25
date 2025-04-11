@@ -10,6 +10,7 @@ time_t getTeensy3Time() {
 
 void Logger::initialize() {
     this->drive_bus.initialize();
+    this->data_bus.initialize();
     setSyncProvider(getTeensy3Time);
 
     if (!SD.begin(chipSelect)) Serial.println ("SD initalization failed.");
@@ -25,9 +26,19 @@ void Logger::initialize() {
     // write the header
     // time, wheelspeed_FL, wheelspeed_fr ....
 
-    std::string header = "time, wheelspeed_FL, wheelspeed_FR, wheelspeed_BL, wheelspeed_BR, driveState," 
-                         "HVVoltage, LVVoltage, batteryTemp, Fault_Summary, Undervoltage_Fault, Overvoltage_Fault, Undertemperature_Fault,"
-                         "Overtemperature_Fault, Overcurrent_Fault, External_Kill_Fault, Open_Wire_Fault\n";
+    std::string header = "hour,minute,second,wheelspeed_FL,wheelspeed_FR,wheelspeed_BL,wheelspeed_BR,driveState," 
+                         "HVVoltage,LVVoltage,batteryTemp,Fault_Summary,Undervoltage_Fault,Overvoltage_Fault,Undertemperature_Fault,"
+                         "Overtemperature_Fault,Overcurrent_Fault,External_Kill_Fault,Open_Wire_Fault";
+
+    for (int i = 0; i < 140; i++) {
+      header = header + ",cell_v_" + std::to_string(i);
+    }
+
+    for (int j = 0; j < 80; j++) {
+      header = header + ",cell_t_" + std::to_string(j);
+    }
+
+    header = header + "\n";
     
     file.write(header.c_str());
 
@@ -35,21 +46,31 @@ void Logger::initialize() {
 
 void Logger::log() {
     this->drive_bus.update();
-    DriveBusData data = this->drive_bus.getData();
+    this->data_bus.update();
+    DriveBusData drivebus_data = this->drive_bus.getData();
+    DataBusData databus_data = this->data_bus.getData();
 
     std::string line = "";
 
 
     line = line + std::to_string(hour()) + "," + std::to_string(minute()) + "," + std::to_string(second()) + ",";
 
-    for (const auto& wheel : data.wheelSpeeds) {
+    for (const auto& wheel : drivebus_data.wheelSpeeds) {
         line = line + std::to_string(wheel) + ",";
     }
 
-    line = line + std::to_string(data.driveState) + "," + std::to_string(data.HVVoltage) + "," + std::to_string(data.LVVoltage) + "," + std::to_string(data.batteryTemp);
+    line = line + std::to_string(drivebus_data.driveState) + "," + std::to_string(drivebus_data.HVVoltage) + "," + std::to_string(drivebus_data.LVVoltage) + "," + std::to_string(drivebus_data.batteryTemp);
 
-    for (const auto& fault : data.faults) {
+    for (const auto& fault : drivebus_data.faults) {
         line = line + "," + std::to_string(fault);
+    }
+
+    for (const auto& voltage : databus_data.cellVoltages) {
+      line = line + "," + std::to_string(voltage);
+    }
+
+    for (const auto& temp : databus_data.cellTemperatures) {
+      line = line + "," + std::to_string(temp);
     }
 
     line = line + "\n";
