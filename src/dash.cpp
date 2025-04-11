@@ -155,6 +155,15 @@ void Dash::UpdateDisplay(Adafruit_RA8875 tft)
     float lv_bat_volt = (millis() / 100) % 100;
 
 #endif
+    DrawIMDStatus(tft, 8, 2, imd_status, 32);
+    HandleBMSFaults(tft, 8, 2);
+    HandleInverterFaults(tft, 8, 3);
+    HandleECUFaults(tft, 8, 2);
+
+    if (ifBMSfault == true || ifIMDfault == true || ifECUfault == true || ifInverterfault == true) {
+        HandleError()
+    }
+
     float avg_wheel_speed = fl_wheel_speed + fr_wheel_speed / 2;
     if (this->prev_drive_state != curr_drive_state || FORCE_DRAW)
     {
@@ -306,7 +315,7 @@ void Dash::DrawIMDStatus(Adafruit_RA8875 tft, int startX, int startY, int imd_st
         ifIMDfault = false;
     }
 
-    HandleError(tft, status, startX, startY, IMD_FAULT);
+    // HandleError(tft, status, startX, startY, IMD_FAULT);
 }
 
 void Dash::HandleBMSFaults(Adafruit_RA8875 tft, int startX, int startY)
@@ -360,7 +369,7 @@ void Dash::HandleBMSFaults(Adafruit_RA8875 tft, int startX, int startY)
 
     // remove the last comma
     error_message.pop_back();
-    HandleError(tft, error_message, startX, startY, BMS_FAULT);
+    // HandleError(tft, error_message, startX, startY, BMS_FAULT);
 }
 
 void Dash::DrawString(Adafruit_RA8875 tft, std::string message, int startX, int startY, int size, int16_t color, int16_t backgroundColor, Direction dir)
@@ -430,7 +439,7 @@ void Dash::HandleECUFaults(Adafruit_RA8875 tft, int startX, int startY)
 
     // remove the last comma
     error_message.pop_back();
-    HandleError(tft, error_message, startX, startY, ECU_FAULT);
+    // HandleError(tft, error_message, startX, startY, ECU_FAULT);
 }
 
 void Dash::HandleInverterFaults(Adafruit_RA8875 tft, int startX, int startY)
@@ -593,7 +602,7 @@ void Dash::HandleInverterFaults(Adafruit_RA8875 tft, int startX, int startY)
 
     // remove the last comma
     error_message.pop_back();
-    HandleError(tft, error_message, startX, startY, INVERTER_FAULT);
+    // HandleError(tft, error_message, startX, startY, INVERTER_FAULT);
 }
 
 int Dash::CalcBarHeight(float value, float min, float max, int maxHeight)
