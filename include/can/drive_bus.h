@@ -41,12 +41,18 @@ struct DriveBusData {
     bool faultPresent() const {
         return bmsFaults[BMS_FAULT_SUMMARY] || ecuFaults[ECU_FAULT_PRESENT];
     }
+
+    float averageWheelSpeed() const {
+        return (wheelSpeeds[0] + wheelSpeeds[1]) / 2;
+    }
 };
 
 class DriveBus {
    public:
     // returns imuatable reference to _data
     const DriveBusData &getData() const;
+    const DriveBusData &getPrevData() const;
+
 
     // does any of the initialization stuff
     void initialize();
@@ -56,6 +62,7 @@ class DriveBus {
 
    private:
     DriveBusData _data;
+    DriveBusData _prevData;
     TeensyCAN<1> _driveBus;
     VirtualTimerGroup timer_group{};
 

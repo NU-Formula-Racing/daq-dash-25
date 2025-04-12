@@ -5,7 +5,7 @@
 
 class ErrorScreen : public Screen {
     void draw(Adafruit_RA8875 tft);
-    void update(Adafruit_RA8875 tft);
+    void update(Adafruit_RA8875 tft, bool force = false);
 };
 
 

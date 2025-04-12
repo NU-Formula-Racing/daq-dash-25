@@ -52,17 +52,24 @@ void Dash::initalize() {
     _tft.GPIOX(true);                               // Enable TFT - display enable tied to GPIOX
     _tft.PWM1config(true, RA8875_PWM_CLK_DIV1024);  // PWM output for backlight
     _tft.PWM1out(255);
+
+    _screens[_currentScreen]->draw(_tft);
+    _screens[_currentScreen]->update(_tft, true);
 }
 
 void Dash::update() {
     // check for errors
     if (Resources::driveBusData().faultPresent()) {
         // change the screen to an error
+        Serial.printf("Detected error!");
         changeScreen(DashScreen::DS_ERROR);
     }
 
+    
     // update the current screen
+    // Serial.printf("Updating screen %d\n", (int)_currentScreen);
     _screens[_currentScreen]->update(_tft);
+    // Serial.print("Finished!\n");
 }
 
 void Dash::changeScreen(DashScreen screen) {
@@ -71,7 +78,7 @@ void Dash::changeScreen(DashScreen screen) {
 
     _currentScreen = screen;
     _screens[_currentScreen]->draw(_tft);
-    _screens[_currentScreen]->update(_tft);
+    _screens[_currentScreen]->update(_tft, true);
 }
 
 // void Dash::DrawState(Adafruit_RA8875 tft, int startX, int startY, int display_value, int squareSize, int midstate, int laststate) {

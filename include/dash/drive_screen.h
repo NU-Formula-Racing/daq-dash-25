@@ -6,7 +6,7 @@
 
 class DriveScreen : public Screen {
     void draw(Adafruit_RA8875 tft);
-    void update(Adafruit_RA8875 tft);
+    void update(Adafruit_RA8875 tft, bool force = false);
 };
 
 #endif // __DRIVE_SCREEN_H__

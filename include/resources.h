@@ -22,6 +22,10 @@ class Resources {
         return instance().driveBus.getData();
     }
 
+    static const DriveBusData &prevDriveBusData() {
+        return instance().driveBus.getPrevData();
+    }
+
    private:
     Resources() : soundDriver(PIEZO_INPUT) {}
 

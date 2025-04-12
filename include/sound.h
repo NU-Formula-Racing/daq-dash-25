@@ -245,7 +245,6 @@ class Song {
                 .frequency = static_cast<uint16_t>(freq)
             };
 
-            Serial.printf("Pusing back event %d (%d, %d)", events.size(), currentTime, durationMs);
 
             events.push_back(event);
 
@@ -294,13 +293,6 @@ class SoundDriver {
         _startTime = millis();
         _currentIndex = 0;
         _prevIndex = 1;
-
-        // print out the events
-        for (size_t i = 0; i < _events.size(); i++) {
-            Serial.printf("%d : %d millis, %d\n",
-                i, _events[i].time, _events[i].frequency
-            );
-        }
     }
 
     SoundDriverState getState() const { return _state; }
@@ -336,7 +328,7 @@ class SoundDriver {
         // Serial.printf("Playing %d for %dms\n", event.frequency, event.time);
         
         if (!over) {
-            Serial.printf("Progressing to index %d, time %d, next %d, note %d\n", _currentIndex, elapsedTime, _events[_currentIndex + 1].time, event.frequency);
+            // Serial.printf("Progressing to index %d, time %d, next %d, note %d\n", _currentIndex, elapsedTime, _events[_currentIndex + 1].time, event.frequency);
             // tone(_piezoInput, event.frequency);
             if (event.frequency == 0)
             {

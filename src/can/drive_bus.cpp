@@ -4,6 +4,10 @@ const DriveBusData& DriveBus::getData() const {
     return _data;
 }
 
+const DriveBusData& DriveBus::getPrevData() const {
+    return _prevData;
+}
+
 void DriveBus::initialize() {
     _driveBus.Initialize(ICAN::BaudRate::kBaud500K);
 
@@ -20,6 +24,9 @@ void DriveBus::initialize() {
 
 void DriveBus::update() {
     this->_driveBus.Tick();
+    // update the previous
+    this->_prevData = this->_data;
+
     this->_data.wheelSpeeds[0] = fl_wheel_speed_signal;
     this->_data.wheelSpeeds[1] = fr_wheel_speed_signal;
     this->_data.wheelSpeeds[2] = bl_wheel_speed_signal;
