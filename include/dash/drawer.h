@@ -72,7 +72,7 @@ struct RectDrawOptions {
     int width;               // Width of the rectangle
     int height;              // Height of the rectangle
     bool fill = false;       // If true, fill the rectangle with fillColor
-    int strokeThickness = 1; // Thickness (in pixels) of the outline
+    int strokeThickness = 0; // Thickness (in pixels) of the outline
     uint16_t strokeColor;    // Outline color
     uint16_t fillColor;      // Fill color (only used if fill is true)
     int cornerRadius = 0;    // Corner radius for rounded corners (0 for square corners)
