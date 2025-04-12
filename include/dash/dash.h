@@ -1,42 +1,28 @@
-#include <CAN.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_RA8875.h>
 
 #include <map>
+#include <memory>
 #include <string>
 
-#include "Adafruit_GFX.h"
-#include "Adafruit_RA8875.h"
 #include "define.h"
-#include "virtualTimer.h"
+#include "screen.h"
 
-#define DEFAULT_VALUE -100
-#define DEFAULT_VALUE_UNSIGNED 255
+enum DashScreen {
+    DS_DRIVE,
+    DS_ERROR,
+    DS_NUM_SCREENS,
+};
 
-class Dash
-{
-public:
+class Dash {
+   public:
+    Dash();
+    void initalize();
+    void update(Adafruit_RA8875 tft);
+    void changeScreen(DashScreen screen);
 
-    void GetCAN();
-    void Initialize();
-    void UpdateDisplay(Adafruit_RA8875 tft);
-
-private:
-
-    uint8_t prev_drive_state = DEFAULT_VALUE_UNSIGNED;
-    float prev_wheel_speed = DEFAULT_VALUE;
-    float prev_hv_bat_volt = DEFAULT_VALUE;
-    float prev_lv_bat_volt = DEFAULT_VALUE;
-    float prev_max_cell_temp = DEFAULT_VALUE;
-    float prev_min_cell_temp = DEFAULT_VALUE;
-    uint8_t bms_faults = 0;
-    uint8_t prev_bms_faults = 0;
-    int16_t backgroundColor = NORTHWESTERN_PURPLE;
-
-    // new variables
-    uint8_t ecu_faults = 0;
-    uint8_t prev_ecu_faults = 0;
-    uint8_t inverter_faults = 0;
-    uint8_t prev_inverter_faults = 0;
-
-    // prev variables for UpdateVariable
-    std::string imd_prev_err_str = "";
+   private:
+    Adafruit_RA8875 _tft;
+    DashScreen _currentScreen;
+    std::array<std::shared_ptr<Screen>, DS_NUM_SCREENS> _screens;
 };
