@@ -63,10 +63,10 @@ static void drawDriveState(Adafruit_RA8875 tft) {
                               .width = 350,
                               .height = 250,
                               .fill = true,
-                              .strokeThickness = 10,
+                              .strokeThickness = 20,
                               .strokeColor = OUTLINE_COLOR,
                               .fillColor = color,
-                              .cornerRadius = 6,
+                              .cornerRadius = 15,
                               .hAlign = ALIGN_CENTER,
                               .vAlign = ALIGN_MIDDLE,
                           });
