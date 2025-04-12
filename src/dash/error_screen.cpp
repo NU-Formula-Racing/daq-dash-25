@@ -8,6 +8,7 @@
 #include "resources.h"
 
 #define OUTLINE_COLOR GOLD
+#define MAX_CHARS_PER_LINE 20
 
 // --- IMD Error Lookup ---
 static std::string getIMDErrorMessage() {
@@ -28,10 +29,7 @@ static std::string getIMDErrorMessage() {
     return "";
 }
 
-// --- BMS Error Lookup ---
-// We assume bits 1 through 7 of the fault mask represent:
-// Bit1: UND_VOL, Bit2: OVR_VOL, Bit3: UND_TEMP, Bit4: OVR_TEMP,
-// Bit5: OVR_CUR, Bit6: EXTN_KL, Bit7: OPN_WIRE
+
 static std::string getBMSErrorMessage() {
     static const char* bmsFaultMessages[7] = {
         "UND_VOL",
@@ -58,8 +56,7 @@ static std::string getBMSErrorMessage() {
     return result;
 }
 
-// --- ECU Error Lookup ---
-// We assume ECU faults are stored in a bit mask (bits 0 - 4)
+
 static std::string getECUErrorMessage() {
     static const char* ecuFaultMessages[5] = {
         "IMPLS_PRSNT",
@@ -84,8 +81,7 @@ static std::string getECUErrorMessage() {
     return result;
 }
 
-// --- Inverter Error Lookup ---
-// A LUT mapping an inverter fault code (from 0x01 up to 0x1B) to a message.
+
 static std::string getInverterErrorMessage() {
     struct InverterFault {
         uint8_t code;
@@ -120,12 +116,12 @@ static std::string getInverterErrorMessage() {
         {0x19, "ENCDR_NO_MAG"},
         {0x1A, "ENCDR_MAG_2_STRNG"},
         {0x1B, "PHS_FILTR_FLT"}};
-    const int lutSize = sizeof(inverterFaultLUT) / sizeof(inverterFaultLUT[0]);
-    for (int i = 0; i < lutSize; i++) {
-        if (inverterFaultLUT[i].code == code) {
-            return std::string(inverterFaultLUT[i].msg);
-        }
-    }
+    // const int lutSize = sizeof(inverterFaultLUT) / sizeof(inverterFaultLUT[0]);
+    // for (int i = 0; i < lutSize; i++) {
+    //     if (inverterFaultLUT[i].code == code) {
+    //         return std::string(inverterFaultLUT[i].msg);
+    //     }
+    // }
     return "";
 }
 
@@ -211,6 +207,38 @@ static void drawWheelSpeed(Adafruit_RA8875 tft) {
                         .vAlign = ALIGN_MIDDLE});
 }
 
+static bool errorsChanged() {
+    return memcmp(Resources::driveBusData().bmsFaults, Resources::prevDriveBusData().bmsFaults, sizeof(bool) * BMS_FAULT_COUNT) == 1 ||
+           memcmp(Resources::driveBusData().ecuFaults, Resources::prevDriveBusData().ecuFaults, sizeof(bool) * ECU_FAULT_COUNT) == 1;
+}
+
+// Helper function to wrap a text string based on a maximum number of characters.
+static std::vector<std::string> wrapText(const std::string& text, size_t maxChars) {
+    std::vector<std::string> lines;
+    size_t start = 0;
+    while (start < text.length()) {
+        // Determine where to end this line.
+        size_t end = start + maxChars;
+        if (end >= text.length()) {
+            lines.push_back(text.substr(start));
+            break;
+        }
+        // Find the last space before end.
+        size_t spacePos = text.rfind(' ', end);
+        if (spacePos == std::string::npos || spacePos < start) {
+            // No space found; force-break
+            spacePos = end;
+        }
+        lines.push_back(text.substr(start, spacePos - start));
+        // Skip space for next word.
+        start = spacePos;
+        while (start < text.length() && text[start] == ' ') {
+            start++;
+        }
+    }
+    return lines;
+}
+
 void ErrorScreen::draw(Adafruit_RA8875 tft) {
     // Clear the screen with a red background.
     tft.fillScreen(INDIAN_RED);
@@ -228,18 +256,62 @@ void ErrorScreen::draw(Adafruit_RA8875 tft) {
 }
 
 void ErrorScreen::update(Adafruit_RA8875 tft, bool force) {
-    if (Resources::driveBusData().driveState != Resources::prevDriveBusData().driveState || force)
+    // Update mini drive state and wheel speed if changed (or if forced).
+    if (Resources::driveBusData().driveState != Resources::prevDriveBusData().driveState || force) {
+        // drawDriveState() is assumed to be defined elsewhere.
         drawDriveState(tft);
-    if (Resources::driveBusData().averageWheelSpeed() != Resources::prevDriveBusData().averageWheelSpeed() || force)
+    }
+    if (Resources::driveBusData().averageWheelSpeed() != Resources::prevDriveBusData().averageWheelSpeed() || force) {
+        // drawWheelSpeed() is assumed to be defined elsewhere.
         drawWheelSpeed(tft);
+    }
 
-    // --- Collect and draw error messages ---
-    std::array<std::string, 3> errorLines;
+    // If errors have not changed, no need to update.
+    if (errorsChanged() == false) return;
 
-    // get the error messages and put them line by line
-    
+    std::vector<std::string> errorLines;
+    // Here we use your LUT-based functions to get the error messages.
+    std::string bmsLine = getBMSErrorMessage();
+    std::string ecuLine = getECUErrorMessage();
+    std::string imdLine = getIMDErrorMessage();
+    std::string inverterLine = getInverterErrorMessage();
 
-    if (errorLines.empty()) {
-        errorLines[0] = "NO FAULTS!";
+    if (!imdLine.empty()) errorLines.emplace_back(imdLine);
+    if (!bmsLine.empty()) errorLines.emplace_back(bmsLine);
+    if (!inverterLine.empty()) errorLines.emplace_back(inverterLine);
+    if (!ecuLine.empty()) errorLines.emplace_back(ecuLine);
+
+    // If no dynamic errors, show a "NO FAULTS!" message.
+    if (errorLines.empty())
+        errorLines.push_back("NO FAULTS!");
+
+    // --- Wrap error messages if they are too long ---
+    std::vector<std::string> wrappedLines;
+    for (const std::string& line : errorLines) {
+        std::vector<std::string> parts = wrapText(line, MAX_CHARS_PER_LINE);
+        for (const std::string& part : parts) {
+            wrappedLines.push_back(part);
+        }
+    }
+
+    // --- Erase previous error messages area ---
+    // Compute the total height needed for the wrapped lines.
+    int lineHeight = 40;  // Adjust this as needed.
+    int totalHeight = lineHeight * static_cast<int>(wrappedLines.size());
+    int clearY = SCREEN_HEIGHT / 2 - totalHeight / 2;
+    // Clear the area by filling it with the error background color.
+    tft.fillRect(0, clearY, SCREEN_WIDTH, totalHeight, INDIAN_RED);
+
+    // --- Draw each wrapped error message line ---
+    for (size_t i = 0; i < wrappedLines.size(); i++) {
+        TextDrawOptions options;
+        options.x = 20;  // Left align; adjust if you want centering.
+        options.y = clearY + static_cast<int>(i * lineHeight) + (lineHeight / 2);
+        options.size = 3;
+        options.color = RA8875_WHITE;
+        options.backgroundColor = INDIAN_RED;
+        options.hAlign = ALIGN_LEFT;
+        options.vAlign = ALIGN_MIDDLE;
+        Drawer::drawString(tft, wrappedLines[i], options);
     }
 }
