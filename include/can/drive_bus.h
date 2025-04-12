@@ -3,11 +3,12 @@
 
 #include <Arduino.h>
 #include <CAN.h>
-#include "define.h"
 
 #include <string>
 
+#include "define.h"
 #include "virtualTimer.h"
+#include "sound.h"
 
 
 enum BMSFault {
@@ -51,12 +52,12 @@ struct DriveBusData {
     }
 };
 
+
 class DriveBus {
    public:
     // returns imuatable reference to _data
     const DriveBusData &getData() const;
     const DriveBusData &getPrevData() const;
-
 
     // does any of the initialization stuff
     void initialize();
@@ -69,6 +70,9 @@ class DriveBus {
     DriveBusData _prevData;
     TeensyCAN<1> _driveBus;
     VirtualTimerGroup timer_group{};
+
+    // workaround for cyclical dependency
+    void playReadyToDriveSound();
 
     // all of the CAN message stuff and setup
 
@@ -95,7 +99,11 @@ class DriveBus {
 
     // ECU Stuff
     MakeSignedCANSignal(uint8_t, 0, 8, 1, 0) drive_state_signal;
-    CANRXMessage<1> rx_drive_state{_driveBus, 0x206, drive_state_signal};
+    CANRXMessage<1> rx_drive_state{_driveBus, 0x206, 
+        [this]() {
+            this->playReadyToDriveSound();
+        },
+        drive_state_signal};
 
     // ECU Implausibility
     CANSignal<bool, 0, 8, CANTemplateConvertFloat(1.0), CANTemplateConvertFloat(0), false> ecu_implausibility_present_signal;
@@ -132,10 +140,10 @@ class DriveBus {
     MakeSignedCANSignal(bool, 16, 8, 1, 0) lv_voltage_warning_signal;
     CANRXMessage<2> rx_lv_voltage{_driveBus, 0x291, lv_voltage_signal, lv_voltage_warning_signal};
 
-    #ifdef DRIVE_DEBUG
+#ifdef DRIVE_DEBUG
     uint64_t _debugStartTime = 0;
     uint64_t _debugLastFaultUpdate = 0;
-    #endif
+#endif
 };
 
 #endif  // __DRIVE_BUS_H__

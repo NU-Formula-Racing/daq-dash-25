@@ -9,37 +9,32 @@
 
 class Resources {
    public:
-    static Resources& instance() {
-        static Resources r;
-        return r;
-    }
+    // Returns the singleton instance.
+    static Resources &instance();
 
-    static const DataBusData &dataBusData() {
-        return instance().dataBus.getData();
-    }
+    // Static accessor for DataBusData.
+    static const DataBusData &dataBusData();
 
-    static const DriveBusData &driveBusData() {
-        return instance().driveBus.getData();
-    }
+    // Static accessor for DriveBusData.
+    static const DriveBusData &driveBusData();
 
-    static const DriveBusData &prevDriveBusData() {
-        return instance().driveBus.getPrevData();
-    }
+    // Static accessor for the previous DriveBusData.
+    static const DriveBusData &prevDriveBusData();
 
    private:
-    Resources() : soundDriver(PIEZO_INPUT) {}
+    // Private constructor.
+    Resources();
 
-    void operator=(Resources const& other) = delete;
+    // Delete assignment operator.
+    void operator=(Resources const &other) = delete;
 
    public:
     DataBus dataBus;
     DriveBus driveBus;
     SoundDriver soundDriver;
 
-    void update() {
-        dataBus.update();
-        driveBus.update();
-    }
+    // Update both DataBus and DriveBus.
+    void update();
 };
 
 #endif  // __RESOURCES_H__

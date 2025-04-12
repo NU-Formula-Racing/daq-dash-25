@@ -8,7 +8,7 @@
 #include "resources.h"
 
 #define OUTLINE_COLOR GOLD
-#define MAX_CHARS_PER_LINE 20
+#define MAX_CHARS_PER_LINE 30
 
 // --- IMD Error Lookup ---
 static std::string getIMDErrorMessage() {

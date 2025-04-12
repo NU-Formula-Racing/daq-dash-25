@@ -1,31 +1,42 @@
 #include <Arduino.h>
 #include <iostream>
 
+#include "resources.h"
 #include "dash/dash.h"
 #include "define.h"
-#include "resources.h"
 #include "sound.h"
 #include "songs.h"
 
 Dash dashboard;
+Logger logger;
 
 Song song{312*2, goU};
-SoundDriver soundDriver{PIEZO_INPUT};
+
+VirtualTimerGroup loggingTimer;
+
+void logData() {
+    // logger.log();
+}
 
 void setup() {
     // initialize serial communication, when done, turn internal LED off
     Serial.begin(9600);
-
     Serial.println("Starting setup");
 
     dashboard.initalize();
-    soundDriver.initialize();
+    logger.initialize();
 
+    // initialize sound driver
     song.shift(-2);
-    soundDriver.setSong(song);
+    Resources::instance().soundDriver.initialize();
+    Resources::instance().soundDriver.setSong(song);
+
+    // loggingTimer.AddTimer(1000, logData);
 }
 
 void loop() {
     dashboard.update();
     Resources::instance().update();
+    // logging takes wayy too long right now
+    // loggingTimer.Tick(millis());
 }

@@ -1,6 +1,6 @@
 #include "can/drive_bus.h"
-
 #include "define.h"
+#include "resources.h"
 
 const DriveBusData& DriveBus::getData() const {
     return _data;
@@ -108,4 +108,8 @@ void DriveBus::update() {
     this->_data.ecuFaults[ECU_FAULT_BRAKE_INVALID] = ecu_implausibility_brake_invalid_imp_signal;
     this->_data.ecuFaults[ECU_FAULT_APPPS_INVALID] = ecu_implausibility_appss_invalid_imp_signal;
 #endif
+}
+
+void DriveBus::playReadyToDriveSound() {
+    Resources::instance().soundDriver.playSong();
 }
