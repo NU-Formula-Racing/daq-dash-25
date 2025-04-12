@@ -7,9 +7,8 @@
 #include <string>
 
 #include "define.h"
-#include "virtualTimer.h"
 #include "sound.h"
-
+#include "virtualTimer.h"
 
 enum BMSFault {
     BMS_FAULT_SUMMARY,
@@ -38,20 +37,27 @@ struct DriveBusData {
     float HVVoltage;
     float LVVoltage;
     float batteryTemp;
+
+    uint8_t bmsState;
+    uint8_t imdState;
     float maxCellTemp;
     float minCellTemp;
+    float maxCellVoltage;
+    float minCellVoltage;
+    uint8_t bmsSOC;
+
     bool bmsFaults[BMS_FAULT_COUNT];
     bool ecuFaults[ECU_FAULT_COUNT];
+    uint8_t inverterStatus;
 
     bool faultPresent() const {
-        return bmsFaults[BMS_FAULT_SUMMARY] || ecuFaults[ECU_FAULT_PRESENT];
+        return bmsFaults[BMS_FAULT_SUMMARY] || ecuFaults[ECU_FAULT_PRESENT] || inverterStatus != 0 || imdState != 0;
     }
 
     float averageWheelSpeed() const {
         return (wheelSpeeds[0] + wheelSpeeds[1]) / 2;
     }
 };
-
 
 class DriveBus {
    public:
@@ -99,11 +105,11 @@ class DriveBus {
 
     // ECU Stuff
     MakeSignedCANSignal(uint8_t, 0, 8, 1, 0) drive_state_signal;
-    CANRXMessage<1> rx_drive_state{_driveBus, 0x206, 
-        [this]() {
-            this->playReadyToDriveSound();
-        },
-        drive_state_signal};
+    CANRXMessage<1> rx_drive_state{_driveBus, 0x206,
+                                   [this]() {
+                                       this->playReadyToDriveSound();
+                                   },
+                                   drive_state_signal};
 
     // ECU Implausibility
     CANSignal<bool, 0, 8, CANTemplateConvertFloat(1.0), CANTemplateConvertFloat(0), false> ecu_implausibility_present_signal;
@@ -124,6 +130,16 @@ class DriveBus {
     MakeSignedCANSignal(float, 48, 16, 0.01, 0) battery_current_signal;
     CANRXMessage<5> rx_hv_battery{_driveBus, 0x150, max_discharge_current_signal, max_regen_current_signal, hv_voltage_signal, battery_temp_signal, battery_current_signal};
 
+    MakeUnsignedCANSignal(uint8_t, 0, 8, 1.0, 0.0) bms_status_bms_state;
+    MakeUnsignedCANSignal(uint8_t, 8, 8, 1.0, 0.0) bms_status_imd_state;
+    MakeSignedCANSignal(float, 16, 8, 1.0, -40.0) bms_status_max_cell_temp;
+    MakeSignedCANSignal(float, 24, 8, 1.0, -40.0) bms_status_min_cell_temp;
+    MakeSignedCANSignal(float, 32, 8, 0.012, 2.0) bms_status_max_cell_voltage;
+    MakeSignedCANSignal(float, 40, 8, 0.012, 2.0) bms_status_min_cell_voltage;
+    MakeSignedCANSignal(float, 48, 8, 0.5, 0.0) bms_status_bms_soc;
+
+    CANRXMessage<7> rx_bms_status{_driveBus, 0x152, bms_status_bms_state, bms_status_imd_state, bms_status_max_cell_temp, bms_status_min_cell_temp, bms_status_max_cell_voltage, bms_status_min_cell_voltage, bms_status_bms_soc};
+
     MakeSignedCANSignal(bool, 0, 1, 1, 0) bms_fault_summary_signal;
     MakeSignedCANSignal(bool, 1, 1, 1, 0) bms_fault_under_voltage_signal;
     MakeSignedCANSignal(bool, 2, 1, 1, 0) bms_fault_over_voltage_signal;
@@ -139,6 +155,10 @@ class DriveBus {
     MakeSignedCANSignal(float, 0, 16, 1.141643059, 0) lv_voltage_signal;
     MakeSignedCANSignal(bool, 16, 8, 1, 0) lv_voltage_warning_signal;
     CANRXMessage<2> rx_lv_voltage{_driveBus, 0x291, lv_voltage_signal, lv_voltage_warning_signal};
+
+    // inverter stuff
+    MakeUnsignedCANSignal(uint8_t, 0, 8, 1.0, 0.0) inverter_fault_status_fault_code_signal;
+    CANRXMessage<1> rx_inverter_fault_status{_driveBus, 0x280, inverter_fault_status_fault_code_signal};
 
 #ifdef DRIVE_DEBUG
     uint64_t _debugStartTime = 0;

@@ -21,11 +21,11 @@ static std::string getIMDErrorMessage() {
         {-25, "IMD:Connection Fault"},
         {-20, "IMD:Device Error"}};
     const int count = sizeof(imdLUT) / sizeof(imdLUT[0]);
-    // for (int i = 0; i < count; i++) {
-    //     if (imd_status == imdLUT[i].code) {
-    //         return std::string(imdLUT[i].msg);
-    //     }
-    // }
+    for (int i = 0; i < count; i++) {
+        if (Resources::driveBusData().imdState == imdLUT[i].code) {
+            return std::string(imdLUT[i].msg);
+        }
+    }
     return "";
 }
 
@@ -116,12 +116,12 @@ static std::string getInverterErrorMessage() {
         {0x19, "ENCDR_NO_MAG"},
         {0x1A, "ENCDR_MAG_2_STRNG"},
         {0x1B, "PHS_FILTR_FLT"}};
-    // const int lutSize = sizeof(inverterFaultLUT) / sizeof(inverterFaultLUT[0]);
-    // for (int i = 0; i < lutSize; i++) {
-    //     if (inverterFaultLUT[i].code == code) {
-    //         return std::string(inverterFaultLUT[i].msg);
-    //     }
-    // }
+    const int lutSize = sizeof(inverterFaultLUT) / sizeof(inverterFaultLUT[0]);
+    for (int i = 0; i < lutSize; i++) {
+        if (inverterFaultLUT[i].code == Resources::driveBusData().inverterStatus) {
+            return std::string(inverterFaultLUT[i].msg);
+        }
+    }
     return "";
 }
 
@@ -300,7 +300,7 @@ void ErrorScreen::update(Adafruit_RA8875 tft, bool force) {
     int totalHeight = lineHeight * static_cast<int>(wrappedLines.size());
     int clearY = SCREEN_HEIGHT / 2 - totalHeight / 2;
     // Clear the area by filling it with the error background color.
-    tft.fillRect(0, clearY, SCREEN_WIDTH, totalHeight, INDIAN_RED);
+    tft.fillRect(0, clearY, SCREEN_WIDTH, 300, INDIAN_RED);
 
     // --- Draw each wrapped error message line ---
     for (size_t i = 0; i < wrappedLines.size(); i++) {

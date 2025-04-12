@@ -22,6 +22,8 @@ void DriveBus::initialize() {
     _driveBus.RegisterRXMessage(rx_lv_voltage);
     _driveBus.RegisterRXMessage(rx_bms_faults);
     _driveBus.RegisterRXMessage(rx_ecu_implausibility);
+    _driveBus.RegisterRXMessage(rx_bms_status);
+    _driveBus.RegisterRXMessage(rx_inverter_fault_status);
 }
 
 // Helper: Generate a random float between min and max.
@@ -88,10 +90,17 @@ void DriveBus::update() {
     this->_data.wheelSpeeds[3] = br_wheel_speed_signal;
 
     this->_data.driveState = drive_state_signal;
-
     this->_data.HVVoltage = hv_voltage_signal;
-
     this->_data.LVVoltage = lv_voltage_signal;
+    this->_data.bmsState = bms_status_bms_state;
+    this->_data.imdState = bms_status_imd_state;
+    this->_data.maxCellTemp = bms_status_max_cell_temp;
+    this->_data.minCellTemp = bms_status_min_cell_temp;
+    this->_data.maxCellVoltage = bms_status_max_cell_voltage;
+    this->_data.minCellVoltage = bms_status_min_cell_voltage;
+    this->_data.bmsSOC = bms_status_bms_soc;
+
+    this->_data.inverter_status = inverter_fault_status_fault_code_signal;
 
     this->_data.bmsFaults[BMS_FAULT_SUMMARY] = bms_fault_summary_signal;
     this->_data.bmsFaults[BMS_FAULT_UNDER_VOLTAGE] = bms_fault_under_voltage_signal;
@@ -107,6 +116,8 @@ void DriveBus::update() {
     this->_data.ecuFaults[ECU_FAULT_BPPC] = ecu_implausibility_bppc_imp_signal;
     this->_data.ecuFaults[ECU_FAULT_BRAKE_INVALID] = ecu_implausibility_brake_invalid_imp_signal;
     this->_data.ecuFaults[ECU_FAULT_APPPS_INVALID] = ecu_implausibility_appss_invalid_imp_signal;
+
+
 #endif
 }
 
