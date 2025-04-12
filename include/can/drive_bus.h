@@ -35,6 +35,8 @@ struct DriveBusData {
     float HVVoltage;
     float LVVoltage;
     float batteryTemp;
+    float maxCellTemp;
+    float minCellTemp;
     bool bmsFaults[BMS_FAULT_COUNT];
     bool ecuFaults[ECU_FAULT_COUNT];
 
