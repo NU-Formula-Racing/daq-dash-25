@@ -13,7 +13,7 @@ static const int hv_bat_volt_startY = SCREEN_HEIGHT / 4 + 30;
 static const int lv_bat_volt_startX = SCREEN_WIDTH / 8;
 static const int lv_bat_volt_startY = SCREEN_HEIGHT * 3 / 4 + 30;
 static const int wheel_speed_startX = SCREEN_WIDTH / 2;
-static const int wheel_speed_startY = SCREEN_HEIGHT / 2 - 50;
+static const int wheel_speed_startY = SCREEN_HEIGHT / 2;
 static const int max_cell_temp_startX = SCREEN_WIDTH * 7 / 8;
 static const int max_cell_temp_startY = SCREEN_HEIGHT / 4 + 30;
 static const int min_cell_temp_startX = SCREEN_WIDTH * 7 / 8;
@@ -21,7 +21,7 @@ static const int min_cell_temp_startY = SCREEN_HEIGHT * 3 / 4 + 30;
 static const int handle_error_startX = 0;  // /4
 static const int handle_error_startY = SCREEN_HEIGHT / 3;
 
-static int16_t getDriveStateColor() {
+static uint16_t getDriveStateColor() {
     switch (Resources::driveBusData().driveState) {
         case 0:
             return INDIAN_RED;
@@ -37,40 +37,61 @@ static int16_t getDriveStateColor() {
 // Draws drive state on screen based on CAN signal
 static void drawDriveState(Adafruit_RA8875 tft) {
     // dont need wheel speed start x y anymore i think
-    int16_t color = getDriveStateColor();
-    int startX = drive_state_startX;
-    int startY = drive_state_startY;
-    int driveRectw = startX * 2;
-    int driveRecth = startY;
+    uint16_t color = getDriveStateColor();
 
-    tft.fillRect(startX, startY, driveRectw, driveRecth, color);
+    Drawer::drawRect(tft, (RectDrawOptions){
+                              .x = SCREEN_WIDTH / 2,
+                              .y = SCREEN_HEIGHT / 2,
+                              .width = 350,
+                              .height = 250,
+                              .fill = true,
+                              .strokeThickness = 10,
+                              .strokeColor = RA8875_WHITE,
+                              .fillColor = color,
+                              .cornerRadius = 6,
+                              .hAlign = ALIGN_CENTER,
+                              .vAlign = ALIGN_MIDDLE,
+                          });
 
     // change sizes via if statement
+    std::string driveString = "";
     switch (Resources::driveBusData().driveState) {
         case 0:
-            Drawer::drawString(tft, "OFF", startX * 4 * 0.45, startY * 3 * 0.58, 5, RA8875_WHITE, color);
+            driveString = "OFF";
             break;
         case 1:
-            Drawer::drawString(tft, "NEUTRAL", startX * 4 * 0.38, startY * 3 * 0.58, 5, RA8875_BLACK, color);
+            driveString = "NEUTRAL";
             break;
         case 2:
-            Drawer::drawString(tft, "DRIVE", startX * 4 * 0.4, startY * 3 * 0.58, 5, RA8875_WHITE, color);
+            driveString = "ON";
             break;
         default:
-            Drawer::drawString(tft, "ERROR", startX * 4 * 0.45, startY * 3 * 0.58, 5, RA8875_WHITE, color);
+            driveString = "ERROR";
             break;
     }
+
+    Drawer::drawString(tft, driveString,
+        (TextDrawOptions) {
+            .x = SCREEN_WIDTH / 2,
+            .y = SCREEN_HEIGHT / 2 + 60,
+            .size = 8,
+            .color = RA8875_WHITE,
+            .backgroundColor = color,
+            .hAlign = ALIGN_CENTER,
+            .vAlign = ALIGN_MIDDLE,
+        });
 }
 
 static void drawWheelSpeed(Adafruit_RA8875 tft) {
     Drawer::drawNum(tft, Resources::driveBusData().averageWheelSpeed(),
                     (NumberDrawOptions){
-                        .x = wheel_speed_startX,
-                        .y = wheel_speed_startY,
-                        .size = 8,
+                        .x = SCREEN_WIDTH / 2,
+                        .y = SCREEN_HEIGHT / 2 - 40,
+                        .size = 10,
                         .color = RA8875_WHITE,
                         .backgroundColor = getDriveStateColor(),
-                        .alignment = CENTER});
+                        .hAlign = ALIGN_CENTER,
+                        .vAlign = ALIGN_MIDDLE});
 }
 
 void DriveScreen::draw(Adafruit_RA8875 tft) {

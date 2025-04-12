@@ -13,10 +13,16 @@ enum Direction {
     UP_TO_DOWN
 };
 
-enum Alignment {
-    LEFT,
-    CENTER,
-    RIGHT
+enum HorizontalAlignment {
+    ALIGN_LEFT,
+    ALIGN_CENTER,
+    ALIGN_RIGHT
+};
+
+enum VerticalAlignment {
+    ALIGN_TOP,
+    ALIGN_MIDDLE,
+    ALIGN_BOTTOM
 };
 
 //-------------------------------------------------
@@ -29,7 +35,8 @@ struct TextDrawOptions {
     int16_t color;           // Foreground (text) color
     int16_t backgroundColor; // Background color
     Direction direction = LEFT_TO_RIGHT;  // Direction to draw text
-    Alignment alignment = LEFT;           // Horizontal (or vertical) alignment
+    HorizontalAlignment hAlign = ALIGN_LEFT; // Horizontal alignment of the anchor relative to text
+    VerticalAlignment vAlign = ALIGN_TOP;      // Vertical alignment of the anchor relative to text
 };
 
 struct NumberDrawOptions {
@@ -39,7 +46,8 @@ struct NumberDrawOptions {
     int16_t color;           // Foreground (number) color
     int16_t backgroundColor; // Background color
     int precision = 1;       // Decimal precision
-    Alignment alignment = LEFT;  // Horizontal alignment
+    HorizontalAlignment hAlign = ALIGN_LEFT; // Horizontal alignment
+    VerticalAlignment vAlign = ALIGN_TOP;      // Vertical alignment (see note below)
 };
 
 //-------------------------------------------------
@@ -59,14 +67,17 @@ struct CircleDrawOptions {
 
 // Options for drawing a rectangle.
 struct RectDrawOptions {
-    int x;                   // Top-left x-coordinate
-    int y;                   // Top-left y-coordinate
+    int x;                   // Anchor x-position (see hAlign)
+    int y;                   // Anchor y-position (see vAlign)
     int width;               // Width of the rectangle
     int height;              // Height of the rectangle
     bool fill = false;       // If true, fill the rectangle with fillColor
     int strokeThickness = 1; // Thickness (in pixels) of the outline
     uint16_t strokeColor;    // Outline color
     uint16_t fillColor;      // Fill color (only used if fill is true)
+    int cornerRadius = 0;    // Corner radius for rounded corners (0 for square corners)
+    HorizontalAlignment hAlign = ALIGN_LEFT; // Horizontal alignment of the anchor relative to the rectangle.
+    VerticalAlignment vAlign = ALIGN_TOP;      // Vertical alignment of the anchor relative to the rectangle.
 };
 
 // Options for drawing a line.

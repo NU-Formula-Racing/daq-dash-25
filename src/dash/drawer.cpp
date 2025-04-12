@@ -72,53 +72,85 @@ void Drawer::drawNum(Adafruit_RA8875 tft, float num, int startX, int startY, int
 void Drawer::drawString(Adafruit_RA8875 tft, std::string message, const TextDrawOptions &options) {
     int x = options.x;
     int y = options.y;
-    
-    // Adjust starting coordinate based on alignment.
+
+    // Estimate dimensions. For left-to-right text:
+    //   - Each character is ~ (size * 6) pixels wide.
+    //   - Height is ~ (size * 8) pixels.
+    int textWidth = message.length() * options.size * 6;
+    int textHeight = options.size * 8;
+
     if (options.direction == LEFT_TO_RIGHT) {
-        int textWidth = message.length() * options.size * 6;
-        if (options.alignment == CENTER) {
+        // Adjust x according to horizontal alignment.
+        if (options.hAlign == ALIGN_CENTER) {
             x -= textWidth / 2;
-        } else if (options.alignment == RIGHT) {
+        } else if (options.hAlign == ALIGN_RIGHT) {
             x -= textWidth;
         }
+        // Adjust y according to vertical alignment.
+        if (options.vAlign == ALIGN_MIDDLE) {
+            y -= textHeight / 2;
+        } else if (options.vAlign == ALIGN_BOTTOM) {
+            y -= textHeight;
+        }
+        
+        // Draw each character.
         for (int i = 0; i < message.length(); i++) {
             tft.drawChar(x + i * options.size * 6, y, message[i], options.color, options.backgroundColor, options.size);
         }
-    } else if (options.direction == UP_TO_DOWN) {
-        int textHeight = message.length() * options.size * 8;
-        if (options.alignment == CENTER) {
-            y -= textHeight / 2;
-        } else if (options.alignment == RIGHT) {  // For vertical text, RIGHT means bottom-aligned.
-            y -= textHeight;
+    } 
+    else if (options.direction == UP_TO_DOWN) {
+        // For vertical text, width is size * 6 and height is length * size * 8.
+        int textWidthVertical = options.size * 6;
+        int textHeightVertical = message.length() * options.size * 8;
+        // Adjust x horizontally.
+        if (options.hAlign == ALIGN_CENTER) {
+            x -= textWidthVertical / 2;
+        } else if (options.hAlign == ALIGN_RIGHT) {
+            x -= textWidthVertical;
         }
+        // Adjust y vertically.
+        if (options.vAlign == ALIGN_MIDDLE) {
+            y -= textHeightVertical / 2;
+        } else if (options.vAlign == ALIGN_BOTTOM) {
+            y -= textHeightVertical;
+        }
+        
+        // Draw each character vertically.
         for (int i = 0; i < message.length(); i++) {
             tft.drawChar(x, y + i * options.size * 8, message[i], options.color, options.backgroundColor, options.size);
         }
     }
 }
-
 //-------------------------------------------------
 // New drawNum implementation using NumberDrawOptions.
 //-------------------------------------------------
 void Drawer::drawNum(Adafruit_RA8875 tft, float num, const NumberDrawOptions &options) {
-    // Create a buffer; size may be adjusted if needed.
+    // Create a buffer for the formatted number.
     char buf[20];
-    // Convert the float to a string (C-style) with the required precision.
-    // '0' as the minimum width means no extra padding.
     dtostrf(num, 0, options.precision, buf);
-
     int textLength = strlen(buf);
     
+    // Calculate approximate dimensions.
+    int textWidth = textLength * options.size * 6;  // Approximate width per character.
+    int textHeight = options.size * 8;                // Approximate height.
+    
+    // Adjust the starting coordinates based on horizontal alignment.
     int x = options.x;
-    int y = options.y;
-    int textWidth = textLength * options.size * 6;  // approximate each char width = size * 6 pixels
-    if (options.alignment == CENTER) {
+    if (options.hAlign == ALIGN_CENTER) {
         x -= textWidth / 2;
-    } else if (options.alignment == RIGHT) {
+    } else if (options.hAlign == ALIGN_RIGHT) {
         x -= textWidth;
     }
     
-    // Draw each character.
+    // Adjust the starting coordinates based on vertical alignment.
+    int y = options.y;
+    if (options.vAlign == ALIGN_MIDDLE) {
+        y -= textHeight / 2;
+    } else if (options.vAlign == ALIGN_BOTTOM) {
+        y -= textHeight;
+    }
+    
+    // Draw each character of the formatted number.
     for (int i = 0; i < textLength; i++) {
         tft.drawChar(x + i * options.size * 6, y, buf[i], options.color, options.backgroundColor, options.size);
     }
@@ -146,14 +178,45 @@ void Drawer::drawCircle(Adafruit_RA8875 tft, const CircleDrawOptions &options) {
 // New drawRect implementation using RectDrawOptions.
 //-------------------------------------------------
 void Drawer::drawRect(Adafruit_RA8875 tft, const RectDrawOptions &options) {
-    // Fill the rectangle if requested.
-    if (options.fill) {
-        tft.fillRect(options.x, options.y, options.width, options.height, options.fillColor);
+    // Calculate top-left corner based on the anchor alignment.
+    int x = options.x;
+    int y = options.y;
+    if (options.hAlign == ALIGN_CENTER) {
+        x -= options.width / 2;
+    } else if (options.hAlign == ALIGN_RIGHT) {
+        x -= options.width;
     }
-    // Draw the border with simulated thickness.
-    if (options.strokeThickness > 0) {
-        for (int i = 0; i < options.strokeThickness; i++) {
-            tft.drawRect(options.x - i, options.y - i, options.width + 2 * i, options.height + 2 * i, options.strokeColor);
+    if (options.vAlign == ALIGN_MIDDLE) {
+        y -= options.height / 2;
+    } else if (options.vAlign == ALIGN_BOTTOM) {
+        y -= options.height;
+    }
+    
+    // If rounded corners are requested, use the RA8875 round rect functions.
+    if (options.cornerRadius > 0) {
+        // Fill the rectangle if requested.
+        if (options.fill) {
+            tft.fillRoundRect(x, y, options.width, options.height, options.cornerRadius, options.fillColor);
+        }
+        // Draw the rounded border with simulated thickness.
+        if (options.strokeThickness > 0) {
+            for (int i = 0; i < options.strokeThickness; i++) {
+                tft.drawRoundRect(x - i, y - i,
+                                  options.width + 2 * i, options.height + 2 * i,
+                                  options.cornerRadius + i,
+                                  options.strokeColor);
+            }
+        }
+    }
+    // Otherwise use the standard rectangle functions.
+    else {
+        if (options.fill) {
+            tft.fillRect(x, y, options.width, options.height, options.fillColor);
+        }
+        if (options.strokeThickness > 0) {
+            for (int i = 0; i < options.strokeThickness; i++) {
+                tft.drawRect(x - i, y - i, options.width + 2 * i, options.height + 2 * i, options.strokeColor);
+            }
         }
     }
 }
