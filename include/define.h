@@ -27,7 +27,7 @@
 #define DT_ROTARY 0
 #define SW_ROTARY 0
 
-#define DRIVE_DEBUG
+// #define DRIVE_DEBUG
 
 
 #endif  // __DEFINE_H__
