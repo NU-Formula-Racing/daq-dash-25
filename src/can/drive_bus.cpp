@@ -39,6 +39,7 @@ void DriveBus::update() {
 #ifdef DRIVE_DEBUG
     // Initialize debug timers if not set
     unsigned long now = millis();
+    
     if (this->_debugStartTime == 0) {
         this->_debugStartTime = now;
         this->_debugLastFaultUpdate = now;
@@ -49,19 +50,16 @@ void DriveBus::update() {
         // Set each wheel speed to a random value (for example, 0 to 100 RPM)
         this->_data.wheelSpeeds[i] = randomFloat(0.0f, 100.0f);
     }
-    // Random drive state between 0 and 255 (or set your own range)
-    this->_data.driveState = random(0, 256);
-    // Example HV and LV voltage ranges (adjust as needed)
+    this->_data.driveState = random(0, 3);
     this->_data.HVVoltage = randomFloat(300.0f, 400.0f);
     this->_data.LVVoltage = randomFloat(12.0f, 15.0f);
-    // Battery temperatures – adjust the ranges as desired.
     this->_data.batteryTemp = randomFloat(20.0f, 40.0f);
     this->_data.maxCellTemp = randomFloat(25.0f, 50.0f);
     this->_data.minCellTemp = randomFloat(15.0f, 30.0f);
 
     // Now update the fault arrays.
     // For the first 5 seconds, leave all fault flags false.
-    if (now - this->_debugStartTime < 5000UL) {
+    if (now - this->_debugStartTime < 500UL) {
         for (int i = 0; i < BMS_FAULT_COUNT; i++) {
             this->_data.bmsFaults[i] = false;
         }

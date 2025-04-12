@@ -1,82 +1,115 @@
 #include "dash/error_screen.h"
+
+#include <string>
+#include <vector>
+
 #include "dash/drawer.h"
+#include "define.h"  // Must define SCREEN_WIDTH, SCREEN_HEIGHT, colors, etc.
+#include "resources.h"
+
+#define OUTLINE_COLOR GOLD
+
+static uint16_t getDriveStateColor() {
+    switch (Resources::driveBusData().driveState) {
+        case 0:
+            return INDIAN_RED;
+        case 1:
+            return GOLD;
+        case 2:
+            return FERN_GREEN;
+        default:
+            return INDIAN_RED;
+    }
+}
+
+// Draws drive state on screen based on CAN signal
+static void drawDriveState(Adafruit_RA8875 tft) {
+    // dont need wheel speed start x y anymore i think
+    uint16_t color = getDriveStateColor();
+
+    Drawer::drawRect(tft, (RectDrawOptions){
+                              .x = SCREEN_WIDTH - 200,
+                              .y = SCREEN_HEIGHT / 2,
+                              .width = 200,
+                              .height = SCREEN_HEIGHT,
+                              .fill = true,
+                              .strokeThickness = 0,
+                              .fillColor = color,
+                              .hAlign = ALIGN_LEFT,
+                              .vAlign = ALIGN_MIDDLE,
+                          });
+
+    // change sizes via if statement
+    std::string driveString = "";
+    switch (Resources::driveBusData().driveState) {
+        case 0:
+            driveString = "OFF";
+            break;
+        case 1:
+            driveString = "NEUTRAL";
+            break;
+        case 2:
+            driveString = "ON";
+            break;
+        default:
+            driveString = "ERROR";
+            break;
+    }
+
+    Drawer::drawString(tft, driveString,
+                       (TextDrawOptions){
+                           .x = SCREEN_WIDTH - 100,
+                           .y = SCREEN_HEIGHT / 2 + 60,
+                           .size = 6,
+                           .color = RA8875_WHITE,
+                           .backgroundColor = color,
+                           .hAlign = ALIGN_CENTER,
+                           .vAlign = ALIGN_MIDDLE,
+                       });
+}
+
+static void drawWheelSpeed(Adafruit_RA8875 tft) {
+    Drawer::drawNum(tft, Resources::driveBusData().averageWheelSpeed(),
+                    (NumberDrawOptions){
+                        .x = SCREEN_WIDTH  - 100,
+                        .y = SCREEN_HEIGHT / 2 - 40,
+                        .size = 4,
+                        .color = RA8875_WHITE,
+                        .backgroundColor = getDriveStateColor(),
+                        .hAlign = ALIGN_CENTER,
+                        .vAlign = ALIGN_MIDDLE});
+}
 
 
 
 void ErrorScreen::draw(Adafruit_RA8875 tft) {
-    // // dont need wheel speed start x y anymore i think
-    // int16_t color = INDIAN_RED;
-    // int driveRectw = startX / 2;
-    // int driveRecth = startY / 4;
-    // int digit_spacing = 4;
-    // int char_width = 40;
-    // int draw_digit_size = 6;
+    // Clear the screen with a red background.
+    tft.fillScreen(INDIAN_RED);
 
-    // //  int16_t color = INDIAN_RED;
-    // //  int driveRectw = startX;
-    // //  int driveRecth= startY/2;
-    // //  int digit_spacing = 4;
-    // //  int char_width = 40;
-    // //  int draw_digit_size = 6;
-    // //  startX= startX * 4 * 0.4;
-    // //  startY= startY * 5;
-    // switch (curr_drive_state) {
-    //     case 0:
-    //         color = INDIAN_RED;
-    //         break;
-    //     case 1:
-    //         color = GOLD;
-    //         break;
-    //     case 2:
-    //         color = FERN_GREEN;
-    //         break;
-    //     default:
-    //         color = INDIAN_RED;
-    //         break;
-    // }
-    // tft.fillRect(startX, startY + 30, driveRectw, driveRecth, color);
-    // // change sizes via if statement
-    // switch (curr_drive_state) {
-    //     case 0:
-    //         Drawer::drawString(tft, "OFF", startX * 1.15, startY * 1.25, 3, RA8875_WHITE, color);
-    //         // Drawer::drawString(tft, "OFF", SCREEN_WIDTH * 0.4, SCREEN_HEIGHT * 0.58, 5, RA8875_WHITE, color);
-    //         break;
-    //     case 1:
-    //         Drawer::drawString(tft, "NEUTRAL", startX * 1.05, startY * 1.25, 3, RA8875_BLACK, color);
-    //         // Drawer::drawString(tft, "NEUTRAL", SCREEN_WIDTH * 0.47, SCREEN_HEIGHT * 0.58, 5, RA8875_BLACK, color);
-    //         break;
-    //     case 2:
-    //         Drawer::drawString(tft, "DRIVE", startX * 1.12, startY * 1.25, 3, RA8875_WHITE, color);
-    //         break;
-    //     default:
-    //         Drawer::drawString(tft, "ERROR", startX * 1.25, startY * 1.25, 3, RA8875_WHITE, color);
-    //         break;
-    // }
+    TextDrawOptions headerOptions = {
+        .x = (SCREEN_WIDTH - 200) / 2, 
+        .y = 20, 
+        .size = 5, 
+        .color = RA8875_WHITE, 
+        .backgroundColor = INDIAN_RED,
+        .hAlign = ALIGN_CENTER, 
+        .vAlign = ALIGN_TOP
+    };
 
-    // drive_state = curr_drive_state;
-    // int rounded_wheel_speed = round(wheel_speed);
+    Drawer::drawString(tft, "ERROR SCREEN :(", headerOptions);
 
-    // // int digit_spacing = 8;
-    // // int char_width = 80;
-
-    // startX -= char_width / 2;
-
-    // // Making a naive assumption that 0 <= wheel speed < 100
-    // if (wheel_speed > 99) {
-    //     startX += char_width;
-    // } else if (wheel_speed > 9) {
-    //     // Digits must be off center for double digit numbers
-    //     startX += char_width / 2;
-    // }
-
-    // // Draw the digits
-    // while (rounded_wheel_speed > 0) {
-    //     int digit = rounded_wheel_speed % 10;
-    //     tft.drawChar(startX + 50, startY + 30, digit + '0', RA8875_BLACK, color, draw_digit_size);
-    //     wheel_speed_startX -= char_width + digit_spacing;
-    //     rounded_wheel_speed /= 10;
-    // }
 }
 
 void ErrorScreen::update(Adafruit_RA8875 tft, bool force) {
+    if (Resources::driveBusData().driveState != Resources::prevDriveBusData().driveState || force)
+        drawDriveState(tft);
+    if (Resources::driveBusData().averageWheelSpeed() != Resources::prevDriveBusData().averageWheelSpeed() || force)
+        drawWheelSpeed(tft);
+
+    // --- Collect and draw error messages ---
+    std::vector<std::string> errorLines;
+    if (errorLines.empty()) {
+        errorLines.push_back("NO FAULTS");
+    }
+
 }
