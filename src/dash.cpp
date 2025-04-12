@@ -76,33 +76,17 @@ std::string inverter_err_str = "";
 std::string ecu_err_str = "";
 
 void Dash::GetCAN() {
-    g_can_bus.Tick();
 }
 
 void Dash::Initialize() {
     digitalWrite(INDICATOR_LED, LOW);
-    g_can_bus.Initialize(ICAN::BaudRate::kBaud500K);
-    g_can_bus.RegisterRXMessage(rx_wheel_speeds);
-    g_can_bus.RegisterRXMessage(rx_drive_state);
-    // g_can_bus.RegisterRXMessage(rx_inverter_current_draw);
-    g_can_bus.RegisterRXMessage(rx_bms_faults);
-    g_can_bus.RegisterRXMessage(rx_bms_status);
-    g_can_bus.RegisterRXMessage(rx_pdm_bat_volt);
-    g_can_bus.RegisterRXMessage(rx_ecu_implausibility);
-
-    // this->bars["coolant_temp"] = BarData("", 0, 100, SCREEN_WIDTH / 4 + 90, SCREEN_HEIGHT * 0.725, 15, SCREEN_WIDTH / 2 - 90);
-    // this->bars["inverter_temp"] = BarData("", 0, 100, SCREEN_WIDTH / 4 + 90, SCREEN_HEIGHT * 0.825, 15, SCREEN_WIDTH / 2 - 90);
-    // this->bars["motor_temp"] = BarData("", 0, 100, SCREEN_WIDTH / 4 + 90, SCREEN_HEIGHT * 0.925, 15, SCREEN_WIDTH / 2 - 90);
 }
 
 void Dash::DrawBackground(Adafruit_RA8875 tft, int16_t color) {
     this->backgroundColor = color;
-    // black out the screen
 
     tft.fillScreen(color);
-    // draw outlines
-    // MIDDLE DRIVE RECT
-    tft.drawRect(SCREEN_WIDTH / 4, SCREEN_HEIGHT / 3, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 3, RA8875_WHITE);
+
 
     // write circle labels
     DrawString(tft, "HV Battery", hv_bat_volt_startX * 0.15, hv_bat_volt_startY - SCREEN_WIDTH / 6 - 10, 3, RA8875_WHITE, color);
@@ -130,35 +114,6 @@ float Dash::WheelSpeedAvg(float fl_wheel_speed, float fr_wheel_speed) {
 }
 
 void Dash::UpdateDisplay(Adafruit_RA8875 tft) {
-#ifndef DEBUG
-    float fl_wheel_speed = static_cast<float>(fl_wheel_speed_signal);
-    float fr_wheel_speed = static_cast<float>(fr_wheel_speed_signal);
-    uint8_t curr_drive_state = static_cast<uint8_t>(drive_state_signal);
-    int imd_status = static_cast<int>(imd_status_signal);
-    float max_cell_temp = static_cast<float>(bms_max_cell_temp_signal);
-    float min_cell_temp = static_cast<float>(bms_min_cell_temp_signal);
-    float hv_bat_volt = static_cast<float>(bms_battery_voltage_signal);
-    float lv_bat_volt = static_cast<float>(pdm_bat_volt);
-
-#else
-    // we should change the drive state for testing
-    // cycle based on time
-    float fl_wheel_speed = (millis() / 200) % 200;              //
-    float fr_wheel_speed = (millis() / 200) % 200;              //
-    int curr_drive_state = (millis() / 1000) % 3;               //
-    int imd_status = millis() > 5000 ? -10 : 0;                 //
-    this->bms_faults = millis() > 10000 ? 0b11111111 : 0;       //
-    this->inverter_faults = millis() > 10000 ? 0b11111111 : 0;  //
-    this->ecu_faults = millis() > 10000 ? 0b11111111 : 0;
-    // float max_cell_temp = (millis() / 10) % 100;     //
-    // float min_cell_temp = (millis() / 10) % 100;
-    float max_cell_temp = (millis() / 1000);  //
-    float min_cell_temp = (millis() / 1000);
-    float hv_bat_volt = (millis() / 100) % 100;
-    float lv_bat_volt = (millis() / 100) % 100;
-
-#endif
-
     DrawIMDStatus(tft, 8, 2, imd_status, 32);
     HandleBMSFaults(tft, 8, 2);
     HandleInverterFaults(tft, 8, 3);
@@ -204,7 +159,6 @@ void Dash::UpdateDisplay(Adafruit_RA8875 tft) {
         HandleError(tft, handle_error_startX, handle_error_startY);
     }
 
-    timer_group.Tick(millis());
 }
 
 void Dash::DrawErrorState(Adafruit_RA8875 tft, int startX, int startY, uint8_t curr_drive_state, int squareSize, float wheel_speed, int wheel_speed_startX, int wheel_speed_startY, bool ifErrorScreen) {
@@ -295,14 +249,6 @@ void Dash::DrawDriveState(Adafruit_RA8875 tft, int startX, int startY, uint8_t c
     int char_width = 80;
     int draw_digit_size = 13;
 
-    //  int16_t color = INDIAN_RED;
-    //  int driveRectw = startX;
-    //  int driveRecth= startY/2;
-    //  int digit_spacing = 4;
-    //  int char_width = 40;
-    //  int draw_digit_size = 6;
-    //  startX= startX * 4 * 0.4;
-    //  startY= startY * 5;
     switch (curr_drive_state) {
         case 0:
             color = INDIAN_RED;
@@ -319,14 +265,13 @@ void Dash::DrawDriveState(Adafruit_RA8875 tft, int startX, int startY, uint8_t c
     }
     tft.fillRect(startX, startY, driveRectw, driveRecth, color);
     // change sizes via if statement
+
     switch (curr_drive_state) {
         case 0:
             DrawString(tft, "OFF", startX * 4 * 0.45, startY * 3 * 0.58, 5, RA8875_WHITE, color);
-            // DrawString(tft, "OFF", SCREEN_WIDTH * 0.4, SCREEN_HEIGHT * 0.58, 5, RA8875_WHITE, color);
             break;
         case 1:
             DrawString(tft, "NEUTRAL", startX * 4 * 0.38, startY * 3 * 0.58, 5, RA8875_BLACK, color);
-            // DrawString(tft, "NEUTRAL", SCREEN_WIDTH * 0.47, SCREEN_HEIGHT * 0.58, 5, RA8875_BLACK, color);
             break;
         case 2:
             DrawString(tft, "DRIVE", startX * 4 * 0.4, startY * 3 * 0.58, 5, RA8875_WHITE, color);
@@ -338,9 +283,6 @@ void Dash::DrawDriveState(Adafruit_RA8875 tft, int startX, int startY, uint8_t c
 
     drive_state = curr_drive_state;
     int rounded_wheel_speed = round(wheel_speed);
-
-    // int digit_spacing = 8;
-    // int char_width = 80;
 
     startX -= char_width / 2;
 
@@ -705,7 +647,7 @@ void Dash::DrawState(Adafruit_RA8875 tft, int startX, int startY, int display_va
     } else {
         curr_state = 0;
     }
-    
+
     int16_t color;
     switch (curr_state) {
         case 0:

@@ -36,7 +36,11 @@ struct DriveBusData {
     float LVVoltage;
     float batteryTemp;
     bool bmsFaults[BMS_FAULT_COUNT];
-    bool ecuFaults[ECU_FAULT_COUNT]
+    bool ecuFaults[ECU_FAULT_COUNT];
+
+    bool faultPresent() const {
+        return bmsFaults[BMS_FAULT_SUMMARY] || ecuFaults[ECU_FAULT_PRESENT];
+    }
 };
 
 class DriveBus {

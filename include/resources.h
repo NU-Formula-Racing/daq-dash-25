@@ -14,6 +14,14 @@ class Resources {
         return r;
     }
 
+    static const DataBusData &dataBusData() {
+        return instance().dataBus.getData();
+    }
+
+    static const DriveBusData &driveBusData() {
+        return instance().driveBus.getData();
+    }
+
    private:
     Resources();
     void operator=(Resources const& other) = delete;
