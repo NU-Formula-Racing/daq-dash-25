@@ -35,6 +35,11 @@ class Resources {
     DataBus dataBus;
     DriveBus driveBus;
     SoundDriver soundDriver;
+
+    void update() {
+        dataBus.update();
+        driveBus.update();
+    }
 };
 
 #endif  // __RESOURCES_H__

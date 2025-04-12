@@ -3,10 +3,12 @@
 
 #include <Arduino.h>
 #include <CAN.h>
+#include "define.h"
 
 #include <string>
 
 #include "virtualTimer.h"
+
 
 enum BMSFault {
     BMS_FAULT_SUMMARY,
@@ -129,6 +131,11 @@ class DriveBus {
     MakeSignedCANSignal(float, 0, 16, 1.141643059, 0) lv_voltage_signal;
     MakeSignedCANSignal(bool, 16, 8, 1, 0) lv_voltage_warning_signal;
     CANRXMessage<2> rx_lv_voltage{_driveBus, 0x291, lv_voltage_signal, lv_voltage_warning_signal};
+
+    #ifdef DRIVE_DEBUG
+    uint64_t _debugStartTime = 0;
+    uint64_t _debugLastFaultUpdate = 0;
+    #endif
 };
 
 #endif  // __DRIVE_BUS_H__

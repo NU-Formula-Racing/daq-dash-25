@@ -1,5 +1,7 @@
 #include "can/drive_bus.h"
 
+#include "define.h"
+
 const DriveBusData& DriveBus::getData() const {
     return _data;
 }
@@ -22,11 +24,66 @@ void DriveBus::initialize() {
     _driveBus.RegisterRXMessage(rx_ecu_implausibility);
 }
 
+// Helper: Generate a random float between min and max.
+static float randomFloat(float min, float max) {
+    // Generate a value between 0 and 9999, then scale
+    long r = random(0, 10000);
+    return min + (max - min) * (r / 10000.0);
+}
+
 void DriveBus::update() {
     this->_driveBus.Tick();
-    // update the previous
+    // update the previous data
     this->_prevData = this->_data;
 
+#ifdef DRIVE_DEBUG
+    // Initialize debug timers if not set
+    unsigned long now = millis();
+    if (this->_debugStartTime == 0) {
+        this->_debugStartTime = now;
+        this->_debugLastFaultUpdate = now;
+    }
+
+    // Use random values for all numeric fields
+    for (int i = 0; i < 4; i++) {
+        // Set each wheel speed to a random value (for example, 0 to 100 RPM)
+        this->_data.wheelSpeeds[i] = randomFloat(0.0f, 100.0f);
+    }
+    // Random drive state between 0 and 255 (or set your own range)
+    this->_data.driveState = random(0, 256);
+    // Example HV and LV voltage ranges (adjust as needed)
+    this->_data.HVVoltage = randomFloat(300.0f, 400.0f);
+    this->_data.LVVoltage = randomFloat(12.0f, 15.0f);
+    // Battery temperatures – adjust the ranges as desired.
+    this->_data.batteryTemp = randomFloat(20.0f, 40.0f);
+    this->_data.maxCellTemp = randomFloat(25.0f, 50.0f);
+    this->_data.minCellTemp = randomFloat(15.0f, 30.0f);
+
+    // Now update the fault arrays.
+    // For the first 5 seconds, leave all fault flags false.
+    if (now - this->_debugStartTime < 5000UL) {
+        for (int i = 0; i < BMS_FAULT_COUNT; i++) {
+            this->_data.bmsFaults[i] = false;
+        }
+        for (int i = 0; i < ECU_FAULT_COUNT; i++) {
+            this->_data.ecuFaults[i] = false;
+        }
+    }
+    // After 5 seconds, every 10 seconds randomly update the fault flags.
+    else if (now - this->_debugLastFaultUpdate >= 10000UL) {
+        for (int i = 0; i < BMS_FAULT_COUNT; i++) {
+            // Randomly set each BMS fault flag (true or false)
+            this->_data.bmsFaults[i] = (random(0, 2) == 1);
+        }
+        for (int i = 0; i < ECU_FAULT_COUNT; i++) {
+            // Randomly set each ECU fault flag
+            this->_data.ecuFaults[i] = (random(0, 2) == 1);
+        }
+        this->_debugLastFaultUpdate = now;
+    }
+
+#else
+    // Regular non-debug update: assign all signals as provided.
     this->_data.wheelSpeeds[0] = fl_wheel_speed_signal;
     this->_data.wheelSpeeds[1] = fr_wheel_speed_signal;
     this->_data.wheelSpeeds[2] = bl_wheel_speed_signal;
@@ -52,4 +109,5 @@ void DriveBus::update() {
     this->_data.ecuFaults[ECU_FAULT_BPPC] = ecu_implausibility_bppc_imp_signal;
     this->_data.ecuFaults[ECU_FAULT_BRAKE_INVALID] = ecu_implausibility_brake_invalid_imp_signal;
     this->_data.ecuFaults[ECU_FAULT_APPPS_INVALID] = ecu_implausibility_appss_invalid_imp_signal;
+#endif
 }

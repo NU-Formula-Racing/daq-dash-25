@@ -1,10 +1,9 @@
 #include <Arduino.h>
 #include <iostream>
 
-
 #include "dash/dash.h"
 #include "define.h"
-
+#include "resources.h"
 #include "sound.h"
 #include "songs.h"
 
@@ -28,4 +27,5 @@ void setup() {
 
 void loop() {
     dashboard.update();
+    Resources::instance().update();
 }
