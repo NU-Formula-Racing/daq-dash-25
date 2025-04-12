@@ -22,7 +22,8 @@
 #define PIEZO_INPUT A8
 
 #define INTERNAL_LED 13
-#define INDICATOR_LED 17 //is this right?
+#define IMD_INDICATOR A13
+#define BMS_INDICATOR A12
 
 
 //other pins

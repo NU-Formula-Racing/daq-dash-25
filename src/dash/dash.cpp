@@ -38,7 +38,11 @@ Dash::Dash() : _tft(RA8875_CS, RA8875_RESET), _currentScreen(DashScreen::DS_DRIV
 }
 
 void Dash::initalize() {
-    digitalWrite(INDICATOR_LED, LOW);
+    pinMode(IMD_INDICATOR, OUTPUT);
+    pinMode(BMS_INDICATOR, OUTPUT);
+
+    digitalWrite(IMD_INDICATOR, LOW);
+    digitalWrite(BMS_INDICATOR, LOW);
 
     int numAttempts = 0;
     while (!_tft.begin(RA8875_800x480)) {
@@ -65,6 +69,12 @@ void Dash::update() {
         changeScreen(DashScreen::DS_ERROR);
     }
 
+    // pull the pin forthe 
+    bool imdFault = Resources::driveBusData().imdState != 0;
+    digitalWrite(IMD_INDICATOR, imdFault ? HIGH : LOW);
+
+    bool bmsFault = Resources::driveBusData().bmsFaults[BMS_FAULT_SUMMARY];
+    digitalWrite(BMS_INDICATOR, bmsFault ? HIGH : LOW);
     
     // update the current screen
     // Serial.printf("Updating screen %d\n", (int)_currentScreen);
