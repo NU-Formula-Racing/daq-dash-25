@@ -18,7 +18,7 @@ class Dash {
    public:
     Dash();
     void initalize();
-    void update(Adafruit_RA8875 tft);
+    void update();
     void changeScreen(DashScreen screen);
 
    private:

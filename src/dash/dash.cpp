@@ -12,22 +12,6 @@
 #include "dash/error_screen.h"
 #include "resources.h"
 
-int drive_state_startX = SCREEN_WIDTH / 4;
-int drive_state_startY = SCREEN_HEIGHT / 3;
-int error_state_startX = SCREEN_WIDTH * 0.4;
-int error_state_startY = SCREEN_HEIGHT * 6 / 8;
-int hv_bat_volt_startX = SCREEN_WIDTH / 8;
-int hv_bat_volt_startY = SCREEN_HEIGHT / 4 + 30;
-int lv_bat_volt_startX = SCREEN_WIDTH / 8;
-int lv_bat_volt_startY = SCREEN_HEIGHT * 3 / 4 + 30;
-int wheel_speed_startX = SCREEN_WIDTH / 2 + 40;
-int wheel_speed_startY = SCREEN_HEIGHT * 0.34;
-int max_cell_temp_startX = SCREEN_WIDTH * 7 / 8;
-int max_cell_temp_startY = SCREEN_HEIGHT / 4 + 30;
-int min_cell_temp_startX = SCREEN_WIDTH * 7 / 8;
-int min_cell_temp_startY = SCREEN_HEIGHT * 3 / 4 + 30;
-int handle_error_startX = 0;  // /4
-int handle_error_startY = SCREEN_HEIGHT / 3;
 
 // for states, after mid state, goes to last state
 int motor_temp_last_state = 70;
@@ -70,7 +54,7 @@ void Dash::initalize() {
     _tft.PWM1out(255);
 }
 
-void Dash::update(Adafruit_RA8875 tft) {
+void Dash::update() {
     // check for errors
     if (Resources::driveBusData().faultPresent()) {
         // change the screen to an error

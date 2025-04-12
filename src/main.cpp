@@ -33,7 +33,7 @@ void setup() {
 
     dashboard.initalize();
     soundDriver.initialize();
-    
+
     song.shift(-2);
     soundDriver.setSong(song);
 }

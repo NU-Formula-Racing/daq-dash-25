@@ -23,7 +23,8 @@ class Resources {
     }
 
    private:
-    Resources();
+    Resources() : soundDriver(PIEZO_INPUT) {}
+
     void operator=(Resources const& other) = delete;
 
    public:
