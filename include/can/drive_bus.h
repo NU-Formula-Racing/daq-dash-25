@@ -8,13 +8,35 @@
 
 #include "virtualTimer.h"
 
+enum BMSFault {
+    BMS_FAULT_SUMMARY,
+    BMS_FAULT_UNDER_VOLTAGE,
+    BMS_FAULT_OVER_VOLTAGE,
+    BMS_FAULT_UNDER_TEMP,
+    BMS_FAULT_OVER_TEMP,
+    BMS_FAULT_OVER_CURRENT,
+    BMS_FAULT_EXTERNAL_KILL,
+    BMS_FAULT_OPEN_WIRE,
+    BMS_FAULT_COUNT,
+};
+
+enum ECUFault {
+    ECU_FAULT_PRESENT,
+    ECU_FAULT_APPSS_DISAGREEMENT,
+    ECU_FAULT_BPPC,
+    ECU_FAULT_BRAKE_INVALID,
+    ECU_FAULT_APPPS_INVALID,
+    ECU_FAULT_COUNT
+};
+
 struct DriveBusData {
     float wheelSpeeds[4];
     uint8_t driveState;
     float HVVoltage;
     float LVVoltage;
     float batteryTemp;
-    bool faults[8];
+    bool bmsFaults[BMS_FAULT_COUNT];
+    bool ecuFaults[ECU_FAULT_COUNT]
 };
 
 class DriveBus {
@@ -32,8 +54,10 @@ class DriveBus {
     DriveBusData _data;
     TeensyCAN<1> _driveBus;
     VirtualTimerGroup timer_group{};
+
     // all of the CAN message stuff and setup
 
+    // Wheel speeds
     MakeSignedCANSignal(float, 0, 16, 1, 0) fl_wheel_speed_signal;
     MakeSignedCANSignal(float, 16, 16, 1, 0) fl_wheel_displacement_signal;
     MakeSignedCANSignal(float, 32, 16, 1, 0) fl_wheel_load_signal;
@@ -54,19 +78,28 @@ class DriveBus {
     MakeSignedCANSignal(float, 32, 16, 1, 0) br_wheel_load_signal;
     CANRXMessage<3> rx_br_wheel_speed{_driveBus, 0x24C, br_wheel_speed_signal, br_wheel_displacement_signal, br_wheel_load_signal};
 
+    // ECU Stuff
     MakeSignedCANSignal(uint8_t, 0, 8, 1, 0) drive_state_signal;
     CANRXMessage<1> rx_drive_state{_driveBus, 0x206, drive_state_signal};
 
+    // ECU Implausibility
+    CANSignal<bool, 0, 8, CANTemplateConvertFloat(1.0), CANTemplateConvertFloat(0), false> ecu_implausibility_present_signal;
+    CANSignal<bool, 8, 8, CANTemplateConvertFloat(1.0), CANTemplateConvertFloat(0), false> ecu_implausibility_appss_disagreement_imp_signal;
+    CANSignal<bool, 16, 8, CANTemplateConvertFloat(1.0), CANTemplateConvertFloat(0), false> ecu_implausibility_bppc_imp_signal;
+    CANSignal<bool, 24, 8, CANTemplateConvertFloat(1.0), CANTemplateConvertFloat(0), false> ecu_implausibility_brake_invalid_imp_signal;
+    CANSignal<bool, 32, 8, CANTemplateConvertFloat(1.0), CANTemplateConvertFloat(0), false> ecu_implausibility_appss_invalid_imp_signal;
+
+    CANRXMessage<5> rx_ecu_implausibility{
+        _driveBus, 0x204, ecu_implausibility_present_signal, ecu_implausibility_appss_disagreement_imp_signal,
+        ecu_implausibility_bppc_imp_signal, ecu_implausibility_brake_invalid_imp_signal, ecu_implausibility_appss_invalid_imp_signal};
+
+    // BMS
     MakeSignedCANSignal(float, 0, 12, 0.1, 0) max_discharge_current_signal;
     MakeSignedCANSignal(float, 12, 12, 0.1, 0) max_regen_current_signal;
     MakeSignedCANSignal(float, 24, 16, 0.01, 0) hv_voltage_signal;
     MakeSignedCANSignal(float, 40, 8, 1, -40) battery_temp_signal;
     MakeSignedCANSignal(float, 48, 16, 0.01, 0) battery_current_signal;
     CANRXMessage<5> rx_hv_battery{_driveBus, 0x150, max_discharge_current_signal, max_regen_current_signal, hv_voltage_signal, battery_temp_signal, battery_current_signal};
-
-    MakeSignedCANSignal(float, 0, 16, 1.141643059, 0) lv_voltage_signal;
-    MakeSignedCANSignal(bool, 16, 8, 1, 0) lv_voltage_warning_signal;
-    CANRXMessage<2> rx_lv_voltage{_driveBus, 0x291, lv_voltage_signal, lv_voltage_warning_signal};
 
     MakeSignedCANSignal(bool, 0, 1, 1, 0) bms_fault_summary_signal;
     MakeSignedCANSignal(bool, 1, 1, 1, 0) bms_fault_under_voltage_signal;
@@ -78,6 +111,11 @@ class DriveBus {
     MakeSignedCANSignal(bool, 7, 1, 1, 0) bms_fault_open_wire_signal;
     CANRXMessage<8> rx_bms_faults{
         _driveBus, 0x151, bms_fault_summary_signal, bms_fault_under_voltage_signal, bms_fault_over_voltage_signal, bms_fault_under_temperature_signal, bms_fault_over_temperature_signal, bms_fault_over_current_signal, bms_fault_external_kill_signal, bms_fault_open_wire_signal};
+
+    // PDM
+    MakeSignedCANSignal(float, 0, 16, 1.141643059, 0) lv_voltage_signal;
+    MakeSignedCANSignal(bool, 16, 8, 1, 0) lv_voltage_warning_signal;
+    CANRXMessage<2> rx_lv_voltage{_driveBus, 0x291, lv_voltage_signal, lv_voltage_warning_signal};
 };
 
 #endif  // __DRIVE_BUS_H__

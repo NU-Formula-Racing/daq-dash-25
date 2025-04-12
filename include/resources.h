@@ -4,6 +4,8 @@
 #include "can/data_bus.h"
 #include "can/drive_bus.h"
 #include "logger.h"
+#include "songs.h"
+#include "sound.h"
 
 class Resources {
    public:
@@ -19,6 +21,7 @@ class Resources {
    public:
     DataBus dataBus;
     DriveBus driveBus;
+    SoundDriver soundDriver;
 };
 
 #endif  // __RESOURCES_H__

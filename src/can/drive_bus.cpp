@@ -15,6 +15,7 @@ void DriveBus::initialize() {
     _driveBus.RegisterRXMessage(rx_hv_battery);
     _driveBus.RegisterRXMessage(rx_lv_voltage);
     _driveBus.RegisterRXMessage(rx_bms_faults);
+    _driveBus.RegisterRXMessage(rx_ecu_implausibility);
 }
 
 void DriveBus::update() {
@@ -30,12 +31,18 @@ void DriveBus::update() {
 
     this->_data.LVVoltage = lv_voltage_signal;
 
-    this->_data.faults[0] = bms_fault_summary_signal;
-    this->_data.faults[1] = bms_fault_under_voltage_signal;
-    this->_data.faults[2] = bms_fault_over_voltage_signal;
-    this->_data.faults[3] = bms_fault_under_temperature_signal;
-    this->_data.faults[4] = bms_fault_over_temperature_signal;
-    this->_data.faults[5] = bms_fault_over_current_signal;
-    this->_data.faults[6] = bms_fault_external_kill_signal;
-    this->_data.faults[7] = bms_fault_open_wire_signal;
+    this->_data.bmsFaults[BMS_FAULT_SUMMARY] = bms_fault_summary_signal;
+    this->_data.bmsFaults[BMS_FAULT_UNDER_VOLTAGE] = bms_fault_under_voltage_signal;
+    this->_data.bmsFaults[BMS_FAULT_OVER_VOLTAGE] = bms_fault_over_voltage_signal;
+    this->_data.bmsFaults[BMS_FAULT_UNDER_TEMP] = bms_fault_under_temperature_signal;
+    this->_data.bmsFaults[BMS_FAULT_OVER_TEMP] = bms_fault_over_temperature_signal;
+    this->_data.bmsFaults[BMS_FAULT_OVER_CURRENT] = bms_fault_over_current_signal;
+    this->_data.bmsFaults[BMS_FAULT_EXTERNAL_KILL] = bms_fault_external_kill_signal;
+    this->_data.bmsFaults[BMS_FAULT_OPEN_WIRE] = bms_fault_open_wire_signal;
+
+    this->_data.ecuFaults[ECU_FAULT_PRESENT] = ecu_implausibility_present_signal;
+    this->_data.ecuFaults[ECU_FAULT_APPSS_DISAGREEMENT] = ecu_implausibility_appss_disagreement_imp_signal;
+    this->_data.ecuFaults[ECU_FAULT_BPPC] = ecu_implausibility_bppc_imp_signal;
+    this->_data.ecuFaults[ECU_FAULT_BRAKE_INVALID] = ecu_implausibility_brake_invalid_imp_signal;
+    this->_data.ecuFaults[ECU_FAULT_APPPS_INVALID] = ecu_implausibility_appss_invalid_imp_signal;
 }

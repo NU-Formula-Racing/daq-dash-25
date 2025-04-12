@@ -64,7 +64,7 @@ void Logger::log() {
 
     line = line + std::to_string(driveData.driveState) + "," + std::to_string(driveData.HVVoltage) + "," + std::to_string(driveData.LVVoltage) + "," + std::to_string(driveData.batteryTemp);
 
-    for (const auto& fault : driveData.faults) {
+    for (const auto& fault : driveData.bmsFaults) {
         line = line + "," + std::to_string(fault);
     }
 
