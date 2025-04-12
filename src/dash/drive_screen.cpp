@@ -12,8 +12,8 @@ static const int hv_bat_volt_startX = SCREEN_WIDTH / 8;
 static const int hv_bat_volt_startY = SCREEN_HEIGHT / 4 + 30;
 static const int lv_bat_volt_startX = SCREEN_WIDTH / 8;
 static const int lv_bat_volt_startY = SCREEN_HEIGHT * 3 / 4 + 30;
-static const int wheel_speed_startX = SCREEN_WIDTH / 2 + 40;
-static const int wheel_speed_startY = SCREEN_HEIGHT * 0.34;
+static const int wheel_speed_startX = SCREEN_WIDTH / 2;
+static const int wheel_speed_startY = SCREEN_HEIGHT / 2 - 50;
 static const int max_cell_temp_startX = SCREEN_WIDTH * 7 / 8;
 static const int max_cell_temp_startY = SCREEN_HEIGHT / 4 + 30;
 static const int min_cell_temp_startX = SCREEN_WIDTH * 7 / 8;
@@ -63,16 +63,14 @@ static void drawDriveState(Adafruit_RA8875 tft) {
 }
 
 static void drawWheelSpeed(Adafruit_RA8875 tft) {
-    // Drawer::drawNum(tft, Resources::driveBusData().averageWheelSpeed(),
-    //         (NumberDrawOptions) {
-    //             .x = wheel_speed_startX,
-    //             .y = wheel_speed_startY,
-    //             .size = 20,
-    //             .color = RA8875_WHITE,
-    //             .backgroundColor = getDriveStateColor(),
-    //             .alignment = CENTER
-    //         }
-    // );
+    Drawer::drawNum(tft, Resources::driveBusData().averageWheelSpeed(),
+                    (NumberDrawOptions){
+                        .x = wheel_speed_startX,
+                        .y = wheel_speed_startY,
+                        .size = 8,
+                        .color = RA8875_WHITE,
+                        .backgroundColor = getDriveStateColor(),
+                        .alignment = CENTER});
 }
 
 void DriveScreen::draw(Adafruit_RA8875 tft) {

@@ -101,21 +101,26 @@ void Drawer::drawString(Adafruit_RA8875 tft, std::string message, const TextDraw
 // New drawNum implementation using NumberDrawOptions.
 //-------------------------------------------------
 void Drawer::drawNum(Adafruit_RA8875 tft, float num, const NumberDrawOptions &options) {
-    std::ostringstream oss;
-    oss << std::fixed << std::setprecision(options.precision) << num;
-    std::string numStr = oss.str();
+    // Create a buffer; size may be adjusted if needed.
+    char buf[20];
+    // Convert the float to a string (C-style) with the required precision.
+    // '0' as the minimum width means no extra padding.
+    dtostrf(num, 0, options.precision, buf);
+
+    int textLength = strlen(buf);
     
     int x = options.x;
     int y = options.y;
-    int textWidth = numStr.length() * options.size * 6;
+    int textWidth = textLength * options.size * 6;  // approximate each char width = size * 6 pixels
     if (options.alignment == CENTER) {
         x -= textWidth / 2;
     } else if (options.alignment == RIGHT) {
         x -= textWidth;
     }
     
-    for (int i = 0; i < numStr.length(); i++) {
-        tft.drawChar(x + i * options.size * 6, y, numStr[i], options.color, options.backgroundColor, options.size);
+    // Draw each character.
+    for (int i = 0; i < textLength; i++) {
+        tft.drawChar(x + i * options.size * 6, y, buf[i], options.color, options.backgroundColor, options.size);
     }
 }
 
