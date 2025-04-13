@@ -20,6 +20,7 @@ const DriveBusData &Resources::prevDriveBusData() {
 Resources::Resources() : soundDriver(PIEZO_INPUT) {
 }
 
+
 void Resources::update() {
     dataBus.update();
     driveBus.update();

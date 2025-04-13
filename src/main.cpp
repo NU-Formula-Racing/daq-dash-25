@@ -31,6 +31,9 @@ void setup() {
     Resources::instance().soundDriver.initialize();
     Resources::instance().soundDriver.setSong(song);
 
+    Resources::instance().dataBus.initialize();
+    Resources::instance().driveBus.initialize();
+
     // loggingTimer.AddTimer(1000, logData);
 }
 
