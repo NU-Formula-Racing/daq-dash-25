@@ -1,12 +1,29 @@
 #include "logger.h"
+
 #include <TimeLib.h>
+
 #include <string>
+
 #include "resources.h"
 
 const int chipSelect = BUILTIN_SDCARD;
 
 time_t getTeensy3Time() {
     return Teensy3Clock.get();
+}
+
+Logger::Logger() {
+    // calculate the size of the data
+    size_t timeSize = 3 * sizeof(int);
+    size_t dataDataSize = NUM_TEMP_CELLS * sizeof(float) + NUM_VOLT_CELLS * sizeof(float);
+    size_t driveDataSize =
+        4 * sizeof(float) +    // wheel speeds
+        5 * sizeof(uint8_t) +  // drive state, bmsState, imdState, bmsSOC, inverterStatus
+        8 * sizeof(float) +    // HVVoltage, LVVoltage, batteryTemp, maxCellTemp, minCellTemp, maxCellVoltage, minCellVoltage
+        BMS_FAULT_COUNT * sizeof(bool) +
+        ECU_FAULT_COUNT * sizeof(bool);
+
+    _lineBuffer = ByteBuffer(timeSize + dataDataSize + driveDataSize);
 }
 
 void Logger::initialize() {
@@ -24,14 +41,14 @@ void Logger::initialize() {
 
     std::string filename = "log_" + std::to_string(day()) + "_" + std::to_string(month()) + "_" + std::to_string(year()) + ".csv";
 
-    this->file = SD.open(filename.c_str(), FILE_WRITE);
+    this->_file = SD.open(filename.c_str(), FILE_WRITE);
 
     // write the header
     // time, wheelspeed_FL, wheelspeed_fr ....
 
     std::string header =
         "hour,minute,second,wheelspeed_FL,wheelspeed_FR,wheelspeed_BL,wheelspeed_BR,driveState,"
-        "HVVoltage,LVVoltage,batteryTemp,Fault_Summary,Undervoltage_Fault,Overvoltage_Fault,Undertemperature_Fault,"
+        "HVVoltage,LVVoltage,batteryTemp,maxCellTemp,minCellTemp,maxCellVoltage,minCellVoltage,Fault_Summary,Undervoltage_Fault,Overvoltage_Fault,Undertemperature_Fault,"
         "Overtemperature_Fault,Overcurrent_Fault,External_Kill_Fault,Open_Wire_Fault";
 
     for (int i = 0; i < 140; i++) {
@@ -44,7 +61,7 @@ void Logger::initialize() {
 
     header = header + "\n";
 
-    file.write(header.c_str());
+    _file.write(header.c_str());
 }
 
 void Logger::log() {
@@ -54,33 +71,40 @@ void Logger::log() {
     DriveBusData driveData = Resources::instance().driveBus.getData();
     DataBusData dataData = Resources::instance().dataBus.getData();
 
-    std::string line = "";
-
-    line = line + std::to_string(hour()) + "," + std::to_string(minute()) + "," + std::to_string(second()) + ",";
+    _lineBuffer.reset();
+    // write the time
+    _lineBuffer.write(hour());
+    _lineBuffer.write(minute());
+    _lineBuffer.write(second());
 
     for (const auto& wheel : driveData.wheelSpeeds) {
-        line = line + std::to_string(wheel) + ",";
+        _lineBuffer.write(wheel);
     }
 
-    line = line + std::to_string(driveData.driveState) + "," + std::to_string(driveData.HVVoltage) + "," + std::to_string(driveData.LVVoltage) + "," + std::to_string(driveData.batteryTemp);
+    _lineBuffer.write(driveData.driveState);
+    _lineBuffer.write(driveData.HVVoltage);
+    _lineBuffer.write(driveData.LVVoltage);
+    _lineBuffer.write(driveData.batteryTemp);
+    _lineBuffer.write(driveData.maxCellTemp);
+    _lineBuffer.write(driveData.minCellTemp);
+    _lineBuffer.write(driveData.maxCellVoltage);
+    _lineBuffer.write(driveData.minCellVoltage);
 
     for (const auto& fault : driveData.bmsFaults) {
-        line = line + "," + std::to_string(fault);
+        _lineBuffer.write(fault);
     }
 
     for (const auto& voltage : dataData.cellVoltages) {
-        line = line + "," + std::to_string(voltage);
+        _lineBuffer.write(voltage);
     }
 
     for (const auto& temp : dataData.cellTemperatures) {
-        line = line + "," + std::to_string(temp);
+        _lineBuffer.write(temp);
     }
 
-    line = line + "\n";
-
-    this->file.write(line.c_str());
+    this->_file.write((const char*)_lineBuffer.buffer.data(), _lineBuffer.size());
 }
 
 void Logger::close() {
-    this->file.close();
+    this->_file.close();
 }

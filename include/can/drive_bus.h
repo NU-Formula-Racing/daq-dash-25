@@ -33,22 +33,23 @@ enum ECUFault {
 
 struct DriveBusData {
     float wheelSpeeds[4];
+
     uint8_t driveState;
+    uint8_t bmsState;
+    uint8_t imdState;
+    uint8_t bmsSOC;
+    uint8_t inverterStatus;
+
     float HVVoltage;
     float LVVoltage;
     float batteryTemp;
-
-    uint8_t bmsState;
-    uint8_t imdState;
     float maxCellTemp;
     float minCellTemp;
     float maxCellVoltage;
     float minCellVoltage;
-    uint8_t bmsSOC;
 
     bool bmsFaults[BMS_FAULT_COUNT];
     bool ecuFaults[ECU_FAULT_COUNT];
-    uint8_t inverterStatus;
 
     bool faultPresent() const {
         return bmsFaults[BMS_FAULT_SUMMARY] || ecuFaults[ECU_FAULT_PRESENT] || inverterStatus != 0 || imdState != 0;
