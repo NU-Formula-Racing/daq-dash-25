@@ -17,7 +17,7 @@ const DriveBusData &Resources::prevDriveBusData() {
     return instance().driveBus.getPrevData();
 }
 
-Resources::Resources() : soundDriver(PIEZO_INPUT) {
+Resources::Resources() : soundDriver(PIEZO_INPUT), dataBus(), driveBus() {
 }
 
 

@@ -62,6 +62,9 @@ struct DriveBusData {
 
 class DriveBus {
    public:
+
+    DriveBus() {}
+
     // returns imuatable reference to _data
     const DriveBusData &getData() const;
     const DriveBusData &getPrevData() const;
@@ -75,7 +78,7 @@ class DriveBus {
    private:
     DriveBusData _data;
     DriveBusData _prevData;
-    TeensyCAN<1> _driveBus;
+    TeensyCAN<3> _driveBus;
     VirtualTimerGroup timer_group{};
 
     // workaround for cyclical dependency

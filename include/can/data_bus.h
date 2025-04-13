@@ -18,6 +18,8 @@ struct DataBusData {
 
 class DataBus {
    public:
+    DataBus() {}
+
     const DataBusData &getData() const;
 
     void initialize();
@@ -332,7 +334,6 @@ class DataBus {
     MakeSignedCANSignal(float, 48, 8, 1, -40) cell_t_78;
     MakeSignedCANSignal(float, 56, 8, 1, -40) cell_t_79;
     CANRXMessage<8> rx_bms_temps_9{_dataBus, 0x170, cell_t_72, cell_t_73, cell_t_74, cell_t_75, cell_t_76, cell_t_77, cell_t_78, cell_t_79};
-
 };
 
 #endif  // __DATA_BUS_H__
