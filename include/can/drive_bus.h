@@ -87,28 +87,28 @@ class DriveBus {
     // all of the CAN message stuff and setup
 
     // Wheel speeds
-    MakeSignedCANSignal(float, 0, 16, 1, 0) fl_wheel_speed_signal;
-    MakeSignedCANSignal(float, 16, 16, 1, 0) fl_wheel_displacement_signal;
-    MakeSignedCANSignal(float, 32, 16, 1, 0) fl_wheel_load_signal;
+    MakeUnsignedCANSignal(float, 0, 16, 1, 0) fl_wheel_speed_signal;
+    MakeUnsignedCANSignal(float, 16, 16, 1, 0) fl_wheel_displacement_signal;
+    MakeUnsignedCANSignal(float, 32, 16, 1, 0) fl_wheel_load_signal;
     CANRXMessage<3> rx_fl_wheel_speed{_driveBus, 0x249, fl_wheel_speed_signal, fl_wheel_displacement_signal, fl_wheel_load_signal};
 
-    MakeSignedCANSignal(float, 0, 16, 1, 0) fr_wheel_speed_signal;
-    MakeSignedCANSignal(float, 16, 16, 1, 0) fr_wheel_displacement_signal;
-    MakeSignedCANSignal(float, 32, 16, 1, 0) fr_wheel_load_signal;
+    MakeUnsignedCANSignal(float, 0, 16, 1, 0) fr_wheel_speed_signal;
+    MakeUnsignedCANSignal(float, 16, 16, 1, 0) fr_wheel_displacement_signal;
+    MakeUnsignedCANSignal(float, 32, 16, 1, 0) fr_wheel_load_signal;
     CANRXMessage<3> rx_fr_wheel_speed{_driveBus, 0x24A, fr_wheel_speed_signal, fr_wheel_displacement_signal, fr_wheel_load_signal};
 
-    MakeSignedCANSignal(float, 0, 16, 1, 0) bl_wheel_speed_signal;
-    MakeSignedCANSignal(float, 16, 16, 1, 0) bl_wheel_displacement_signal;
-    MakeSignedCANSignal(float, 32, 16, 1, 0) bl_wheel_load_signal;
+    MakeUnsignedCANSignal(float, 0, 16, 1, 0) bl_wheel_speed_signal;
+    MakeUnsignedCANSignal(float, 16, 16, 1, 0) bl_wheel_displacement_signal;
+    MakeUnsignedCANSignal(float, 32, 16, 1, 0) bl_wheel_load_signal;
     CANRXMessage<3> rx_bl_wheel_speed{_driveBus, 0x24B, bl_wheel_speed_signal, bl_wheel_displacement_signal, bl_wheel_load_signal};
 
-    MakeSignedCANSignal(float, 0, 16, 1, 0) br_wheel_speed_signal;
-    MakeSignedCANSignal(float, 16, 16, 1, 0) br_wheel_displacement_signal;
-    MakeSignedCANSignal(float, 32, 16, 1, 0) br_wheel_load_signal;
+    MakeUnsignedCANSignal(float, 0, 16, 1, 0) br_wheel_speed_signal;
+    MakeUnsignedCANSignal(float, 16, 16, 1, 0) br_wheel_displacement_signal;
+    MakeUnsignedCANSignal(float, 32, 16, 1, 0) br_wheel_load_signal;
     CANRXMessage<3> rx_br_wheel_speed{_driveBus, 0x24C, br_wheel_speed_signal, br_wheel_displacement_signal, br_wheel_load_signal};
 
     // ECU Stuff
-    MakeSignedCANSignal(uint8_t, 0, 8, 1, 0) drive_state_signal;
+    MakeUnsignedCANSignal(uint8_t, 0, 8, 1, 0) drive_state_signal;
     CANRXMessage<1> rx_drive_state{_driveBus, 0x206,
                                    [this]() {
                                        this->playReadyToDriveSound();
@@ -127,37 +127,37 @@ class DriveBus {
         ecu_implausibility_bppc_imp_signal, ecu_implausibility_brake_invalid_imp_signal, ecu_implausibility_appss_invalid_imp_signal};
 
     // BMS
-    MakeSignedCANSignal(float, 0, 12, 0.1, 0) max_discharge_current_signal;
-    MakeSignedCANSignal(float, 12, 12, 0.1, 0) max_regen_current_signal;
-    MakeSignedCANSignal(float, 24, 16, 0.01, 0) hv_voltage_signal;
-    MakeSignedCANSignal(float, 40, 8, 1, -40) battery_temp_signal;
-    MakeSignedCANSignal(float, 48, 16, 0.01, 0) battery_current_signal;
+    MakeUnsignedCANSignal(float, 0, 12, 0.1, 0) max_discharge_current_signal;
+    MakeUnsignedCANSignal(float, 12, 12, 0.1, 0) max_regen_current_signal;
+    MakeUnsignedCANSignal(float, 24, 16, 0.01, 0) hv_voltage_signal;
+    MakeUnsignedCANSignal(float, 40, 8, 1, -40) battery_temp_signal;
+    MakeUnsignedCANSignal(float, 48, 16, 0.01, 0) battery_current_signal;
     CANRXMessage<5> rx_hv_battery{_driveBus, 0x150, max_discharge_current_signal, max_regen_current_signal, hv_voltage_signal, battery_temp_signal, battery_current_signal};
 
-    MakeUnsignedCANSignal(uint8_t, 0, 8, 1.0, 0.0) bms_status_bms_state;
-    MakeUnsignedCANSignal(uint8_t, 8, 8, 1.0, 0.0) bms_status_imd_state;
-    MakeSignedCANSignal(float, 16, 8, 1.0, -40.0) bms_status_max_cell_temp;
-    MakeSignedCANSignal(float, 24, 8, 1.0, -40.0) bms_status_min_cell_temp;
-    MakeSignedCANSignal(float, 32, 8, 0.012, 2.0) bms_status_max_cell_voltage;
-    MakeSignedCANSignal(float, 40, 8, 0.012, 2.0) bms_status_min_cell_voltage;
-    MakeSignedCANSignal(float, 48, 8, 0.5, 0.0) bms_status_bms_soc;
+    MakeSignedCANSignal(uint8_t, 0, 8, 1.0, 0.0) bms_status_bms_state;
+    MakeSignedCANSignal(uint8_t, 8, 8, 1.0, 0.0) bms_status_imd_state;
+    MakeUnsignedCANSignal(float, 16, 8, 1.0, -40.0) bms_status_max_cell_temp;
+    MakeUnsignedCANSignal(float, 24, 8, 1.0, -40.0) bms_status_min_cell_temp;
+    MakeUnsignedCANSignal(float, 32, 8, 0.012, 2.0) bms_status_max_cell_voltage;
+    MakeUnsignedCANSignal(float, 40, 8, 0.012, 2.0) bms_status_min_cell_voltage;
+    MakeUnsignedCANSignal(float, 48, 8, 0.5, 0.0) bms_status_bms_soc;
 
     CANRXMessage<7> rx_bms_status{_driveBus, 0x152, bms_status_bms_state, bms_status_imd_state, bms_status_max_cell_temp, bms_status_min_cell_temp, bms_status_max_cell_voltage, bms_status_min_cell_voltage, bms_status_bms_soc};
 
-    MakeSignedCANSignal(bool, 0, 1, 1, 0) bms_fault_summary_signal;
-    MakeSignedCANSignal(bool, 1, 1, 1, 0) bms_fault_under_voltage_signal;
-    MakeSignedCANSignal(bool, 2, 1, 1, 0) bms_fault_over_voltage_signal;
-    MakeSignedCANSignal(bool, 3, 1, 1, 0) bms_fault_under_temperature_signal;
-    MakeSignedCANSignal(bool, 4, 1, 1, 0) bms_fault_over_temperature_signal;
-    MakeSignedCANSignal(bool, 5, 1, 1, 0) bms_fault_over_current_signal;
-    MakeSignedCANSignal(bool, 6, 1, 1, 0) bms_fault_external_kill_signal;
-    MakeSignedCANSignal(bool, 7, 1, 1, 0) bms_fault_open_wire_signal;
+    MakeUnsignedCANSignal(bool, 0, 1, 1, 0) bms_fault_summary_signal;
+    MakeUnsignedCANSignal(bool, 1, 1, 1, 0) bms_fault_under_voltage_signal;
+    MakeUnsignedCANSignal(bool, 2, 1, 1, 0) bms_fault_over_voltage_signal;
+    MakeUnsignedCANSignal(bool, 3, 1, 1, 0) bms_fault_under_temperature_signal;
+    MakeUnsignedCANSignal(bool, 4, 1, 1, 0) bms_fault_over_temperature_signal;
+    MakeUnsignedCANSignal(bool, 5, 1, 1, 0) bms_fault_over_current_signal;
+    MakeUnsignedCANSignal(bool, 6, 1, 1, 0) bms_fault_external_kill_signal;
+    MakeUnsignedCANSignal(bool, 7, 1, 1, 0) bms_fault_open_wire_signal;
     CANRXMessage<8> rx_bms_faults{
         _driveBus, 0x151, bms_fault_summary_signal, bms_fault_under_voltage_signal, bms_fault_over_voltage_signal, bms_fault_under_temperature_signal, bms_fault_over_temperature_signal, bms_fault_over_current_signal, bms_fault_external_kill_signal, bms_fault_open_wire_signal};
 
     // PDM
-    MakeSignedCANSignal(float, 0, 16, 1.141643059, 0) lv_voltage_signal;
-    MakeSignedCANSignal(bool, 16, 8, 1, 0) lv_voltage_warning_signal;
+    MakeUnsignedCANSignal(float, 0, 16, 1.141643059, 0) lv_voltage_signal;
+    MakeUnsignedCANSignal(bool, 16, 8, 1, 0) lv_voltage_warning_signal;
     CANRXMessage<2> rx_lv_voltage{_driveBus, 0x291, lv_voltage_signal, lv_voltage_warning_signal};
 
     // inverter stuff

@@ -300,7 +300,7 @@ void ErrorScreen::update(Adafruit_RA8875 tft, bool force) {
     int totalHeight = lineHeight * static_cast<int>(wrappedLines.size());
     int clearY = SCREEN_HEIGHT / 2 - totalHeight / 2;
     // Clear the area by filling it with the error background color.
-    tft.fillRect(0, clearY, SCREEN_WIDTH, 300, INDIAN_RED);
+    tft.fillRect(0, clearY, SCREEN_WIDTH - 240, 300, INDIAN_RED);
 
     // --- Draw each wrapped error message line ---
     for (size_t i = 0; i < wrappedLines.size(); i++) {
