@@ -13,6 +13,9 @@ const DriveBusData& DriveBus::getPrevData() const {
 void DriveBus::initialize() {
     _driveBus.Initialize(ICAN::BaudRate::kBaud500K);
 
+    _data = {0};
+    _prevData = {0};
+
     _driveBus.RegisterRXMessage(rx_fl_wheel_speed);
     _driveBus.RegisterRXMessage(rx_fr_wheel_speed);
     _driveBus.RegisterRXMessage(rx_bl_wheel_speed);
@@ -102,20 +105,20 @@ void DriveBus::update() {
 
     this->_data.inverterStatus = inverter_fault_status_fault_code_signal;
 
-    this->_data.bmsFaults[BMS_FAULT_SUMMARY] = bms_fault_summary_signal;
-    this->_data.bmsFaults[BMS_FAULT_UNDER_VOLTAGE] = bms_fault_under_voltage_signal;
-    this->_data.bmsFaults[BMS_FAULT_OVER_VOLTAGE] = bms_fault_over_voltage_signal;
-    this->_data.bmsFaults[BMS_FAULT_UNDER_TEMP] = bms_fault_under_temperature_signal;
-    this->_data.bmsFaults[BMS_FAULT_OVER_TEMP] = bms_fault_over_temperature_signal;
-    this->_data.bmsFaults[BMS_FAULT_OVER_CURRENT] = bms_fault_over_current_signal;
-    this->_data.bmsFaults[BMS_FAULT_EXTERNAL_KILL] = bms_fault_external_kill_signal;
-    this->_data.bmsFaults[BMS_FAULT_OPEN_WIRE] = bms_fault_open_wire_signal;
+    this->_data.bmsFaults[BMS_FAULT_SUMMARY] = static_cast<bool>(bms_fault_summary_signal);
+    this->_data.bmsFaults[BMS_FAULT_UNDER_VOLTAGE] = static_cast<bool>(bms_fault_under_voltage_signal);
+    this->_data.bmsFaults[BMS_FAULT_OVER_VOLTAGE] = static_cast<bool>(bms_fault_over_voltage_signal);
+    this->_data.bmsFaults[BMS_FAULT_UNDER_TEMP] = static_cast<bool>(bms_fault_under_temperature_signal);
+    this->_data.bmsFaults[BMS_FAULT_OVER_TEMP] = static_cast<bool>(bms_fault_over_temperature_signal);
+    this->_data.bmsFaults[BMS_FAULT_OVER_CURRENT] = static_cast<bool>(bms_fault_over_current_signal);
+    this->_data.bmsFaults[BMS_FAULT_EXTERNAL_KILL] = static_cast<bool>(bms_fault_external_kill_signal);
+    this->_data.bmsFaults[BMS_FAULT_OPEN_WIRE] = static_cast<bool>(bms_fault_open_wire_signal);
 
-    this->_data.ecuFaults[ECU_FAULT_PRESENT] = ecu_implausibility_present_signal;
-    this->_data.ecuFaults[ECU_FAULT_APPSS_DISAGREEMENT] = ecu_implausibility_appss_disagreement_imp_signal;
-    this->_data.ecuFaults[ECU_FAULT_BPPC] = ecu_implausibility_bppc_imp_signal;
-    this->_data.ecuFaults[ECU_FAULT_BRAKE_INVALID] = ecu_implausibility_brake_invalid_imp_signal;
-    this->_data.ecuFaults[ECU_FAULT_APPPS_INVALID] = ecu_implausibility_appss_invalid_imp_signal;
+    this->_data.ecuFaults[ECU_FAULT_PRESENT] = static_cast<bool>(ecu_implausibility_present_signal);
+    this->_data.ecuFaults[ECU_FAULT_APPSS_DISAGREEMENT] = static_cast<bool>(ecu_implausibility_appss_disagreement_imp_signal);
+    this->_data.ecuFaults[ECU_FAULT_BPPC] = static_cast<bool>(ecu_implausibility_bppc_imp_signal);
+    this->_data.ecuFaults[ECU_FAULT_BRAKE_INVALID] = static_cast<bool>(ecu_implausibility_brake_invalid_imp_signal);
+    this->_data.ecuFaults[ECU_FAULT_APPPS_INVALID] = static_cast<bool>(ecu_implausibility_appss_invalid_imp_signal);
 
 
 #endif

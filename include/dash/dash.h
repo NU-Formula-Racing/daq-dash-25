@@ -25,4 +25,5 @@ class Dash {
     Adafruit_RA8875 _tft;
     DashScreen _currentScreen;
     std::array<std::shared_ptr<Screen>, DS_NUM_SCREENS> _screens;
+    bool _imdErrored = false;
 };

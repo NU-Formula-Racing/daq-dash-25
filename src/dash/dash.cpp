@@ -69,9 +69,10 @@ void Dash::update() {
         changeScreen(DashScreen::DS_ERROR);
     }
 
-    // pull the pin forthe 
-    bool imdFault = Resources::driveBusData().imdState == 0;
+    // pull the pin for the imd
+    bool imdFault = Resources::driveBusData().imdState == 0 || _imdErrored;
     digitalWrite(IMD_INDICATOR, imdFault ? HIGH : LOW);
+    _imdErrored = imdFault;
 
     bool bmsFault = Resources::driveBusData().bmsFaults[BMS_FAULT_SUMMARY];
     digitalWrite(BMS_INDICATOR, bmsFault ? HIGH : LOW);

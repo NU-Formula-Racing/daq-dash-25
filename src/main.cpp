@@ -38,8 +38,8 @@ void setup() {
 }
 
 void loop() {
-    dashboard.update();
     Resources::instance().update();
+    dashboard.update();
     // logging takes wayy too long right now
     // loggingTimer.Tick(millis());
 }
