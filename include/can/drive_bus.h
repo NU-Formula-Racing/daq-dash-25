@@ -52,7 +52,7 @@ struct DriveBusData {
     bool ecuFaults[ECU_FAULT_COUNT];
 
     bool faultPresent() const {
-        return bmsFaults[BMS_FAULT_SUMMARY] || ecuFaults[ECU_FAULT_PRESENT] || inverterStatus != 0 || imdState != 0;
+        return bmsFaults[BMS_FAULT_SUMMARY] || ecuFaults[ECU_FAULT_PRESENT] || inverterStatus != 0 || imdState == 0;
     }
 
     float averageWheelSpeed() const {

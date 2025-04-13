@@ -70,7 +70,7 @@ void Dash::update() {
     }
 
     // pull the pin forthe 
-    bool imdFault = Resources::driveBusData().imdState != 0;
+    bool imdFault = Resources::driveBusData().imdState == 0;
     digitalWrite(IMD_INDICATOR, imdFault ? HIGH : LOW);
 
     bool bmsFault = Resources::driveBusData().bmsFaults[BMS_FAULT_SUMMARY];
