@@ -20,8 +20,8 @@ Logger::Logger() {
         4 * sizeof(float) +    // wheel speeds
         1 * sizeof(uint8_t) +  // drive state, bmsState, imdState, bmsSOC, inverterStatus
         7 * sizeof(float) +    // HVVoltage, LVVoltage, batteryTemp, maxCellTemp, minCellTemp, maxCellVoltage, minCellVoltage
-        BMS_FAULT_COUNT * sizeof(bool) +
-        ECU_FAULT_COUNT * sizeof(bool);
+        BMS_FAULT_COUNT * sizeof(bool) //+
+        // ECU_FAULT_COUNT * sizeof(bool); // NOT USED RIGHT NOW
 
     _lineBuffer = ByteBuffer(timeSize + dataDataSize + driveDataSize);
 }
