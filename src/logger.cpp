@@ -18,8 +18,8 @@ Logger::Logger() {
     size_t dataDataSize = NUM_TEMP_CELLS * sizeof(float) + NUM_VOLT_CELLS * sizeof(float);
     size_t driveDataSize =
         4 * sizeof(float) +    // wheel speeds
-        5 * sizeof(uint8_t) +  // drive state, bmsState, imdState, bmsSOC, inverterStatus
-        8 * sizeof(float) +    // HVVoltage, LVVoltage, batteryTemp, maxCellTemp, minCellTemp, maxCellVoltage, minCellVoltage
+        1 * sizeof(uint8_t) +  // drive state, bmsState, imdState, bmsSOC, inverterStatus
+        7 * sizeof(float) +    // HVVoltage, LVVoltage, batteryTemp, maxCellTemp, minCellTemp, maxCellVoltage, minCellVoltage
         BMS_FAULT_COUNT * sizeof(bool) +
         ECU_FAULT_COUNT * sizeof(bool);
 
