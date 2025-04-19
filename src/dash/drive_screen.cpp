@@ -37,6 +37,8 @@ static const float max_cell_temp_mid_state = 45;
 static const float min_cell_temp_last_state = 15;
 static const float min_cell_temp_mid_state = 11;  // min 8 celsius
 
+static const float wheel_diameter = 16; // inches ** might move later?
+
 #define OUTLINE_COLOR GOLD
 
 static uint16_t getDriveStateColor() {
@@ -99,6 +101,44 @@ static void drawDriveState(Adafruit_RA8875 tft) {
                            .vAlign = ALIGN_MIDDLE,
                        });
 }
+
+
+static void drawMileageCounter(Adafruit_RA8875 tft) {
+    // dont need wheel speed start x y anymore i think
+    uint16_t color = getDriveStateColor();
+
+    Drawer::drawRect(tft, (RectDrawOptions){
+                              .x = SCREEN_WIDTH / 2,
+                              .y = SCREEN_HEIGHT * (7/8),
+                              .width = 50,
+                              .height = 30,
+                              .fill = true,
+                              .strokeThickness = 5,
+                              .strokeColor = OUTLINE_COLOR,
+                              .fillColor = color,
+                              .cornerRadius = 5,
+                              .hAlign = ALIGN_CENTER,
+                              .vAlign = ALIGN_MIDDLE,
+                          });
+
+    // change sizes via if statement
+    
+    float cur_wheel_speed = Resources::driveBusData().averageWheelSpeed();
+    float mileageNum = (cur_wheel_speed * (wheel_diameter * M_PI) * millis()) / 63360; // mileage
+
+    Drawer::drawNum(tft, mileageNum,
+                       (NumberDrawOptions){
+                           .x = SCREEN_WIDTH / 1.1,
+                           .y = SCREEN_HEIGHT / 1.1,
+                           .size = 6,
+                           .color = RA8875_WHITE,
+                           .backgroundColor = color,
+                           .hAlign = ALIGN_CENTER,
+                           .vAlign = ALIGN_MIDDLE,
+                       });
+}
+
+
 
 static void drawWheelSpeed(Adafruit_RA8875 tft) {
     Drawer::drawNum(tft, Resources::driveBusData().averageWheelSpeed(),
@@ -200,6 +240,8 @@ void DriveScreen::draw(Adafruit_RA8875 tft) {
 }
 
 void DriveScreen::update(Adafruit_RA8875 tft, bool force) {
+    if (Resources::driveBusData().averageWheelSpeed() != 0 || force)
+        drawMileageCounter(tft);
     if (Resources::driveBusData().driveState != Resources::prevDriveBusData().driveState || force)
         drawDriveState(tft);
     if (Resources::driveBusData().averageWheelSpeed() != Resources::prevDriveBusData().averageWheelSpeed() || force)
