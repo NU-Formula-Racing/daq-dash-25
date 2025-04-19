@@ -29,6 +29,7 @@ int max_cell_temp_mid_state = 45;
 int min_cell_temp_last_state = 15;
 int min_cell_temp_mid_state = 11;  // min 8 celsius
 
+
 int bar_max_size = 480;
 
 Dash::Dash() : _tft(RA8875_CS, RA8875_RESET), _currentScreen(DashScreen::DS_DRIVE) {
@@ -81,6 +82,11 @@ void Dash::update() {
     // Serial.printf("Updating screen %d\n", (int)_currentScreen);
     _screens[_currentScreen]->update(_tft);
     // Serial.print("Finished!\n");
+
+    // updates time
+    cur_time = millis();
+    deltaT = (cur_time - last_time) / 1000;
+    last_time = cur_time;
 }
 
 void Dash::changeScreen(DashScreen screen) {

@@ -41,8 +41,15 @@ class Logger {
 
     void close();
 
+    // new functions for mileage logging
+    void write_mile_counter(long long deltaT);
+    float read_mile_counter();
+
    private:
     File _file;
+    std::string logger_file_name = "log_" + std::to_string(day()) + "_" + std::to_string(month()) + "_" + std::to_string(year()) + ".csv";
+    std::string milage_file_name ="mileage_counter.txt";
+    File _file_mileage;
     ByteBuffer _lineBuffer;
 };
 

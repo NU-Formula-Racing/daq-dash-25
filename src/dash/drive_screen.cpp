@@ -37,7 +37,6 @@ static const float max_cell_temp_mid_state = 45;
 static const float min_cell_temp_last_state = 15;
 static const float min_cell_temp_mid_state = 11;  // min 8 celsius
 
-static const float wheel_diameter = 16; // inches ** might move later?
 
 #define OUTLINE_COLOR GOLD
 
@@ -123,8 +122,8 @@ static void drawMileageCounter(Adafruit_RA8875 tft) {
 
     // change sizes via if statement
     
-    float cur_wheel_speed = Resources::driveBusData().averageWheelSpeed();
-    float mileageNum = (cur_wheel_speed * (wheel_diameter * M_PI) * millis()) / 63360; // mileage
+    // float cur_wheel_speed = Resources::driveBusData().averageWheelSpeed();
+    // float mileageNum = (cur_wheel_speed * (wheel_diameter * M_PI) * millis()) / 63360; // mileage
 
     Drawer::drawNum(tft, mileageNum,
                        (NumberDrawOptions){

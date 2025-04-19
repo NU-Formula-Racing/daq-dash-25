@@ -39,9 +39,8 @@ void Logger::initialize() {
     // open up the file here
     // log_dd_mm_yy_time ->>> CORRECTION ":" is not supported in filenames so changed all instances with "_"
 
-    std::string filename = "log_" + std::to_string(day()) + "_" + std::to_string(month()) + "_" + std::to_string(year()) + ".csv";
 
-    this->_file = SD.open(filename.c_str(), FILE_WRITE);
+    this->_file = SD.open(logger_file_name.c_str(), FILE_WRITE);
 
     // write the header
     // time, wheelspeed_FL, wheelspeed_fr ....
@@ -108,3 +107,45 @@ void Logger::log() {
 void Logger::close() {
     this->_file.close();
 }
+
+void Logger::write_mile_counter(long long deltaT) {
+    // currently stored mileage in file
+    float prev_mileage = read_mile_counter(); // add this number to current mileage
+
+    close();
+    this->_file_mileage = SD.open(milage_file_name.c_str(), FILE_WRITE);
+    
+    // ****** TBC: write - calculates current mileage
+    // this->_file_mileage.write();
+
+    // close mileage file
+    this->_file_mileage.close();
+    // reopen old logger file
+    this->_file = SD.open(logger_file_name.c_str(), FILE_WRITE);
+}
+
+// returns current mileage
+float Logger::read_mile_counter() {
+    close(); // closes old logger file
+    // open mileage file
+    this->_file_mileage = SD.open(milage_file_name.c_str(), FILE_READ);
+    float cur_mileage;
+    // if empty, read as 0?
+    if (this->_file_mileage && this->_file_mileage.size() == 0) {
+        cur_mileage = 0.0;
+    }
+    else { // else, read
+       this->_file_mileage.seek(0); // Go to the start of the file
+
+        String numberString = this->_file_mileage.readStringUntil('\n'); // or '\r' or any delimiter
+        cur_mileage = numberString.toFloat(); // or .toInt() for integers
+    }
+    // close mileage file
+    this->_file_mileage.close();
+    // reopen old logger file
+    this->_file_mileage = SD.open(milage_file_name.c_str(), FILE_WRITE);
+    // returns current mileage
+    return cur_mileage;
+}
+
+// every two seconds, update mileage counter
