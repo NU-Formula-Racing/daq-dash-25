@@ -105,13 +105,13 @@ static void drawDriveState(Adafruit_RA8875 tft) {
 
 static void drawMileageCounter(Adafruit_RA8875 tft) {
     // dont need wheel speed start x y anymore i think
-    uint16_t color = getDriveStateColor();
+    uint16_t color = NORTHWESTERN_PURPLE;
 
     Drawer::drawRect(tft, (RectDrawOptions){
                               .x = SCREEN_WIDTH / 2,
-                              .y = SCREEN_HEIGHT * (7/8),
-                              .width = 50,
-                              .height = 30,
+                              .y = SCREEN_HEIGHT * 8/9,
+                              .width = 300,
+                              .height = 80,
                               .fill = true,
                               .strokeThickness = 5,
                               .strokeColor = OUTLINE_COLOR,
@@ -128,14 +128,25 @@ static void drawMileageCounter(Adafruit_RA8875 tft) {
 
     Drawer::drawNum(tft, mileageNum,
                        (NumberDrawOptions){
-                           .x = SCREEN_WIDTH / 1.1,
-                           .y = SCREEN_HEIGHT / 1.1,
+                           .x = SCREEN_WIDTH / 2 ,
+                           .y = SCREEN_HEIGHT * 8/9,
                            .size = 6,
                            .color = RA8875_WHITE,
                            .backgroundColor = color,
                            .hAlign = ALIGN_CENTER,
                            .vAlign = ALIGN_MIDDLE,
                        });
+    std::string driveString = "mi";
+    Drawer::drawString(tft, driveString,
+                        (TextDrawOptions){
+                            .x = SCREEN_WIDTH * 2/3 -10,
+                            .y = SCREEN_HEIGHT * 8/9,
+                            .size = 3,
+                            .color = RA8875_WHITE,
+                            .backgroundColor = color,
+                            .hAlign = ALIGN_CENTER,
+                            .vAlign = ALIGN_MIDDLE,
+                        });
 }
 
 

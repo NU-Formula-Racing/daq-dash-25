@@ -63,11 +63,11 @@ void Dash::initalize() {
 
 void Dash::update() {
     // check for errors
-    if (Resources::driveBusData().faultPresent()) {
+    //if (Resources::driveBusData().faultPresent()) {
         // change the screen to an error
-        Serial.printf("Detected error!");
-        changeScreen(DashScreen::DS_ERROR);
-    }
+      //  Serial.printf("Detected error!");
+      //  changeScreen(DashScreen::DS_ERROR);
+    //}
 
     // pull the pin for the imd
     bool imdFault = Resources::driveBusData().imdState == 0 || _imdErrored;
