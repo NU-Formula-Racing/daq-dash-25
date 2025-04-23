@@ -32,6 +32,8 @@ class Resources {
     DataBus dataBus;
     DriveBus driveBus;
     SoundDriver soundDriver;
+    Logger logger;
+    float milageCounter;
 
     // Update both DataBus and DriveBus.
     void update();

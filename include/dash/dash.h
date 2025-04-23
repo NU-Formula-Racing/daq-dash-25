@@ -26,4 +26,7 @@ class Dash {
     DashScreen _currentScreen;
     std::array<std::shared_ptr<Screen>, DS_NUM_SCREENS> _screens;
     bool _imdErrored = false;
+
+    long long _deltaTime;
+    long long _lastTime;
 };

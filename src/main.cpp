@@ -9,14 +9,13 @@
 #include "sound.h"
 
 Dash dashboard;
-Logger logger;
 
 Song song{312 * 3, goU};
 
 VirtualTimerGroup loggingTimer;
 
 void logData() {
-    // logger.log();
+    Resources::instance().logger.log();
 }
 
 void setup() {
@@ -24,8 +23,10 @@ void setup() {
     Serial.begin(9600);
     Serial.println("Starting setup");
 
+    Resources::instance().logger.initialize();
+    Resources::instance().milageCounter = Resources::instance().logger.readMileCounter();
+
     dashboard.initalize();
-    // logger.initialize();
 
     // initialize sound driver
     song.shift(-2);
@@ -50,5 +51,5 @@ void loop() {
     }
 
     // logging takes wayy too long right now
-    // loggingTimer.Tick(millis());
+    loggingTimer.Tick(millis());
 }

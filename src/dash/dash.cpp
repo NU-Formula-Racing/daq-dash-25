@@ -60,6 +60,8 @@ void Dash::initalize() {
 
     _screens[_currentScreen]->draw(_tft);
     _screens[_currentScreen]->update(_tft, true);
+
+    _lastTime = 0;
 }
 
 void Dash::update() {
@@ -82,12 +84,13 @@ void Dash::update() {
     // update the current screen
     // Serial.printf("Updating screen %d\n", (int)_currentScreen);
     _screens[_currentScreen]->update(_tft);
-    // Serial.print("Finished!\n");
-
-    // // updates time
-    // cur_time = millis();
-    // deltaT = (cur_time - last_time) / 1000;
-    // last_time = cur_time;
+    // Serial.print("Finished!\n");\
+    
+    long long now = millis();
+    _deltaTime = now - _lastTime;
+    float dSeconds = (float)_deltaTime / 1000;
+    float rotDistanceInches = (Resources::driveBusData().averageWheelSpeed() * dSeconds) / WHEEL_DIAMETER;
+    Resources::instance().milageCounter += rotDistanceInches / (12 * 5280);
 }
 
 void Dash::changeScreen(DashScreen screen) {

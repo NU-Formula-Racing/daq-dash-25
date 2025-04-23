@@ -51,6 +51,8 @@ class Logger {
     std::string milageFileName ="mileage_counter.txt";
     File milageFile;
     ByteBuffer _lineBuffer;
+    bool _loggerGood = false;
+
 };
 
 #endif  // __LOGGER_H__
