@@ -1,43 +1,54 @@
 #include <Arduino.h>
-#include <dash.h>
-#include <pins_arduino.h>
 
 #include <iostream>
 
-#include "Adafruit_GFX.h"
-#include "Adafruit_RA8875.h"
+#include "dash/dash.h"
 #include "define.h"
+#include "resources.h"
+#include "songs.h"
+#include "sound.h"
 
-Adafruit_RA8875 tft = Adafruit_RA8875(RA8875_CS, RA8875_RESET);
 Dash dashboard;
+Logger logger;
 
+Song song{312 * 2, goU};
+
+VirtualTimerGroup loggingTimer;
+
+void logData() {
+    // logger.log();
+}
 
 void setup() {
     // initialize serial communication, when done, turn internal LED off
     Serial.begin(9600);
-
     Serial.println("Starting setup");
-    // RA8875 Setup
-    Serial.println("RA8875 start");
 
-    int numAttempts = 0;
-    while (!tft.begin(RA8875_800x480)) {
-        numAttempts++;
-        Serial.printf("Attempt %d to initialize RA8875 failed\n", numAttempts);
-        delay(500);
-    }
+    dashboard.initalize();
+    logger.initialize();
 
-    Serial.println("Found RA8875");
+    // initialize sound driver
+    song.shift(-2);
+    Resources::instance().soundDriver.initialize();
+    Resources::instance().soundDriver.setSong(song);
+    // Resources::instance().soundDriver.playSong();
 
-    tft.displayOn(true);
-    tft.GPIOX(true);                               // Enable TFT - display enable tied to GPIOX
-    tft.PWM1config(true, RA8875_PWM_CLK_DIV1024);  // PWM output for backlight
-    tft.PWM1out(255);
-    dashboard.Initialize();
-    dashboard.DrawBackground(tft);
+    Resources::instance().dataBus.initialize();
+    Resources::instance().driveBus.initialize();
+
+    // loggingTimer.AddTimer(1000, logData);
 }
 
 void loop() {
-    dashboard.GetCAN();
-    dashboard.UpdateDisplay(tft);
+    Resources::instance().update();
+    dashboard.update();
+
+    // kind of a work around for the sound driver, cause it is not async
+    if (Resources::instance().soundDriver.getState() == SoundDriverState::S_PLAYING) {
+        // keep progressing the song
+        Resources::instance().soundDriver.playSong();
+    }
+
+    // logging takes wayy too long right now
+    // loggingTimer.Tick(millis());
 }
