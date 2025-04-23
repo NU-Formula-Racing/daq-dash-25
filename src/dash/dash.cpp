@@ -71,12 +71,13 @@ void Dash::update() {
     }
 
     // pull the pin for the imd
+    // driven by mosfets, the logic is inverted
     bool imdFault = Resources::driveBusData().imdState == 0 || _imdErrored;
-    digitalWrite(IMD_INDICATOR, imdFault ? HIGH : LOW);
+    digitalWrite(IMD_INDICATOR, imdFault ? LOW : HIGH);
     _imdErrored = imdFault;
 
     bool bmsFault = Resources::driveBusData().bmsFaults[BMS_FAULT_SUMMARY];
-    digitalWrite(BMS_INDICATOR, bmsFault ? HIGH : LOW);
+    digitalWrite(BMS_INDICATOR, bmsFault ? LOW : HIGH);
     
     // update the current screen
     // Serial.printf("Updating screen %d\n", (int)_currentScreen);

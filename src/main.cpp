@@ -11,7 +11,7 @@
 Dash dashboard;
 Logger logger;
 
-Song song{312 * 2, goU};
+Song song{312 * 3, goU};
 
 VirtualTimerGroup loggingTimer;
 
@@ -25,7 +25,7 @@ void setup() {
     Serial.println("Starting setup");
 
     dashboard.initalize();
-    logger.initialize();
+    // logger.initialize();
 
     // initialize sound driver
     song.shift(-2);

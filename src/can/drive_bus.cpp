@@ -14,9 +14,6 @@ const DriveBusData& DriveBus::getPrevData() const {
 void DriveBus::initialize() {
     _driveBus.Initialize(ICAN::BaudRate::kBaud500K);
 
-    _data = {0};
-    _prevData = {0};
-
     _driveBus.RegisterRXMessage(rx_fl_wheel_speed);
     _driveBus.RegisterRXMessage(rx_fr_wheel_speed);
     _driveBus.RegisterRXMessage(rx_bl_wheel_speed);
@@ -28,6 +25,9 @@ void DriveBus::initialize() {
     _driveBus.RegisterRXMessage(rx_ecu_implausibility);
     _driveBus.RegisterRXMessage(rx_bms_status);
     _driveBus.RegisterRXMessage(rx_inverter_fault_status);
+
+    // lowkey mad annoying but we gotta pull the imd status to be high
+    bms_status_imd_state = 1; // drake why can't you be normal
 }
 
 // Helper: Generate a random float between min and max.
@@ -140,7 +140,7 @@ void DriveBus::playReadyToDriveSound() {
     if (Resources::driveBusData().driveState == DriveState::DS_OFF ||
         Resources::prevDriveBusData().driveState == DriveState::DS_OFF) {
         // we must be transitioining off -> neutral
-        Serial.println("Playing ready to drive!");
+        // Serial.println("Playing ready to drive!");
         Resources::instance().soundDriver.playSong();
     }
 }

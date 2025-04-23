@@ -12,23 +12,11 @@
 
 // --- IMD Error Lookup ---
 static std::string getIMDErrorMessage() {
-    struct {
-        int code;
-        const char* msg;
-    } imdLUT[] = {
-        {-10, "IMD:Short Circuit"},
-        {-5, "IMD:Loading"},
-        {-25, "IMD:Connection Fault"},
-        {-20, "IMD:Device Error"}};
-    const int count = sizeof(imdLUT) / sizeof(imdLUT[0]);
-    for (int i = 0; i < count; i++) {
-        if (Resources::driveBusData().imdState == imdLUT[i].code) {
-            return std::string(imdLUT[i].msg);
-        }
+    if (Resources::driveBusData().imdState == 0) {
+        return "IMD_ERR";
     }
     return "";
 }
-
 
 static std::string getBMSErrorMessage() {
     static const char* bmsFaultMessages[7] = {
@@ -56,7 +44,6 @@ static std::string getBMSErrorMessage() {
     return result;
 }
 
-
 static std::string getECUErrorMessage() {
     static const char* ecuFaultMessages[5] = {
         "IMPLS_PRSNT",
@@ -80,7 +67,6 @@ static std::string getECUErrorMessage() {
     }
     return result;
 }
-
 
 static std::string getInverterErrorMessage() {
     struct InverterFault {
@@ -122,6 +108,7 @@ static std::string getInverterErrorMessage() {
             return std::string(inverterFaultLUT[i].msg);
         }
     }
+
     return "";
 }
 
@@ -260,6 +247,8 @@ void ErrorScreen::update(Adafruit_RA8875 tft, bool force) {
     if (Resources::driveBusData().driveState != Resources::prevDriveBusData().driveState || force) {
         // drawDriveState() is assumed to be defined elsewhere.
         drawDriveState(tft);
+        // drawWheelSpeed() is assumed to be defined elsewhere.
+        drawWheelSpeed(tft);
     }
     if (Resources::driveBusData().averageWheelSpeed() != Resources::prevDriveBusData().averageWheelSpeed() || force) {
         // drawWheelSpeed() is assumed to be defined elsewhere.

@@ -37,7 +37,6 @@ static const float max_cell_temp_mid_state = 45;
 static const float min_cell_temp_last_state = 15;
 static const float min_cell_temp_mid_state = 11;  // min 8 celsius
 
-
 #define OUTLINE_COLOR GOLD
 
 static uint16_t getDriveStateColor() {
@@ -101,14 +100,13 @@ static void drawDriveState(Adafruit_RA8875 tft) {
                        });
 }
 
-
 static void drawMileageCounter(Adafruit_RA8875 tft) {
     // dont need wheel speed start x y anymore i think
     uint16_t color = NORTHWESTERN_PURPLE;
 
     Drawer::drawRect(tft, (RectDrawOptions){
                               .x = SCREEN_WIDTH / 2,
-                              .y = SCREEN_HEIGHT * 8/9,
+                              .y = SCREEN_HEIGHT * 8 / 9,
                               .width = 300,
                               .height = 80,
                               .fill = true,
@@ -121,36 +119,34 @@ static void drawMileageCounter(Adafruit_RA8875 tft) {
                           });
 
     // change sizes via if statement
-    
+
     float curWheelSpeed = Resources::driveBusData().averageWheelSpeed();
     // need to change millis() with some kind of delta time, placed somewhere where it makes sense
     // maybe in Resources??
-    float mileageNum = (curWheelSpeed * (WHEEL_DIAMETER * M_PI) * millis()) / 63360; // mileage
+    float mileageNum = (curWheelSpeed * (WHEEL_DIAMETER * M_PI) * millis()) / 63360;  // mileage
 
     Drawer::drawNum(tft, mileageNum,
-                       (NumberDrawOptions){
-                           .x = SCREEN_WIDTH / 2 ,
-                           .y = SCREEN_HEIGHT * 8/9,
-                           .size = 6,
+                    (NumberDrawOptions){
+                        .x = SCREEN_WIDTH / 2,
+                        .y = SCREEN_HEIGHT * 8 / 9,
+                        .size = 6,
+                        .color = RA8875_WHITE,
+                        .backgroundColor = color,
+                        .hAlign = ALIGN_CENTER,
+                        .vAlign = ALIGN_MIDDLE,
+                    });
+    std::string driveString = "mi";
+    Drawer::drawString(tft, driveString,
+                       (TextDrawOptions){
+                           .x = SCREEN_WIDTH * 2 / 3 - 10,
+                           .y = SCREEN_HEIGHT * 8 / 9,
+                           .size = 3,
                            .color = RA8875_WHITE,
                            .backgroundColor = color,
                            .hAlign = ALIGN_CENTER,
                            .vAlign = ALIGN_MIDDLE,
                        });
-    std::string driveString = "mi";
-    Drawer::drawString(tft, driveString,
-                        (TextDrawOptions){
-                            .x = SCREEN_WIDTH * 2/3 -10,
-                            .y = SCREEN_HEIGHT * 8/9,
-                            .size = 3,
-                            .color = RA8875_WHITE,
-                            .backgroundColor = color,
-                            .hAlign = ALIGN_CENTER,
-                            .vAlign = ALIGN_MIDDLE,
-                        });
 }
-
-
 
 static void drawWheelSpeed(Adafruit_RA8875 tft) {
     Drawer::drawNum(tft, Resources::driveBusData().averageWheelSpeed(),
@@ -254,8 +250,10 @@ void DriveScreen::draw(Adafruit_RA8875 tft) {
 void DriveScreen::update(Adafruit_RA8875 tft, bool force) {
     if (Resources::driveBusData().averageWheelSpeed() != 0 || force)
         drawMileageCounter(tft);
-    if (Resources::driveBusData().driveState != Resources::prevDriveBusData().driveState || force)
+    if (Resources::driveBusData().driveState != Resources::prevDriveBusData().driveState || force) {
         drawDriveState(tft);
+        drawWheelSpeed(tft); // gotta redraw that
+    }
     if (Resources::driveBusData().averageWheelSpeed() != Resources::prevDriveBusData().averageWheelSpeed() || force)
         drawWheelSpeed(tft);
     // Update high-voltage battery status.

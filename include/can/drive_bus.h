@@ -57,6 +57,12 @@ struct DriveBusData {
     bool bmsFaults[BMS_FAULT_COUNT];
     bool ecuFaults[ECU_FAULT_COUNT];
 
+    DriveBusData() {
+        memset(bmsFaults, 0, sizeof(bool) * BMS_FAULT_COUNT);
+        memset(ecuFaults, 0, sizeof(bool) * ECU_FAULT_COUNT);
+        imdState = 1;
+    }
+
     bool faultPresent() const {
         return bmsFaults[BMS_FAULT_SUMMARY] || ecuFaults[ECU_FAULT_PRESENT] || inverterStatus != 0 || imdState == 0;
     }
