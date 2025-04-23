@@ -17,11 +17,11 @@ Logger::Logger() {
     size_t timeSize = 3 * sizeof(int);
     size_t dataDataSize = NUM_TEMP_CELLS * sizeof(float) + NUM_VOLT_CELLS * sizeof(float);
     size_t driveDataSize =
-        4 * sizeof(float) +    // wheel speeds
-        1 * sizeof(uint8_t) +  // drive state, bmsState, imdState, bmsSOC, inverterStatus
-        7 * sizeof(float) +    // HVVoltage, LVVoltage, batteryTemp, maxCellTemp, minCellTemp, maxCellVoltage, minCellVoltage
-        BMS_FAULT_COUNT * sizeof(bool); //+
-        // ECU_FAULT_COUNT * sizeof(bool); // NOT USED RIGHT NOW
+        4 * sizeof(float) +              // wheel speeds
+        1 * sizeof(uint8_t) +            // drive state, bmsState, imdState, bmsSOC, inverterStatus
+        7 * sizeof(float) +              // HVVoltage, LVVoltage, batteryTemp, maxCellTemp, minCellTemp, maxCellVoltage, minCellVoltage
+        BMS_FAULT_COUNT * sizeof(bool);  //+
+    // ECU_FAULT_COUNT * sizeof(bool); // NOT USED RIGHT NOW
 
     _lineBuffer = ByteBuffer(timeSize + dataDataSize + driveDataSize);
 }
@@ -38,9 +38,8 @@ void Logger::initialize() {
 
     // open up the file here
     // log_dd_mm_yy_time ->>> CORRECTION ":" is not supported in filenames so changed all instances with "_"
-
-
-    this->_file = SD.open(logger_file_name.c_str(), FILE_WRITE);
+    this->loggingFileName = "log_" + std::to_string(day()) + "_" + std::to_string(month()) + "_" + std::to_string(year()) + ".csv";
+    this->loggingFile = SD.open(loggingFileName.c_str(), FILE_WRITE);
 
     // write the header
     // time, wheelspeed_FL, wheelspeed_fr ....
@@ -60,7 +59,7 @@ void Logger::initialize() {
 
     header = header + "\n";
 
-    _file.write(header.c_str());
+    loggingFile.write(header.c_str());
 }
 
 void Logger::log() {
@@ -101,51 +100,50 @@ void Logger::log() {
         _lineBuffer.write(temp);
     }
 
-    this->_file.write((const char*)_lineBuffer.buffer.data(), _lineBuffer.size());
+    this->loggingFile.write((const char*)_lineBuffer.buffer.data(), _lineBuffer.size());
 }
 
 void Logger::close() {
-    this->_file.close();
+    this->loggingFile.close();
 }
 
-void Logger::write_mile_counter(long long deltaT) {
+void Logger::writeMileCounter(long long deltaT) {
     // currently stored mileage in file
-    float prev_mileage = read_mile_counter(); // add this number to current mileage
+    float prev_mileage = readMileCounter();  // add this number to current mileage
 
     close();
-    this->_file_mileage = SD.open(milage_file_name.c_str(), FILE_WRITE);
-    
+    this->milageFile = SD.open(milageFileName.c_str(), FILE_WRITE);
+
     // ****** TBC: write - calculates current mileage
     // this->_file_mileage.write();
 
     // close mileage file
-    this->_file_mileage.close();
+    this->milageFile.close();
     // reopen old logger file
-    this->_file = SD.open(logger_file_name.c_str(), FILE_WRITE);
+    this->loggingFile = SD.open(loggingFileName.c_str(), FILE_WRITE);
 }
 
 // returns current mileage
-float Logger::read_mile_counter() {
-    close(); // closes old logger file
+float Logger::readMileCounter() {
+    close();  // closes old logger file
     // open mileage file
-    this->_file_mileage = SD.open(milage_file_name.c_str(), FILE_READ);
-    float cur_mileage;
+    this->milageFile = SD.open(milageFileName.c_str(), FILE_READ);
+    float currentMilage;
     // if empty, read as 0?
-    if (this->_file_mileage && this->_file_mileage.size() == 0) {
-        cur_mileage = 0.0;
-    }
-    else { // else, read
-       this->_file_mileage.seek(0); // Go to the start of the file
+    if (this->milageFile && this->milageFile.size() == 0) {
+        currentMilage = 0.0;
+    } else {                       // else, read
+        this->milageFile.seek(0);  // Go to the start of the file
 
-        String numberString = this->_file_mileage.readStringUntil('\n'); // or '\r' or any delimiter
-        cur_mileage = numberString.toFloat(); // or .toInt() for integers
+        String numberString = this->milageFile.readStringUntil('\n');  // or '\r' or any delimiter
+        currentMilage = numberString.toFloat();                        // or .toInt() for integers
     }
     // close mileage file
-    this->_file_mileage.close();
+    this->milageFile.close();
     // reopen old logger file
-    this->_file_mileage = SD.open(milage_file_name.c_str(), FILE_WRITE);
+    this->milageFile = SD.open(milageFileName.c_str(), FILE_WRITE);
     // returns current mileage
-    return cur_mileage;
+    return currentMilage;
 }
 
 // every two seconds, update mileage counter

@@ -83,10 +83,10 @@ void Dash::update() {
     _screens[_currentScreen]->update(_tft);
     // Serial.print("Finished!\n");
 
-    // updates time
-    cur_time = millis();
-    deltaT = (cur_time - last_time) / 1000;
-    last_time = cur_time;
+    // // updates time
+    // cur_time = millis();
+    // deltaT = (cur_time - last_time) / 1000;
+    // last_time = cur_time;
 }
 
 void Dash::changeScreen(DashScreen screen) {

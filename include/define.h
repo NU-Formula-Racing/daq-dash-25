@@ -27,6 +27,8 @@
 #define DT_ROTARY 0
 #define SW_ROTARY 0
 
+#define WHEEL_DIAMETER 16 // in inches
+
 // #define DRIVE_DEBUG
 
 

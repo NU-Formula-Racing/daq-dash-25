@@ -1,16 +1,17 @@
 #include <Arduino.h>
+
 #include <iostream>
 
-#include "resources.h"
 #include "dash/dash.h"
 #include "define.h"
-#include "sound.h"
+#include "resources.h"
 #include "songs.h"
+#include "sound.h"
 
 Dash dashboard;
 Logger logger;
 
-Song song{312*2, goU};
+Song song{312 * 2, goU};
 
 VirtualTimerGroup loggingTimer;
 
@@ -40,6 +41,13 @@ void setup() {
 void loop() {
     Resources::instance().update();
     dashboard.update();
+
+    // kind of a work around for the sound driver, cause it is not async
+    if (Resources::instance().soundDriver.getState() == SoundDriverState::S_PLAYING) {
+        // keep progressing the song
+        Resources::instance().soundDriver.playSong();
+    }
+
     // logging takes wayy too long right now
     // loggingTimer.Tick(millis());
 }
