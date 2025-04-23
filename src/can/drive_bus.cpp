@@ -1,4 +1,5 @@
 #include "can/drive_bus.h"
+
 #include "define.h"
 #include "resources.h"
 
@@ -44,7 +45,7 @@ void DriveBus::update() {
 #ifdef DRIVE_DEBUG
     // Initialize debug timers if not set
     unsigned long now = millis();
-    
+
     if (this->_debugStartTime == 0) {
         this->_debugStartTime = now;
         this->_debugLastFaultUpdate = now;
@@ -120,10 +121,26 @@ void DriveBus::update() {
     this->_data.ecuFaults[ECU_FAULT_BRAKE_INVALID] = static_cast<bool>(ecu_implausibility_brake_invalid_imp_signal);
     this->_data.ecuFaults[ECU_FAULT_APPPS_INVALID] = static_cast<bool>(ecu_implausibility_appss_invalid_imp_signal);
 
-
 #endif
 }
 
 void DriveBus::playReadyToDriveSound() {
-    Resources::instance().soundDriver.playSong();
+    // check if we are changing into neutral
+
+    uint8_t current = drive_state_signal;
+
+    // are we channging into neutral?
+    if (current != DriveState::DS_NEUTRAL) {
+        return;  // no need to play the sound
+    }
+
+    // we only play the sound if we are transitioning from off to neutral
+    // have to check current and previous, just in case
+    // this is called during an interrupt
+    if (Resources::driveBusData().driveState == DriveState::DS_OFF ||
+        Resources::prevDriveBusData().driveState == DriveState::DS_OFF) {
+        // we must be transitioining off -> neutral
+        Serial.println("Playing ready to drive!");
+        Resources::instance().soundDriver.playSong();
+    }
 }

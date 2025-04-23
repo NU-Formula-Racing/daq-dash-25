@@ -66,7 +66,7 @@ void Dash::update() {
     // check for errors
     if (Resources::driveBusData().faultPresent()) {
         // change the screen to an error
-        Serial.printf("Detected error!");
+        // Serial.printf("Detected error!");
         changeScreen(DashScreen::DS_ERROR);
     }
 
@@ -97,71 +97,3 @@ void Dash::changeScreen(DashScreen screen) {
     _screens[_currentScreen]->draw(_tft);
     _screens[_currentScreen]->update(_tft, true);
 }
-
-// void Dash::DrawState(Adafruit_RA8875 tft, int startX, int startY, int display_value, int squareSize, int midstate, int laststate) {
-//     int curr_state = 0;
-
-//     if (display_value > laststate) {
-//         curr_state = 2;
-//     } else if (display_value > midstate) {
-//         curr_state = 1;
-//     } else {
-//         curr_state = 0;
-//     }
-
-//     int16_t color;
-//     switch (curr_state) {
-//         case 0:
-//             color = FERN_GREEN;
-//             break;
-//         case 1:
-//             color = GOLD;
-//             break;
-//         case 2:
-//             color = INDIAN_RED;
-//             break;
-//     }
-
-//     tft.fillCircle(startX, startY, SCREEN_WIDTH / 10, color);
-//     // DrawString(tft, "IC", startX * 0.8, startY - SCREEN_WIDTH / 9, 5, RA8875_BLACK, color);
-//     // drive_state = curr_accum_state;
-//     int precision = 1;  // Change this to 1, 2, 3... as needed change font size, startX, startY
-
-//     int multiplier = pow(10, precision);                         // e.g., 10 for 1 decimal, 100 for 2, etc.
-//     int float_as_int = (int)(display_value * multiplier + 0.5);  // rounding
-
-//     int digit_spacing = -8;
-//     int char_width = 48;
-
-//     startX -= char_width / 2;
-
-//     // Adjust for centering based on number of digits
-//     int temp = float_as_int;
-//     int digit_count = 0;
-//     while (temp > 0) {
-//         temp /= 10;
-//         digit_count++;
-//     }
-
-//     if (digit_count >= 5) {  // e.g. 999.99
-//         startX += char_width;
-//     } else if (digit_count >= 3) {  // e.g. 10.00
-//         startX += char_width / 2;
-//     }
-
-//     // Draw digits in reverse order (right to left)
-//     int digits_drawn = 0;
-//     while (float_as_int > 0 || digits_drawn <= precision) {
-//         if (digits_drawn == precision) {
-//             // Draw decimal point
-//             tft.drawChar(startX + 35, startY - 20, '.', RA8875_BLACK, color, 6);
-//             startX -= char_width / 2;  // Smaller space for '.'
-//         } else {
-//             int digit = float_as_int % 10;
-//             tft.drawChar(startX + 35, startY - 20, digit + '0', RA8875_BLACK, color, 6);
-//             startX -= char_width + digit_spacing;
-//             float_as_int /= 10;
-//         }
-//         digits_drawn++;
-//     }
-// }

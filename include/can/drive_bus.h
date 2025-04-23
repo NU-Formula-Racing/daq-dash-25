@@ -31,12 +31,18 @@ enum ECUFault {
     ECU_FAULT_COUNT
 };
 
+enum DriveState : uint8_t {
+    DS_OFF = 0,
+    DS_NEUTRAL = 1,
+    DS_ON = 2
+};
+
 struct DriveBusData {
     float wheelSpeeds[4];
 
     uint8_t driveState;
     uint8_t bmsState;
-    uint8_t imdState;
+    uint8_t imdState = 1;  // healthy when high
     uint8_t bmsSOC;
     uint8_t inverterStatus;
 
@@ -56,13 +62,12 @@ struct DriveBusData {
     }
 
     float averageWheelSpeed() const {
-        return (wheelSpeeds[0] + wheelSpeeds[1] + wheelSpeeds[2] + wheelSpeeds[3]) / 4; 
+        return (wheelSpeeds[0] + wheelSpeeds[1] + wheelSpeeds[2] + wheelSpeeds[3]) / 4;
     }
 };
 
 class DriveBus {
    public:
-
     DriveBus() {}
 
     // returns imuatable reference to _data

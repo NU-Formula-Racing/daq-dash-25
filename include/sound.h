@@ -300,7 +300,11 @@ class SoundDriver {
     // Call this method repeatedly (for example, in the Arduino loop())
     // to process scheduled events.
     void playSong() {
-        _state = S_PLAYING;
+        if (_state == S_NOT_PLAYING) {
+            _startTime = millis();
+            _state = S_PLAYING;
+        }
+
 
         uint32_t elapsedTime = millis() - _startTime;
 
