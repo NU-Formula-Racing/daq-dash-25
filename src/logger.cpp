@@ -6,6 +6,12 @@
 
 #include "resources.h"
 
+#include "dash/dash.h"
+
+#include "define.h"
+
+#include <string>
+
 const int chipSelect = BUILTIN_SDCARD;
 
 time_t getTeensy3Time() {
@@ -112,17 +118,31 @@ void Logger::close() {
     this->loggingFile.close();
 }
 
-void Logger::writeMileCounter(long long deltaT) {
+void Logger::writeMileCounter() {
     if (!this->_loggerGood) return;
     // currently stored mileage in file
     float prev_mileage = readMileCounter();  // add this number to current mileage
 
     close();
     this->milageFile = SD.open(milageFileName.c_str(), FILE_WRITE);
+    if (this->milageFile) {
+        this->milageFile.seek(0);            // Move to start of file (optional here)
+        this->milageFile.truncate(0);        // Clears file to 0 bytes
 
-    // ****** TBC: write - calculates current mileage
-    // this->_file_mileage.write();
+        float milage = Resources::instance().milageCounter + prev_mileage;
+        std::string milageStr = std::to_string(milage);
+        this->milageFile.write(milageStr.c_str(), milageStr.length());
+    }
 
+    
+
+    // long long current_time = millis();
+    // deltaT = (current_time - lastT)/1000;
+    // lastT = current_time;
+    // float wheel_speed = Resources::driveBusData().averageWheelSpeed();
+    // float num_rotations = wheel_speed*deltaT;
+    // float distanceTraveledinches = num_rotations * WHEEL_DIAMETER * M_PI;
+    // float distanceTraveledmiles = distanceTraveledinches/63360;
     // close mileage file
     this->milageFile.close();
     // reopen old logger file

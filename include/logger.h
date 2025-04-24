@@ -42,7 +42,7 @@ class Logger {
     void close();
 
     // new functions for mileage logging
-    void writeMileCounter(long long deltaT);
+    void writeMileCounter();//do we need deltaT?
     float readMileCounter();
 
    private:
