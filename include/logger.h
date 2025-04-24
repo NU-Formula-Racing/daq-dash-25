@@ -10,12 +10,12 @@
 class ByteBuffer {
    public:
     ByteBuffer() : buffer(0) {}
-    ByteBuffer(size_t size) : buffer(size) {}
+    ByteBuffer(size_t size) : buffer(size), _size(size) {}
 
     template <typename T>
     void write(T value) {
-        uint8_t *bytes = (uint8_t *)(&value);
-        memcpy((uint8_t *)buffer[_index], bytes, sizeof(T));
+        // Serial.printf("Writing %d bytes!\n", sizeof(T));
+        memcpy(&(buffer[_index]), (void *)(&value), sizeof(T));
         _index += _index;
     }
 
@@ -23,12 +23,13 @@ class ByteBuffer {
         _index = 0;
     }
 
-    size_t size() { return buffer.size(); }
+    size_t size() { return _size; }
 
     std::vector<uint8_t> buffer;
 
    private:
     size_t _index;
+    size_t _size;
 };
 
 class Logger {
@@ -39,8 +40,6 @@ class Logger {
 
     void log();
 
-    void close();
-
     // new functions for mileage logging
     void writeMileCounter(long long deltaT);
     float readMileCounter();
@@ -48,11 +47,10 @@ class Logger {
    private:
     File loggingFile;
     std::string loggingFileName;
-    std::string milageFileName ="mileage_counter.txt";
+    std::string milageFileName = "mileage_counter.txt";
     File milageFile;
     ByteBuffer _lineBuffer;
     bool _loggerGood = false;
-
 };
 
 #endif  // __LOGGER_H__

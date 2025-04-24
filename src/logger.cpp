@@ -2,6 +2,7 @@
 
 #include <TimeLib.h>
 
+#include <memory>
 #include <string>
 
 #include "resources.h"
@@ -17,10 +18,10 @@ Logger::Logger() {
     size_t timeSize = 3 * sizeof(int);
     size_t dataDataSize = NUM_TEMP_CELLS * sizeof(float) + NUM_VOLT_CELLS * sizeof(float);
     size_t driveDataSize =
-        4 * sizeof(float) +              // wheel speeds
-        1 * sizeof(uint8_t) +            // drive state, bmsState, imdState, bmsSOC, inverterStatus
-        7 * sizeof(float) +              // HVVoltage, LVVoltage, batteryTemp, maxCellTemp, minCellTemp, maxCellVoltage, minCellVoltage
-        BMS_FAULT_COUNT * sizeof(bool);  //+
+        4 * sizeof(float) +    // wheel speeds
+        1 * sizeof(uint8_t) +  // drive state, bmsState, imdState, bmsSOC, inverterStatus
+        7 * sizeof(float) +    // HVVoltage, LVVoltage, batteryTemp, maxCellTemp, minCellTemp, maxCellVoltage, minCellVoltage
+        BMS_FAULT_COUNT * sizeof(bool);
     // ECU_FAULT_COUNT * sizeof(bool); // NOT USED RIGHT NOW
 
     _lineBuffer = ByteBuffer(timeSize + dataDataSize + driveDataSize);
@@ -31,44 +32,31 @@ void Logger::initialize() {
     Resources::instance().dataBus.initialize();
     setSyncProvider(getTeensy3Time);
 
+    Serial.println("Initializing Logger!");
+
     if (!SD.begin(chipSelect)) {
         Serial.println("SD initalization failed.");
-        _loggerGood = true;
-    } else {
-        Serial.println("SD card initialized.");
         _loggerGood = false;
         return;
     }
 
+    Serial.println("SD card initialized.");
+    _loggerGood = true;
+
     // open up the file here
     // log_dd_mm_yy_time ->>> CORRECTION ":" is not supported in filenames so changed all instances with "_"
-    this->loggingFileName = "log_" + std::to_string(day()) + "_" + std::to_string(month()) + "_" + std::to_string(year()) + ".csv";
-    this->loggingFile = SD.open(loggingFileName.c_str(), FILE_WRITE);
-
-    // write the header
-    // time, wheelspeed_FL, wheelspeed_fr ....
-
-    // we don't need the header
-    // std::string header =
-    //     "hour,minute,second,wheelspeed_FL,wheelspeed_FR,wheelspeed_BL,wheelspeed_BR,driveState,"
-    //     "HVVoltage,LVVoltage,batteryTemp,maxCellTemp,minCellTemp,maxCellVoltage,minCellVoltage,Fault_Summary,Undervoltage_Fault,Overvoltage_Fault,Undertemperature_Fault,"
-    //     "Overtemperature_Fault,Overcurrent_Fault,External_Kill_Fault,Open_Wire_Fault";
-
-    // for (int i = 0; i < 140; i++) {
-    //     header = header + ",cell_v_" + std::to_string(i);
-    // }
-
-    // for (int j = 0; j < 80; j++) {
-    //     header = header + ",cell_t_" + std::to_string(j);
-    // }
-
-    // header = header + "\n";
-
-    // loggingFile.write(header.c_str());
+    this->loggingFileName = "log_" + std::to_string(day()) + "_" + std::to_string(month()) + "_" + std::to_string(year()) +
+                            std::to_string(hour()) + "_" + std::to_string(minute()) + "_" + std::to_string(second()) + ".bin";
 }
 
 void Logger::log() {
     if (!this->_loggerGood) return;
+
+    this->loggingFile = SD.open(loggingFileName.c_str(), FILE_WRITE);
+
+    this->loggingFile.seek(this->loggingFile.size());
+
+    // Serial.println("Beginning to log!");
 
     DriveBusData driveData = Resources::instance().driveBus.getData();
     DataBusData dataData = Resources::instance().dataBus.getData();
@@ -104,24 +92,18 @@ void Logger::log() {
         _lineBuffer.write(temp);
     }
 
-    this->loggingFile.write((const char*)_lineBuffer.buffer.data(), _lineBuffer.size());
-}
+    // Serial.println("Finished logging!");
+    this->loggingFile.write(_lineBuffer.buffer.data(), _lineBuffer.size());
 
-void Logger::close() {
-    if (!this->_loggerGood) return;
     this->loggingFile.close();
 }
 
 void Logger::writeMileCounter(long long deltaT) {
-    if (!this->_loggerGood) return;
     // currently stored mileage in file
-    float prev_mileage = readMileCounter();  // add this number to current mileage
-
-    close();
     this->milageFile = SD.open(milageFileName.c_str(), FILE_WRITE);
-
-    // ****** TBC: write - calculates current mileage
-    // this->_file_mileage.write();
+    String counter = "";
+    counter.append(Resources::instance().milageCounter);
+    this->milageFile.write(counter.c_str());
 
     // close mileage file
     this->milageFile.close();
@@ -131,26 +113,23 @@ void Logger::writeMileCounter(long long deltaT) {
 
 // returns current mileage
 float Logger::readMileCounter() {
-    if (!this->_loggerGood) return 0;
-    close();  // closes old logger file
     // open mileage file
     this->milageFile = SD.open(milageFileName.c_str(), FILE_READ);
-    float currentMilage;
+    float miles = 0;
     // if empty, read as 0?
     if (this->milageFile && this->milageFile.size() == 0) {
-        currentMilage = 0.0;
-    } else {                       // else, read
-        this->milageFile.seek(0);  // Go to the start of the file
-
+        return 0;
+    } else {                                                           // else, read
+        this->milageFile.seek(0);                                      // Go to the start of the file
         String numberString = this->milageFile.readStringUntil('\n');  // or '\r' or any delimiter
-        currentMilage = numberString.toFloat();                        // or .toInt() for integers
+        miles = numberString.toFloat();                                // or .toInt() for integers
     }
     // close mileage file
     this->milageFile.close();
     // reopen old logger file
     this->milageFile = SD.open(milageFileName.c_str(), FILE_WRITE);
     // returns current mileage
-    return currentMilage;
+    return miles;
 }
 
 // every two seconds, update mileage counter

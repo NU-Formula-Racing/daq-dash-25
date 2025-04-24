@@ -119,13 +119,7 @@ static void drawMileageCounter(Adafruit_RA8875 tft) {
                           });
 
     // change sizes via if statement
-
-    float curWheelSpeed = Resources::driveBusData().averageWheelSpeed();
-    // need to change millis() with some kind of delta time, placed somewhere where it makes sense
-    // maybe in Resources??
-    float mileageNum = (curWheelSpeed * (WHEEL_DIAMETER * M_PI) * millis()) / 63360;  // mileage
-
-    Drawer::drawNum(tft, mileageNum,
+    Drawer::drawNum(tft, Resources::instance().milageCounter,
                     (NumberDrawOptions){
                         .x = SCREEN_WIDTH / 2,
                         .y = SCREEN_HEIGHT * 8 / 9,

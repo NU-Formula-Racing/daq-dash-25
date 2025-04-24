@@ -15,6 +15,7 @@ Song song{312 * 3, goU};
 VirtualTimerGroup loggingTimer;
 
 void logData() {
+    // Serial.println("Logging timer func!");
     Resources::instance().logger.log();
 }
 
@@ -37,19 +38,19 @@ void setup() {
     Resources::instance().dataBus.initialize();
     Resources::instance().driveBus.initialize();
 
-    // loggingTimer.AddTimer(1000, logData);
+    loggingTimer.AddTimer(1000, logData);
 }
 
 void loop() {
     Resources::instance().update();
     dashboard.update();
 
+    // logging takes wayy too long right now
+    loggingTimer.Tick(millis());
+
     // kind of a work around for the sound driver, cause it is not async
     if (Resources::instance().soundDriver.getState() == SoundDriverState::S_PLAYING) {
         // keep progressing the song
         Resources::instance().soundDriver.playSong();
     }
-
-    // logging takes wayy too long right now
-    loggingTimer.Tick(millis());
 }
