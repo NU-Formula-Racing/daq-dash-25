@@ -25,6 +25,7 @@ void DriveBus::initialize() {
     _driveBus.RegisterRXMessage(rx_ecu_implausibility);
     _driveBus.RegisterRXMessage(rx_bms_status);
     _driveBus.RegisterRXMessage(rx_inverter_fault_status);
+    _driveBus.RegisterRXMessage(rx_inverter_motor_status);
 
     // lowkey mad annoying but we gotta pull the imd status to be high
     bms_status_imd_state = 1; // drake why can't you be normal
@@ -88,16 +89,22 @@ void DriveBus::update() {
 
 #else
     // Regular non-debug update: assign all signals as provided.
-    this->_data.wheelSpeeds[0] = fl_wheel_speed_signal;
-    this->_data.wheelSpeeds[1] = fr_wheel_speed_signal;
-    this->_data.wheelSpeeds[2] = bl_wheel_speed_signal;
-    this->_data.wheelSpeeds[3] = br_wheel_speed_signal;
+    // this->_data.wheelSpeeds[0] = fl_wheel_speed_signal;
+    // this->_data.wheelSpeeds[1] = fr_wheel_speed_signal;
+    // this->_data.wheelSpeeds[2] = bl_wheel_speed_signal;
+    // this->_data.wheelSpeeds[3] = br_wheel_speed_signal;
+
+    this->_data.wheelSpeeds[0] = (float)inverter_motor_status_rpm;
+    this->_data.wheelSpeeds[1] = (float)inverter_motor_status_rpm;
+    this->_data.wheelSpeeds[2] = (float)inverter_motor_status_rpm;
+    this->_data.wheelSpeeds[3] = (float)inverter_motor_status_rpm;
 
     this->_data.driveState = drive_state_signal;
     this->_data.HVVoltage = hv_voltage_signal;
     this->_data.LVVoltage = lv_voltage_signal;
     this->_data.bmsState = bms_status_bms_state;
-    this->_data.imdState = bms_status_imd_state;
+    if (this->_data.imdState == 0) // latch this
+        this->_data.imdState = bms_status_imd_state;
     this->_data.maxCellTemp = bms_status_max_cell_temp;
     this->_data.minCellTemp = bms_status_min_cell_temp;
     this->_data.maxCellVoltage = bms_status_max_cell_voltage;
@@ -120,6 +127,8 @@ void DriveBus::update() {
     this->_data.ecuFaults[ECU_FAULT_BPPC] = static_cast<bool>(ecu_implausibility_bppc_imp_signal);
     this->_data.ecuFaults[ECU_FAULT_BRAKE_INVALID] = static_cast<bool>(ecu_implausibility_brake_invalid_imp_signal);
     this->_data.ecuFaults[ECU_FAULT_APPPS_INVALID] = static_cast<bool>(ecu_implausibility_appss_invalid_imp_signal);
+
+    this->_data.LVVoltage = static_cast<float>(lv_voltage_signal);
 
 #endif
 }

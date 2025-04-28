@@ -17,6 +17,7 @@ VirtualTimerGroup loggingTimer;
 void logData() {
     // Serial.println("Logging timer func!");
     Resources::instance().logger.log();
+    Resources::instance().logger.writeMileCounter();
 }
 
 void setup() {

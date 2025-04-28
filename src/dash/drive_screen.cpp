@@ -81,7 +81,7 @@ static void drawDriveState(Adafruit_RA8875 tft) {
             driveString = "NEUTRAL";
             break;
         case 2:
-            driveString = "ON";
+            driveString = "DRIVE";
             break;
         default:
             driveString = "ERROR";
@@ -143,11 +143,11 @@ static void drawMileageCounter(Adafruit_RA8875 tft) {
 }
 
 static void drawWheelSpeed(Adafruit_RA8875 tft) {
-    Drawer::drawNum(tft, Resources::driveBusData().averageWheelSpeed(),
+    Drawer::drawNum(tft, (Resources::driveBusData().averageWheelSpeed() / (WHEEL_DIAMETER * 12 * 5280 * 3)), // times 3 cause 3:1 ratio as we are using motor rpm rn
                     (NumberDrawOptions){
                         .x = SCREEN_WIDTH / 2,
                         .y = SCREEN_HEIGHT / 2 - 40,
-                        .size = 10,
+                        .size = 8,
                         .color = RA8875_WHITE,
                         .backgroundColor = getDriveStateColor(),
                         .hAlign = ALIGN_CENTER,
@@ -201,7 +201,7 @@ static void drawCircleStatus(Adafruit_RA8875 tft, float startX, float startY, fl
     NumberDrawOptions numOptions;
     numOptions.x = circleOptions.centerX;
     numOptions.y = circleOptions.centerY;
-    numOptions.size = 6;
+    numOptions.size = 4;
     numOptions.color = RA8875_WHITE;
     numOptions.backgroundColor = fillColor;
     numOptions.precision = 1;
@@ -238,7 +238,7 @@ void DriveScreen::draw(Adafruit_RA8875 tft) {
     Drawer::drawString(tft, "Max Cell", max_cell_temp_startX * 0.9, max_cell_temp_startY - SCREEN_WIDTH / 6 - 10, 3, RA8875_WHITE, color);
     Drawer::drawString(tft, "Temp", max_cell_temp_startX * 0.95, max_cell_temp_startY - SCREEN_WIDTH / 8 - 10, 3, RA8875_WHITE, color);
     Drawer::drawString(tft, "Min Cell", min_cell_temp_startX * 0.9, min_cell_temp_startY - SCREEN_WIDTH / 6 - 10, 3, RA8875_WHITE, color);
-    Drawer::drawString(tft, "Temp", min_cell_temp_startX * 0.95, min_cell_temp_startY - SCREEN_WIDTH / 8 - 10, 3, RA8875_WHITE, color);
+    Drawer::drawString(tft, "Voltage", min_cell_temp_startX * 0.92, min_cell_temp_startY - SCREEN_WIDTH / 8 - 10, 3, RA8875_WHITE, color);
 }
 
 void DriveScreen::update(Adafruit_RA8875 tft, bool force) {
@@ -261,17 +261,17 @@ void DriveScreen::update(Adafruit_RA8875 tft, bool force) {
     }
 
     // Update low-voltage battery status.
-    if (Resources::driveBusData().LVVoltage != Resources::prevDriveBusData().LVVoltage || force) {
-        drawCircleStatus(tft,
-                         lv_bat_volt_startX,
-                         lv_bat_volt_startY,
-                         Resources::driveBusData().LVVoltage,
-                         lv_battery_voltage_mid_state,
-                         lv_battery_voltage_last_state);
-    }
+    // if (Resources::driveBusData().LVVoltage != Resources::prevDriveBusData().LVVoltage || force) {
+    //     drawCircleStatus(tft,
+    //                      lv_bat_volt_startX,
+    //                      lv_bat_volt_startY,
+    //                      Resources::driveBusData().LVVoltage,
+    //                      lv_battery_voltage_mid_state,
+    //                      lv_battery_voltage_last_state);
+    // }
 
     // Update maximum cell temperature display.
-    if (Resources::driveBusData().maxCellTemp != Resources::prevDriveBusData().maxCellTemp || force) {
+    if (abs(Resources::driveBusData().maxCellTemp - Resources::prevDriveBusData().maxCellTemp) > 0.5 || force) {
         drawCircleStatus(tft,
                          max_cell_temp_startX,
                          max_cell_temp_startY,
@@ -280,13 +280,13 @@ void DriveScreen::update(Adafruit_RA8875 tft, bool force) {
                          max_cell_temp_last_state);
     }
 
-    // Update minimum cell temperature display.
-    if (Resources::driveBusData().minCellTemp != Resources::prevDriveBusData().minCellTemp || force) {
-        drawCircleStatus(tft,
-                         min_cell_temp_startX,
-                         min_cell_temp_startY,
-                         Resources::driveBusData().minCellTemp,
-                         min_cell_temp_mid_state,
-                         min_cell_temp_last_state);
-    }
+    // // Update minimum cell temperature display.
+    // if (abs(Resources::driveBusData().minCellTemp - Resources::prevDriveBusData().minCellVoltage) > 0.5 || force) {
+    //     drawCircleStatus(tft,
+    //                      min_cell_temp_startX,
+    //                      min_cell_temp_startY,
+    //                      Resources::driveBusData().minCellVoltage,
+    //                      min_cell_temp_mid_state,
+    //                      min_cell_temp_last_state);
+    // }
 }

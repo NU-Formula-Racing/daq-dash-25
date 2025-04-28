@@ -40,7 +40,10 @@ static std::string getBMSErrorMessage() {
 
     if (any) {  // Remove trailing comma
         result.pop_back();
+    } else {
+        return "";
     }
+
     return result;
 }
 
@@ -64,7 +67,10 @@ static std::string getECUErrorMessage() {
 
     if (any) {
         result.pop_back();
+    } else {
+        return "";
     }
+
     return result;
 }
 
@@ -163,7 +169,7 @@ static void drawDriveState(Adafruit_RA8875 tft) {
             driveString = "NEUTRAL";
             break;
         case 2:
-            driveString = "ON";
+            driveString = "DRIVE";
             break;
         default:
             driveString = "ERROR";
@@ -183,7 +189,7 @@ static void drawDriveState(Adafruit_RA8875 tft) {
 }
 
 static void drawWheelSpeed(Adafruit_RA8875 tft) {
-    Drawer::drawNum(tft, Resources::driveBusData().averageWheelSpeed(),
+    Drawer::drawNum(tft, (Resources::driveBusData().averageWheelSpeed() / (WHEEL_DIAMETER * 12 * 5280 * 3)),  // times 3 cause 3:1 ratio as we are using motor rpm rn
                     (NumberDrawOptions){
                         .x = SCREEN_WIDTH - 100,
                         .y = SCREEN_HEIGHT / 2 - 40,

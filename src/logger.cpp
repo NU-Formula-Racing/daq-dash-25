@@ -98,9 +98,9 @@ void Logger::log() {
     this->loggingFile.close();
 }
 
-void Logger::writeMileCounter(long long deltaT) {
+void Logger::writeMileCounter() {
     // currently stored mileage in file
-    this->milageFile = SD.open(milageFileName.c_str(), FILE_WRITE);
+    this->milageFile = SD.open(milageFileName.c_str(), FILE_WRITE_BEGIN);
     String counter = "";
     counter.append(Resources::instance().milageCounter);
     this->milageFile.write(counter.c_str());
