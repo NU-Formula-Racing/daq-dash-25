@@ -84,7 +84,7 @@ void Dash::update() {
     // update the current screen
     // Serial.printf("Updating screen %d\n", (int)_currentScreen);
     _screens[_currentScreen]->update(_tft);
-    // Serial.print("Finished!\n");\
+    // Serial.print("Finished!\n");
     
     long long now = millis();
     _deltaTime = now - _lastTime;
