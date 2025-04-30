@@ -121,7 +121,7 @@ void Logger::close() {
 void Logger::writeMileCounter() {
     if (!this->_loggerGood) return;
     // currently stored mileage in file
-    float prev_mileage = readMileCounter();  // add this number to current mileage
+    // float prev_mileage = readMileCounter();  // add this number to current mileage
 
     close();
     this->milageFile = SD.open(milageFileName.c_str(), FILE_WRITE);
@@ -129,7 +129,7 @@ void Logger::writeMileCounter() {
         this->milageFile.seek(0);            // Move to start of file (optional here)
         this->milageFile.truncate(0);        // Clears file to 0 bytes
 
-        float milage = Resources::instance().milageCounter + prev_mileage;
+        float milage = Resources::instance().milageCounter; // + prev_mileage;
         std::string milageStr = std::to_string(milage);
         this->milageFile.write(milageStr.c_str(), milageStr.length());
     }
