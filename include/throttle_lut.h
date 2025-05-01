@@ -3,7 +3,6 @@
 #define __THROTTLE_LUT__
 
 #include <map>
-#include "can/drive_bus.h"
 #include "teensy_can.h"
 #include "can/drive_bus.h"
 
@@ -22,9 +21,9 @@ struct ThrottleLut {
 
 class ThrottleCAN {
     public:
-        ThrottleCAN(DriveBus &driveBus) : driveBus(driveBus) {}
+        ThrottleCAN(DriveBus& driveBus) : driveBus(driveBus) {}
     private:
-        DriveBus &driveBus;
+        DriveBus& driveBus;
 
 };
 

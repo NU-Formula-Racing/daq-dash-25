@@ -9,7 +9,6 @@
 #include "define.h"
 #include "sound.h"
 #include "virtualTimer.h"
-#include "throttle_lut.h"
 
 enum BMSFault {
     BMS_FAULT_SUMMARY,
@@ -142,7 +141,7 @@ class DriveBus {
     // ECU LUT Tx Messages - 15 xy pairs + metadata message
     // address space: 0x2B0 - 0x2BF
     MakeUnsignedCANSignal(uint8_t, 0, 8, 1, 0) num_lut_pairs;
-    MakeUnsignedCANSignal(InterpType, 8, 8, 1, 0) interp_type;
+    MakeUnsignedCANSignal(uint8_t, 8, 8, 1, 0) interp_type;
     MakeUnsignedCANSignal(uint8_t, 16, 8, 1, 0) lut_id;
     CANTXMessage<3> tx_ecu_metadata{_driveBus, 0x2B0, 3, 100, timer_group, num_lut_pairs, interp_type, lut_id};
 

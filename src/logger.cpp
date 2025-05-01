@@ -143,11 +143,11 @@ ThrottleLut Logger::readThrottleLUT() {
         this->lutFile = SD.open(lutFileName.c_str(), FILE_READ);
 
         // parse file and populate struct fields
-        String num_pairs_string = this->lutFile.readStringUntil('/n');
+        String num_pairs_string = this->lutFile.readStringUntil('\n');
         throttle_lut.num_pairs = num_pairs_string.toInt();
-        String interp_type_string = this->lutFile.readStringUntil('/n');
+        String interp_type_string = this->lutFile.readStringUntil('\n');
         throttle_lut.interp_type = static_cast<InterpType>(interp_type_string.toInt());
-        String lut_id_string = this->lutFile.readStringUntil('/n');
+        String lut_id_string = this->lutFile.readStringUntil('\n');
         throttle_lut.lut_id = lut_id_string.toInt();
 
         // parse xy pairs and add them to the map
