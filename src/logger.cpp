@@ -132,4 +132,31 @@ float Logger::readMileCounter() {
     return miles;
 }
 
+throttle_lut_t Logger::readThrottleLUT() {
+    // open LUT file
+    throttle_lut_t throttle_lut;
+    if (SD.exists(lutFileName.c_str())) {
+        throttle_lut.file_present = true;
+        this->lutFile = SD.open(lutFileName.c_str(), FILE_READ);
+        String num_pairs_string = this->lutFile.readStringUntil('/n');
+        throttle_lut.num_pairs = num_pairs_string.toInt();
+        String interp_type_string = this->lutFile.readStringUntil('/n');
+        throttle_lut.interp_type = static_cast<InterpType_t>(interp_type_string.toInt());
+        String lut_id_string = this->lutFile.readStringUntil('/n');
+        throttle_lut.lut_id = lut_id_string.toInt();
+    } else {
+        throttle_lut.file_present = false;
+    }
+    this->lutFile.close();
+    return throttle_lut;
+
+    // example lut file layout
+    // 20 - num_pairs
+    // 0 - interp_type (0: linear, 1: smooth_step)
+    // 000 - lut_id
+    // (0, 0) - paris
+    // (10, 0.4)
+    // ...
+}
+
 // every two seconds, update mileage counter

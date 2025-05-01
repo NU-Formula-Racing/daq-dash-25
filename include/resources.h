@@ -6,6 +6,7 @@
 #include "logger.h"
 #include "songs.h"
 #include "sound.h"
+#include "throttle_lut.h"
 
 class Resources {
    public:
@@ -34,6 +35,7 @@ class Resources {
     SoundDriver soundDriver;
     Logger logger;
     float milageCounter;
+    throttle_lut_t throttle_lut;
 
     // Update both DataBus and DriveBus.
     void update();
