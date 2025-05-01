@@ -9,6 +9,7 @@
 #include "define.h"
 #include "sound.h"
 #include "virtualTimer.h"
+#include "throttle_lut.h"
 
 enum BMSFault {
     BMS_FAULT_SUMMARY,
@@ -137,6 +138,61 @@ class DriveBus {
     CANRXMessage<5> rx_ecu_implausibility{
         _driveBus, 0x204, ecu_implausibility_present_signal, ecu_implausibility_appss_disagreement_imp_signal,
         ecu_implausibility_bppc_imp_signal, ecu_implausibility_brake_invalid_imp_signal, ecu_implausibility_appss_invalid_imp_signal};
+
+    // ECU LUT Tx Messages - 15 xy pairs + metadata message
+    // address space: 0x2B0 - 0x2BF
+    MakeUnsignedCANSignal(uint8_t, 0, 8, 1, 0) num_lut_pairs;
+    MakeUnsignedCANSignal(InterpType, 8, 8, 1, 0) interp_type;
+    MakeUnsignedCANSignal(uint8_t, 16, 8, 1, 0) lut_id;
+    CANTXMessage<3> tx_ecu_metadata{_driveBus, 0x2B0, 3, 100, timer_group, num_lut_pairs, interp_type, lut_id};
+
+    MakeUnsignedCANSignal(int16_t, 0, 16, 1, 0) x_zero;
+    MakeUnsignedCANSignal(float, 16, 16, 1, 0) y_zero;
+    MakeUnsignedCANSignal(int16_t, 32, 16, 1, 0) x_one;
+    MakeUnsignedCANSignal(float, 48, 16, 1, 0) y_one;
+    CANTXMessage<4> tx_ecu_pair_zero_one{_driveBus, 0x2B1, 8, 100, timer_group, x_zero, y_zero, x_one, y_one};
+
+    MakeUnsignedCANSignal(int16_t, 0, 16, 1, 0) x_two;
+    MakeUnsignedCANSignal(float, 16, 16, 1, 0) y_two;
+    MakeUnsignedCANSignal(int16_t, 32, 16, 1, 0) x_three;
+    MakeUnsignedCANSignal(float, 48, 16, 1, 0) y_three;
+    CANTXMessage<4> tx_ecu_pair_two_three{_driveBus, 0x2B2, 8, 100, timer_group, x_two, y_two, x_three, y_three};
+
+    MakeUnsignedCANSignal(int16_t, 0, 16, 1, 0) x_four;
+    MakeUnsignedCANSignal(float, 16, 16, 1, 0) y_four;
+    MakeUnsignedCANSignal(int16_t, 32, 16, 1, 0) x_five;
+    MakeUnsignedCANSignal(float, 48, 16, 1, 0) y_five;
+    CANTXMessage<4> tx_ecu_pair_four_five{_driveBus, 0x2B3, 8, 100, timer_group, x_four, y_four, x_five, y_five};
+
+    MakeUnsignedCANSignal(int16_t, 0, 16, 1, 0) x_six;
+    MakeUnsignedCANSignal(float, 16, 16, 1, 0) y_six;
+    MakeUnsignedCANSignal(int16_t, 32, 16, 1, 0) x_seven;
+    MakeUnsignedCANSignal(float, 48, 16, 1, 0) y_seven;
+    CANTXMessage<4> tx_ecu_pair_six_seven{_driveBus, 0x2B4, 8, 100, timer_group, x_six, y_six, x_seven, y_seven};
+
+    MakeUnsignedCANSignal(int16_t, 0, 16, 1, 0) x_eight;
+    MakeUnsignedCANSignal(float, 16, 16, 1, 0) y_eight;
+    MakeUnsignedCANSignal(int16_t, 32, 16, 1, 0) x_nine;
+    MakeUnsignedCANSignal(float, 48, 16, 1, 0) y_nine;
+    CANTXMessage<4> tx_ecu_pair_eight_nine{_driveBus, 0x2B5, 8, 100, timer_group, x_eight, y_eight, x_nine, y_nine};
+
+    MakeUnsignedCANSignal(int16_t, 0, 16, 1, 0) x_ten;
+    MakeUnsignedCANSignal(float, 16, 16, 1, 0) y_ten;
+    MakeUnsignedCANSignal(int16_t, 32, 16, 1, 0) x_eleven;
+    MakeUnsignedCANSignal(float, 48, 16, 1, 0) y_eleven;
+    CANTXMessage<4> tx_ecu_pair_ten_eleven{_driveBus, 0x2B6, 8, 100, timer_group, x_ten, y_ten, x_eleven, y_eleven};
+
+    MakeUnsignedCANSignal(int16_t, 0, 16, 1, 0) x_twelve;
+    MakeUnsignedCANSignal(float, 16, 16, 1, 0) y_twelve;
+    MakeUnsignedCANSignal(int16_t, 32, 16, 1, 0) x_thirteen;
+    MakeUnsignedCANSignal(float, 48, 16, 1, 0) y_thirteen;
+    CANTXMessage<4> tx_ecu_pair_twelve_thirteen{_driveBus, 0x2B7, 8, 100, timer_group, x_twelve, y_twelve, x_thirteen, y_thirteen};
+
+    MakeUnsignedCANSignal(int16_t, 0, 16, 1, 0) x_fourteen;
+    MakeUnsignedCANSignal(float, 16, 16, 1, 0) y_fourteen;
+    MakeUnsignedCANSignal(int16_t, 32, 16, 1, 0) x_fifteen;
+    MakeUnsignedCANSignal(float, 48, 16, 1, 0) y_fifteen;
+    CANTXMessage<4> tx_ecu_pair_fourteen_fifteen{_driveBus, 0x2B8, 8, 100, timer_group, x_fourteen, y_fourteen, x_fifteen, y_fifteen};
 
     // BMS
     MakeUnsignedCANSignal(float, 0, 12, 0.1, 0) max_discharge_current_signal;

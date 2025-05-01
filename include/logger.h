@@ -51,7 +51,7 @@ public:
     float readMileCounter();
 
     // functions for lut
-    throttle_lut_t readThrottleLUT();
+    ThrottleLut readThrottleLUT();
 
 private:
     File loggingFile;

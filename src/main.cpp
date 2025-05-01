@@ -37,7 +37,7 @@ void setup() {
     // Resources::instance().soundDriver.playSong();
 
     // read lut file from sd card
-    Resources::instance().throttle_lut = Resources::instance().logger.readThrottleLUT();
+    Resources::instance().throttleLUT = Resources::instance().logger.readThrottleLUT();
 
     Resources::instance().dataBus.initialize();
     Resources::instance().driveBus.initialize();

@@ -132,21 +132,39 @@ float Logger::readMileCounter() {
     return miles;
 }
 
-throttle_lut_t Logger::readThrottleLUT() {
-    // open LUT file
-    throttle_lut_t throttle_lut;
+ThrottleLut Logger::readThrottleLUT() {
+    ThrottleLut throttle_lut;
+
+    // if file exists, open it an populate
     if (SD.exists(lutFileName.c_str())) {
         throttle_lut.file_present = true;
+
+        // open lut file
         this->lutFile = SD.open(lutFileName.c_str(), FILE_READ);
+
+        // parse file and populate struct fields
         String num_pairs_string = this->lutFile.readStringUntil('/n');
         throttle_lut.num_pairs = num_pairs_string.toInt();
         String interp_type_string = this->lutFile.readStringUntil('/n');
-        throttle_lut.interp_type = static_cast<InterpType_t>(interp_type_string.toInt());
+        throttle_lut.interp_type = static_cast<InterpType>(interp_type_string.toInt());
         String lut_id_string = this->lutFile.readStringUntil('/n');
         throttle_lut.lut_id = lut_id_string.toInt();
+
+        // parse xy pairs and add them to the map
+        std::map<int16_t, float> lut;
+        for (int i = 0 ; i < throttle_lut.num_pairs ; i++) {
+            String key_string = this->lutFile.readStringUntil(' ');
+            String val_string = this->lutFile.readStringUntil('\n');
+            lut.insert({key_string.toInt(), val_string.toFloat()});
+        }
+        throttle_lut.lut = lut;
+
+    // if file not present, return empty struct with file_present field set to false
     } else {
         throttle_lut.file_present = false;
     }
+
+    // close file and return struct
     this->lutFile.close();
     return throttle_lut;
 
@@ -154,8 +172,8 @@ throttle_lut_t Logger::readThrottleLUT() {
     // 20 - num_pairs
     // 0 - interp_type (0: linear, 1: smooth_step)
     // 000 - lut_id
-    // (0, 0) - paris
-    // (10, 0.4)
+    // 0 0 - pairs
+    // 10 0.4
     // ...
 }
 

@@ -4,18 +4,28 @@
 
 #include <map>
 #include "can/drive_bus.h"
+#include "teensy_can.h"
+#include "can/drive_bus.h"
 
-enum class InterpType_t : uint8_t {
+enum class InterpType : uint8_t {
     Linear = 0,
     SmoothStep = 1
 };
 
-struct throttle_lut_t {
+struct ThrottleLut {
     bool file_present;
     uint8_t num_pairs;
-    InterpType_t interp_type;
+    InterpType interp_type;
     uint8_t lut_id;
     std::map<int16_t, float> lut;
+};
+
+class ThrottleCAN {
+    public:
+        ThrottleCAN(DriveBus &driveBus) : driveBus(driveBus) {}
+    private:
+        DriveBus &driveBus;
+
 };
 
 #endif // __THROTTLE_LUT__
