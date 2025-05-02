@@ -35,7 +35,7 @@ class Resources {
     SoundDriver soundDriver;
     Logger logger;
     float milageCounter;
-    ThrottleLut throttleLUT;
+    ThrottleCAN throttleCAN{driveBus};
 
     // Update both DataBus and DriveBus.
     void update();

@@ -22,6 +22,7 @@ struct ThrottleLut {
 class ThrottleCAN {
     public:
         ThrottleCAN(DriveBus& driveBus) : driveBus(driveBus) {}
+        void initialize(ThrottleLut lut);
     private:
         DriveBus& driveBus;
 

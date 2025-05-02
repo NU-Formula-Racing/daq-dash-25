@@ -5,6 +5,7 @@
 #include <CAN.h>
 
 #include <string>
+#include <map>
 
 #include "define.h"
 #include "sound.h"
@@ -86,6 +87,7 @@ class DriveBus {
 
     // takes all of the can signals, and populates the DriveBusData
     void update();
+    void sendLUTCan(uint8_t numPairs, uint8_t interpType, uint8_t LUTId, std::map<int16_t, float> lut);
 
    private:
     DriveBusData _data;
@@ -138,7 +140,7 @@ class DriveBus {
         _driveBus, 0x204, ecu_implausibility_present_signal, ecu_implausibility_appss_disagreement_imp_signal,
         ecu_implausibility_bppc_imp_signal, ecu_implausibility_brake_invalid_imp_signal, ecu_implausibility_appss_invalid_imp_signal};
 
-    // ECU LUT Tx Messages - 15 xy pairs + metadata message
+    // ECU LUT Tx Messages - 15 messages containing xy pairs + metadata message
     // address space: 0x2B0 - 0x2BF
     MakeUnsignedCANSignal(uint8_t, 0, 8, 1, 0) num_lut_pairs;
     MakeUnsignedCANSignal(uint8_t, 8, 8, 1, 0) interp_type;
@@ -192,6 +194,48 @@ class DriveBus {
     MakeUnsignedCANSignal(int16_t, 32, 16, 1, 0) x_fifteen;
     MakeUnsignedCANSignal(float, 48, 16, 1, 0) y_fifteen;
     CANTXMessage<4> tx_ecu_pair_fourteen_fifteen{_driveBus, 0x2B8, 8, 100, timer_group, x_fourteen, y_fourteen, x_fifteen, y_fifteen};
+
+    MakeUnsignedCANSignal(int16_t, 0, 16, 1, 0) x_sixteen;
+    MakeUnsignedCANSignal(float, 16, 16, 1, 0) y_sixteen;
+    MakeUnsignedCANSignal(int16_t, 32, 16, 1, 0) x_seventeen;
+    MakeUnsignedCANSignal(float, 48, 16, 1, 0) y_seventeen;
+    CANTXMessage<4> tx_ecu_pair_sixteen_seventeen{_driveBus, 0x2B9, 8, 100, timer_group, x_sixteen, y_sixteen, x_seventeen, y_seventeen};
+    
+    MakeUnsignedCANSignal(int16_t, 0, 16, 1, 0) x_eighteen;
+    MakeUnsignedCANSignal(float, 16, 16, 1, 0) y_eighteen;
+    MakeUnsignedCANSignal(int16_t, 32, 16, 1, 0) x_nineteen;
+    MakeUnsignedCANSignal(float, 48, 16, 1, 0) y_nineteen;
+    CANTXMessage<4> tx_ecu_pair_eighteen_nineteen{_driveBus, 0x2BA, 8, 100, timer_group, x_eighteen, y_eighteen, x_nineteen, y_nineteen};
+
+    MakeUnsignedCANSignal(int16_t, 0, 16, 1, 0) x_twenty;
+    MakeUnsignedCANSignal(float, 16, 16, 1, 0) y_twenty;
+    MakeUnsignedCANSignal(int16_t, 32, 16, 1, 0) x_twenty_one;
+    MakeUnsignedCANSignal(float, 48, 16, 1, 0) y_twenty_one;
+    CANTXMessage<4> tx_ecu_pair_twenty_twenty_one{_driveBus, 0x2BB, 8, 100, timer_group, x_twenty, y_twenty, x_twenty_one, y_twenty_one};
+
+    MakeUnsignedCANSignal(int16_t, 0, 16, 1, 0) x_twenty_two;
+    MakeUnsignedCANSignal(float, 16, 16, 1, 0) y_twenty_two;
+    MakeUnsignedCANSignal(int16_t, 32, 16, 1, 0) x_twenty_three;
+    MakeUnsignedCANSignal(float, 48, 16, 1, 0) y_twenty_three;
+    CANTXMessage<4> tx_ecu_pair_twenty_two_twenty_three{_driveBus, 0x2BC, 8, 100, timer_group, x_twenty_two, y_twenty_two, x_twenty_three, y_twenty_three};
+
+    MakeUnsignedCANSignal(int16_t, 0, 16, 1, 0) x_twenty_four;
+    MakeUnsignedCANSignal(float, 16, 16, 1, 0) y_twenty_four;
+    MakeUnsignedCANSignal(int16_t, 32, 16, 1, 0) x_twenty_five;
+    MakeUnsignedCANSignal(float, 48, 16, 1, 0) y_twenty_five;
+    CANTXMessage<4> tx_ecu_pair_twenty_four_twenty_five{_driveBus, 0x2BD, 8, 100, timer_group, x_twenty_four, y_twenty_four, x_twenty_five, y_twenty_five};
+
+    MakeUnsignedCANSignal(int16_t, 0, 16, 1, 0) x_twenty_six;
+    MakeUnsignedCANSignal(float, 16, 16, 1, 0) y_twenty_six;
+    MakeUnsignedCANSignal(int16_t, 32, 16, 1, 0) x_twenty_seven;
+    MakeUnsignedCANSignal(float, 48, 16, 1, 0) y_twenty_seven;
+    CANTXMessage<4> tx_ecu_pair_twenty_six_twenty_seven{_driveBus, 0x2BE, 8, 100, timer_group, x_twenty_six, y_twenty_six, x_twenty_seven, y_twenty_seven};
+
+    MakeUnsignedCANSignal(int16_t, 0, 16, 1, 0) x_twenty_eight;
+    MakeUnsignedCANSignal(float, 16, 16, 1, 0) y_twenty_eight;
+    MakeUnsignedCANSignal(int16_t, 32, 16, 1, 0) x_twenty_nine;
+    MakeUnsignedCANSignal(float, 48, 16, 1, 0) y_twenty_nine;
+    CANTXMessage<4> tx_ecu_pair_twenty_eight_twenty_nine{_driveBus, 0x2BF, 8, 100, timer_group, x_twenty_eight, y_twenty_eight, x_twenty_nine, y_twenty_nine};
 
     // BMS
     MakeUnsignedCANSignal(float, 0, 12, 0.1, 0) max_discharge_current_signal;
