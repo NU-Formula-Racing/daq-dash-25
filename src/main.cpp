@@ -14,6 +14,8 @@ Song song{312 * 3, goU};
 
 VirtualTimerGroup loggingTimer;
 
+long long lastUpdateTime = 0;
+
 void logData() {
     Resources::instance().logger.log();
 }
@@ -41,8 +43,13 @@ void setup() {
 }
 
 void loop() {
-    Resources::instance().update();
-    dashboard.update();
+    long long currentTime = millis();
+
+    if(currentTime - lastUpdateTime >= 50){
+        Resources::instance().update();
+        dashboard.update();
+        lastUpdateTime = currentTime;
+    }
 
     // kind of a work around for the sound driver, cause it is not async
     if (Resources::instance().soundDriver.getState() == SoundDriverState::S_PLAYING) {

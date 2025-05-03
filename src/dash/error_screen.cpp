@@ -7,7 +7,7 @@
 #include "define.h"  // Must define SCREEN_WIDTH, SCREEN_HEIGHT, colors, etc.
 #include "resources.h"
 
-#define OUTLINE_COLOR GOLD
+#define OUTLINE_COLOR KAWAII_BLACK
 #define MAX_CHARS_PER_LINE 30
 
 // --- IMD Error Lookup ---

@@ -36,6 +36,7 @@ static const float max_cell_temp_last_state = 50;       // max 50 celsius
 static const float max_cell_temp_mid_state = 45;
 static const float min_cell_temp_last_state = 15;
 static const float min_cell_temp_mid_state = 11;  // min 8 celsius
+float prev_mileage = 0;
 
 #define OUTLINE_COLOR KAWAII_BLACK
 
@@ -60,7 +61,7 @@ static void drawDriveState(Adafruit_RA8875 tft) {
     Drawer::drawRect(tft, (RectDrawOptions){
                               .x = SCREEN_WIDTH / 2,
                               .y = SCREEN_HEIGHT / 2,
-                              .width = 350,
+                              .width = 400,
                               .height = 250,
                               .fill = true,
                               .strokeThickness = 20,
@@ -248,16 +249,17 @@ void DriveScreen::draw(Adafruit_RA8875 tft) {
 }
 
 void DriveScreen::update(Adafruit_RA8875 tft, bool force) {
-    if (Resources::driveBusData().averageWheelSpeed() != 0 || force)
+    if (abs(Resources::driveBusData().averageWheelSpeed() - prev_mileage) >= 0.1 || force)
         drawMileageCounter(tft);
-    if (Resources::driveBusData().driveState != Resources::prevDriveBusData().driveState || force) {
+        prev_mileage = Resources::driveBusData().averageWheelSpeed();
+    if (abs(Resources::driveBusData().driveState - Resources::prevDriveBusData().driveState) >= 0.1 || force) {
         drawDriveState(tft);
         drawWheelSpeed(tft); // gotta redraw that
     }
-    if (Resources::driveBusData().averageWheelSpeed() != Resources::prevDriveBusData().averageWheelSpeed() || force)
+    if (abs(Resources::driveBusData().averageWheelSpeed() - Resources::prevDriveBusData().averageWheelSpeed()) >= 0.1 || force)
         drawWheelSpeed(tft);
     // Update high-voltage battery status.
-    if (Resources::driveBusData().HVVoltage != Resources::prevDriveBusData().HVVoltage || force) {
+    if (abs(Resources::driveBusData().HVVoltage - Resources::prevDriveBusData().HVVoltage) >= 0.1 || force) {
         drawCircleStatus(tft,
                          hv_bat_volt_startX,
                          hv_bat_volt_startY,
@@ -267,7 +269,7 @@ void DriveScreen::update(Adafruit_RA8875 tft, bool force) {
     }
 
     // Update low-voltage battery status.
-    if (Resources::driveBusData().LVVoltage != Resources::prevDriveBusData().LVVoltage || force) {
+    if (abs(Resources::driveBusData().LVVoltage - Resources::prevDriveBusData().LVVoltage) >= 0.1 || force) {
         drawCircleStatus(tft,
                          lv_bat_volt_startX,
                          lv_bat_volt_startY,
@@ -277,7 +279,7 @@ void DriveScreen::update(Adafruit_RA8875 tft, bool force) {
     }
 
     // Update maximum cell temperature display.
-    if (Resources::driveBusData().maxCellTemp != Resources::prevDriveBusData().maxCellTemp || force) {
+    if (abs(Resources::driveBusData().maxCellTemp - Resources::prevDriveBusData().maxCellTemp) >= 0.1 || force) {
         drawCircleStatus(tft,
                          max_cell_temp_startX,
                          max_cell_temp_startY,
@@ -287,7 +289,7 @@ void DriveScreen::update(Adafruit_RA8875 tft, bool force) {
     }
 
     // Update minimum cell temperature display.
-    if (Resources::driveBusData().minCellTemp != Resources::prevDriveBusData().minCellTemp || force) {
+    if (abs(Resources::driveBusData().minCellTemp - Resources::prevDriveBusData().minCellTemp) >= 0.1 || force) {
         drawCircleStatus(tft,
                          min_cell_temp_startX,
                          min_cell_temp_startY,
