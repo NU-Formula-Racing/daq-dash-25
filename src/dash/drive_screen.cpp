@@ -249,9 +249,9 @@ void DriveScreen::draw(Adafruit_RA8875 tft) {
 }
 
 void DriveScreen::update(Adafruit_RA8875 tft, bool force) {
-    if (abs(Resources::driveBusData().averageWheelSpeed() - prev_mileage) >= 0.1 || force)
+    if (abs(Resources::instance().logger.readMileCounter()-prev_mileage) >= 0.1 || force)
         drawMileageCounter(tft);
-        prev_mileage = Resources::driveBusData().averageWheelSpeed();
+        prev_mileage = Resources::instance().logger.readMileCounter();
     if (abs(Resources::driveBusData().driveState - Resources::prevDriveBusData().driveState) >= 0.1 || force) {
         drawDriveState(tft);
         drawWheelSpeed(tft); // gotta redraw that
