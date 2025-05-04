@@ -64,11 +64,13 @@ struct DriveBusData {
     }
 
     bool faultPresent() const {
-        return bmsFaults[BMS_FAULT_SUMMARY] || ecuFaults[ECU_FAULT_PRESENT] || inverterStatus != 0 || imdState == 0;
+        return bmsFaults[BMS_FAULT_SUMMARY] || ecuFaults[ECU_FAULT_PRESENT] || (inverterStatus != 0 && inverterStatus != 0x02) || imdState == 0;
+        // return bmsFaults[BMS_FAULT_SUMMARY] || ecuFaults[ECU_FAULT_PRESENT] || imdState == 0;
     }
 
     float averageWheelSpeed() const {
-        return (wheelSpeeds[0] + wheelSpeeds[1] + wheelSpeeds[2] + wheelSpeeds[3]) / 4;
+        return std::max({wheelSpeeds[0], wheelSpeeds[1], wheelSpeeds[2], wheelSpeeds[3]});
+        // return (wheelSpeeds[0] + wheelSpeeds[1] + wheelSpeeds[2] + wheelSpeeds[3]) / 4;
     }
 };
 
@@ -167,13 +169,20 @@ class DriveBus {
         _driveBus, 0x151, bms_fault_summary_signal, bms_fault_under_voltage_signal, bms_fault_over_voltage_signal, bms_fault_under_temperature_signal, bms_fault_over_temperature_signal, bms_fault_over_current_signal, bms_fault_external_kill_signal, bms_fault_open_wire_signal};
 
     // PDM
-    MakeUnsignedCANSignal(float, 0, 16, 1.141643059, 0) lv_voltage_signal;
+    MakeUnsignedCANSignal(float, 0, 16, 0.01, 0) lv_voltage_signal;
     MakeUnsignedCANSignal(bool, 16, 8, 1, 0) lv_voltage_warning_signal;
-    CANRXMessage<2> rx_lv_voltage{_driveBus, 0x291, lv_voltage_signal, lv_voltage_warning_signal};
+    CANRXMessage<2> rx_lv_voltage{_driveBus, 0x2A2, lv_voltage_signal, lv_voltage_warning_signal};
 
     // inverter stuff
     MakeUnsignedCANSignal(uint8_t, 0, 8, 1.0, 0.0) inverter_fault_status_fault_code_signal;
-    CANRXMessage<1> rx_inverter_fault_status{_driveBus, 0x280, inverter_fault_status_fault_code_signal};
+    CANRXMessage<1> rx_inverter_fault_status{_driveBus, 0x208, inverter_fault_status_fault_code_signal};
+
+    MakeSignedCANSignal(int16_t, 0, 16, 1.0, 0.0) inverter_motor_status_rpm;
+    MakeSignedCANSignal(int16_t, 16, 16, 0.1, 0.0) inverter_motor_status_motor_current;
+    MakeSignedCANSignal(int16_t, 32, 16, 0.1, 0.0) inverter_motor_status_dc_voltage;
+    MakeSignedCANSignal(int16_t, 48, 16, 0.1, 0.0) inverter_motor_status_dc_current;
+
+    CANRXMessage<4> rx_inverter_motor_status{_driveBus, 0x281, inverter_motor_status_rpm, inverter_motor_status_motor_current, inverter_motor_status_dc_voltage, inverter_motor_status_dc_current};
 
 #ifdef DRIVE_DEBUG
     uint64_t _debugStartTime = 0;

@@ -82,7 +82,7 @@ static void drawDriveState(Adafruit_RA8875 tft) {
             driveString = "NEUTRAL";
             break;
         case 2:
-            driveString = "ON";
+            driveString = "DRIVE";
             break;
         default:
             driveString = "ERROR";
@@ -119,14 +119,7 @@ static void drawMileageCounter(Adafruit_RA8875 tft) {
                               .vAlign = ALIGN_MIDDLE,
                           });
 
-    // change sizes via if statement
-
-
-    // need to change millis() with some kind of delta time, placed somewhere where it makes sense
-    // maybe in Resources??
-    float mileageNum = Resources::instance().logger.readMileCounter();
-
-    Drawer::drawNum(tft, mileageNum,
+    Drawer::drawNum(tft, Resources::instance().milageCounter,
                     (NumberDrawOptions){
                         .x = SCREEN_WIDTH / 2,
                         .y = SCREEN_HEIGHT * 8 / 9,
@@ -219,6 +212,58 @@ static void drawCircleStatus(Adafruit_RA8875 tft, float startX, float startY, fl
     Drawer::drawNum(tft, value, numOptions);
 }
 
+static void drawLoggerStatus(Adafruit_RA8875 tft) {
+    uint16_t color = NORTHWESTERN_PURPLE;
+    Drawer::drawRect(tft, (RectDrawOptions){
+                              .x = SCREEN_WIDTH / 2,
+                              .y = SCREEN_HEIGHT * 1 / 9,
+                              .width = 300,
+                              .height = 80,
+                              .fill = true,
+                              .strokeThickness = 5,
+                              .strokeColor = OUTLINE_COLOR,
+                              .fillColor = color,
+                              .cornerRadius = 5,
+                              .hAlign = ALIGN_CENTER,
+                              .vAlign = ALIGN_MIDDLE,
+                          });
+
+    if (Resources::instance().logger.status() == LoggerStatus::LOGGING) {
+        Drawer::drawString(tft, "LOGGING",
+                           (TextDrawOptions){
+                               .x = SCREEN_WIDTH / 2,
+                               .y = SCREEN_HEIGHT * 1 / 9 - 15,
+                               .size = 4,
+                               .color = RA8875_WHITE,
+                               .backgroundColor = color,
+                               .hAlign = ALIGN_CENTER,
+                               .vAlign = ALIGN_MIDDLE,
+                           });
+
+        Drawer::drawString(tft, Resources::instance().logger.logFileName(),
+                           (TextDrawOptions){
+                               .x = SCREEN_WIDTH / 2,
+                               .y = SCREEN_HEIGHT * 1 / 9 + 15,
+                               .size = 3,
+                               .color = RA8875_WHITE,
+                               .backgroundColor = color,
+                               .hAlign = ALIGN_CENTER,
+                               .vAlign = ALIGN_MIDDLE,
+                           });
+    } else {
+        Drawer::drawString(tft, "NOT LOGGING",
+                           (TextDrawOptions){
+                               .x = SCREEN_WIDTH / 2,
+                               .y = SCREEN_HEIGHT * 1 / 9 + 15,
+                               .size = 3,
+                               .color = RA8875_WHITE,
+                               .backgroundColor = color,
+                               .hAlign = ALIGN_CENTER,
+                               .vAlign = ALIGN_MIDDLE,
+                           });
+    }
+}
+
 void DriveScreen::draw(Adafruit_RA8875 tft) {
     Serial.print("Drawing DriveScreen!");
     tft.fillScreen(BACKGROUND_GRAY);
@@ -254,7 +299,9 @@ void DriveScreen::update(Adafruit_RA8875 tft, bool force) {
         prev_mileage = Resources::instance().logger.readMileCounter();
     if (abs(Resources::driveBusData().driveState - Resources::prevDriveBusData().driveState) >= 0.1 || force) {
         drawDriveState(tft);
-        drawWheelSpeed(tft); // gotta redraw that
+        drawWheelSpeed(tft);  // gotta redraw that
+        // also just draw the logger stuff cause idk where to put it
+        drawLoggerStatus(tft);
     }
     if (abs(Resources::driveBusData().averageWheelSpeed() - Resources::prevDriveBusData().averageWheelSpeed()) >= 0.1 || force)
         drawWheelSpeed(tft);
@@ -287,7 +334,7 @@ void DriveScreen::update(Adafruit_RA8875 tft, bool force) {
                          max_cell_temp_mid_state,
                          max_cell_temp_last_state);
     }
-
+  
     // Update minimum cell temperature display.
     if (abs(Resources::driveBusData().minCellTemp - Resources::prevDriveBusData().minCellTemp) >= 0.1 || force) {
         drawCircleStatus(tft,

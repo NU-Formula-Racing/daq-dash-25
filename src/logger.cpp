@@ -2,6 +2,7 @@
 
 #include <TimeLib.h>
 
+#include <memory>
 #include <string>
 
 #include "resources.h"
@@ -23,10 +24,10 @@ Logger::Logger() {
     size_t timeSize = 3 * sizeof(int);
     size_t dataDataSize = NUM_TEMP_CELLS * sizeof(float) + NUM_VOLT_CELLS * sizeof(float);
     size_t driveDataSize =
-        4 * sizeof(float) +              // wheel speeds
-        1 * sizeof(uint8_t) +            // drive state, bmsState, imdState, bmsSOC, inverterStatus
-        7 * sizeof(float) +              // HVVoltage, LVVoltage, batteryTemp, maxCellTemp, minCellTemp, maxCellVoltage, minCellVoltage
-        BMS_FAULT_COUNT * sizeof(bool);  //+
+        4 * sizeof(float) +    // wheel speeds
+        1 * sizeof(uint8_t) +  // drive state, bmsState, imdState, bmsSOC, inverterStatus
+        7 * sizeof(float) +    // HVVoltage, LVVoltage, batteryTemp, maxCellTemp, minCellTemp, maxCellVoltage, minCellVoltage
+        BMS_FAULT_COUNT * sizeof(bool);
     // ECU_FAULT_COUNT * sizeof(bool); // NOT USED RIGHT NOW
 
     _lineBuffer = ByteBuffer(timeSize + dataDataSize + driveDataSize);
@@ -37,44 +38,40 @@ void Logger::initialize() {
     Resources::instance().dataBus.initialize();
     setSyncProvider(getTeensy3Time);
 
+    Serial.println("Initializing Logger!");
+
     if (!SD.begin(chipSelect)) {
         Serial.println("SD initalization failed.");
-        _loggerGood = true;
-    } else {
-        Serial.println("SD card initialized.");
-        _loggerGood = false;
+        _status = LoggerStatus::LOGGING;
         return;
     }
 
-    // open up the file here
-    // log_dd_mm_yy_time ->>> CORRECTION ":" is not supported in filenames so changed all instances with "_"
-    this->loggingFileName = "log_" + std::to_string(day()) + "_" + std::to_string(month()) + "_" + std::to_string(year()) + ".csv";
-    this->loggingFile = SD.open(loggingFileName.c_str(), FILE_WRITE);
+    Serial.println("SD card initialized.");
+    _status = LoggerStatus::LOGGING;
 
-    // write the header
-    // time, wheelspeed_FL, wheelspeed_fr ....
+    char fname[16];  // "log_" + 3-digits + ".bin" + '\0'
+    uint16_t index = 0;
 
-    // we don't need the header
-    // std::string header =
-    //     "hour,minute,second,wheelspeed_FL,wheelspeed_FR,wheelspeed_BL,wheelspeed_BR,driveState,"
-    //     "HVVoltage,LVVoltage,batteryTemp,maxCellTemp,minCellTemp,maxCellVoltage,minCellVoltage,Fault_Summary,Undervoltage_Fault,Overvoltage_Fault,Undertemperature_Fault,"
-    //     "Overtemperature_Fault,Overcurrent_Fault,External_Kill_Fault,Open_Wire_Fault";
+    do {
+        snprintf(fname, sizeof(fname), "log_%03u.bin", index);
+        ++index;
+    } while (SD.exists(fname) && index < 1000);  // stop at 999 just in case
 
-    // for (int i = 0; i < 140; i++) {
-    //     header = header + ",cell_v_" + std::to_string(i);
-    // }
+    loggingFileName = fname;
+    Serial.print("Next log file: ");
+    Serial.println(loggingFileName.c_str());
 
-    // for (int j = 0; j < 80; j++) {
-    //     header = header + ",cell_t_" + std::to_string(j);
-    // }
-
-    // header = header + "\n";
-
-    // loggingFile.write(header.c_str());
+    _status = LoggerStatus::LOGGING;
 }
 
 void Logger::log() {
-    if (!this->_loggerGood) return;
+    if (_status == LoggerStatus::UNABLE_TO_LOG) return;
+
+    this->loggingFile = SD.open(loggingFileName.c_str(), FILE_WRITE);
+
+    this->loggingFile.seek(this->loggingFile.size());
+
+    // Serial.println("Beginning to log!");
 
     DriveBusData driveData = Resources::instance().driveBus.getData();
     DataBusData dataData = Resources::instance().dataBus.getData();
@@ -110,40 +107,28 @@ void Logger::log() {
         _lineBuffer.write(temp);
     }
 
-    this->loggingFile.write((const char*)_lineBuffer.buffer.data(), _lineBuffer.size());
-}
+    // Serial.println("Finished logging!");
+    this->loggingFile.write(_lineBuffer.buffer.data(), _lineBuffer.size());
 
-void Logger::close() {
-    if (!this->_loggerGood) return;
     this->loggingFile.close();
 }
 
-void Logger::writeMileCounter() {
-    if (!this->_loggerGood) return;
-    // currently stored mileage in file
-    // float prev_mileage = readMileCounter();  // add this number to current mileage
-
-    close();
-    this->milageFile = SD.open(milageFileName.c_str(), FILE_WRITE);
-    if (this->milageFile) {
-        this->milageFile.seek(0);            // Move to start of file (optional here)
-        this->milageFile.truncate(0);        // Clears file to 0 bytes
-
-        float milage = Resources::instance().milageCounter; // + prev_mileage;
-        std::string milageStr = std::to_string(milage);
-        this->milageFile.write(milageStr.c_str(), milageStr.length());
-    }
-
     
+LoggerStatus Logger::status() const {
+    return _status;
+}
 
-    // long long current_time = millis();
-    // deltaT = (current_time - lastT)/1000;
-    // lastT = current_time;
-    // float wheel_speed = Resources::driveBusData().averageWheelSpeed();
-    // float num_rotations = wheel_speed*deltaT;
-    // float distanceTraveledinches = num_rotations * WHEEL_DIAMETER * M_PI;
-    // float distanceTraveledmiles = distanceTraveledinches/63360;
-    // close mileage file
+std::string Logger::logFileName() const {
+    return loggingFileName;
+}
+
+void Logger::writeMileCounter() {
+    if (_status == LoggerStatus::UNABLE_TO_LOG) return;
+
+    this->milageFile = SD.open(milageFileName.c_str(), FILE_WRITE_BEGIN);
+    String counter = "";
+    counter.append(Resources::instance().milageCounter);
+    this->milageFile.write(counter.c_str());
     this->milageFile.close();
     // reopen old logger file
     this->loggingFile = SD.open(loggingFileName.c_str(), FILE_WRITE);
@@ -151,26 +136,25 @@ void Logger::writeMileCounter() {
 
 // returns current mileage
 float Logger::readMileCounter() {
-    if (!this->_loggerGood) return 0;
-    close();  // closes old logger file
+    if (_status == LoggerStatus::UNABLE_TO_LOG) return 0;
+
     // open mileage file
     this->milageFile = SD.open(milageFileName.c_str(), FILE_READ);
-    float currentMilage;
+    float miles = 0;
     // if empty, read as 0?
     if (this->milageFile && this->milageFile.size() == 0) {
-        currentMilage = 0.0;
-    } else {                       // else, read
-        this->milageFile.seek(0);  // Go to the start of the file
-
+        return 0;
+    } else {                                                           // else, read
+        this->milageFile.seek(0);                                      // Go to the start of the file
         String numberString = this->milageFile.readStringUntil('\n');  // or '\r' or any delimiter
-        currentMilage = numberString.toFloat();                        // or .toInt() for integers
+        miles = numberString.toFloat();                                // or .toInt() for integers
     }
     // close mileage file
     this->milageFile.close();
     // reopen old logger file
     this->milageFile = SD.open(milageFileName.c_str(), FILE_WRITE);
     // returns current mileage
-    return currentMilage;
+    return miles;
 }
 
 // every two seconds, update mileage counter
