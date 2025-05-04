@@ -7,6 +7,12 @@
 
 #include "resources.h"
 
+#include "dash/dash.h"
+
+#include "define.h"
+
+#include <string>
+
 const int chipSelect = BUILTIN_SDCARD;
 
 time_t getTeensy3Time() {
@@ -107,6 +113,7 @@ void Logger::log() {
     this->loggingFile.close();
 }
 
+    
 LoggerStatus Logger::status() const {
     return _status;
 }
@@ -122,8 +129,6 @@ void Logger::writeMileCounter() {
     String counter = "";
     counter.append(Resources::instance().milageCounter);
     this->milageFile.write(counter.c_str());
-
-    // close mileage file
     this->milageFile.close();
     // reopen old logger file
     this->loggingFile = SD.open(loggingFileName.c_str(), FILE_WRITE);

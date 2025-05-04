@@ -14,6 +14,8 @@ Song song{312 * 2, goU};
 
 VirtualTimerGroup loggingTimer;
 
+long long lastUpdateTime = 0;
+
 void logData() {
     // Serial.println("Logging timer func!");
     Resources::instance().logger.log();
@@ -44,8 +46,13 @@ void setup() {
 }
 
 void loop() {
-    Resources::instance().update();
-    dashboard.update();
+    long long currentTime = millis();
+
+    if(currentTime - lastUpdateTime >= 50){
+        Resources::instance().update();
+        dashboard.update();
+        lastUpdateTime = currentTime;
+    }
 
     // logging takes wayy too long right now
     loggingTimer.Tick(millis());
