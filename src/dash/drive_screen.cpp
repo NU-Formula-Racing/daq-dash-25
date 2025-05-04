@@ -36,7 +36,6 @@ static const float max_cell_temp_last_state = 50;       // max 50 celsius
 static const float max_cell_temp_mid_state = 45;
 static const float min_cell_temp_last_state = 15;
 static const float min_cell_temp_mid_state = 11;  // min 8 celsius
-float prev_mileage = 0;
 
 #define OUTLINE_COLOR KAWAII_BLACK
 
@@ -294,10 +293,6 @@ void DriveScreen::draw(Adafruit_RA8875 tft) {
 }
 
 void DriveScreen::update(Adafruit_RA8875 tft, bool force) {
-    if (abs(Resources::instance().milageCounter - prev_mileage) >= 0.1 || force) {
-        drawMileageCounter(tft);
-    }
-
     if (abs(Resources::driveBusData().driveState - Resources::prevDriveBusData().driveState) >= 0.1 || force) {
         drawDriveState(tft);
         drawWheelSpeed(tft);  // gotta redraw that
@@ -346,4 +341,8 @@ void DriveScreen::update(Adafruit_RA8875 tft, bool force) {
                          min_cell_temp_mid_state,
                          min_cell_temp_last_state);
     }
+}
+
+void DriveScreen::periodicDraw(Adafruit_RA8875 tft) {
+    drawMileageCounter(tft);
 }

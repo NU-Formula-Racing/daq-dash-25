@@ -60,14 +60,21 @@ void Dash::initalize() {
     _screens[_currentScreen]->update(_tft, true);
 
     _lastTime = 0;
+
+    _timer.AddTimer(1000,
+                    [&]() {
+                        _screens[_currentScreen]->periodicDraw(_tft);
+                    });
 }
 
 void Dash::update() {
+    _timer.Tick(millis());
+
     // check for errors
     if (Resources::driveBusData().faultPresent()) {
         // change the screen to an error
         // Serial.printf("Detected error!");
-        changeScreen(DashScreen::DS_ERROR);
+        // changeScreen(DashScreen::DS_ERROR);
     }
 
     // pull the pin for the imd

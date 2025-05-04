@@ -1,5 +1,6 @@
 #include <Adafruit_GFX.h>
 #include <Adafruit_RA8875.h>
+#include <virtualTimer.h>
 
 #include <map>
 #include <memory>
@@ -26,6 +27,7 @@ class Dash {
     DashScreen _currentScreen;
     std::array<std::shared_ptr<Screen>, DS_NUM_SCREENS> _screens;
     bool _imdErrored = false;
+    VirtualTimerGroup _timer;
 
     long long _deltaTime;
     long long _lastTime;
