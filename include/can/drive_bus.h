@@ -69,7 +69,8 @@ struct DriveBusData {
     }
 
     float averageWheelSpeed() const {
-        return (wheelSpeeds[0] + wheelSpeeds[1] + wheelSpeeds[2] + wheelSpeeds[3]) / 4;
+        return std::max({wheelSpeeds[0], wheelSpeeds[1], wheelSpeeds[2], wheelSpeeds[3]});
+        // return (wheelSpeeds[0] + wheelSpeeds[1] + wheelSpeeds[2] + wheelSpeeds[3]) / 4;
     }
 };
 

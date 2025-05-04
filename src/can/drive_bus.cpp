@@ -89,15 +89,15 @@ void DriveBus::update() {
 
 #else
     // Regular non-debug update: assign all signals as provided.
-    // this->_data.wheelSpeeds[0] = fl_wheel_speed_signal;
-    // this->_data.wheelSpeeds[1] = fr_wheel_speed_signal;
-    // this->_data.wheelSpeeds[2] = bl_wheel_speed_signal;
-    // this->_data.wheelSpeeds[3] = br_wheel_speed_signal;
+    this->_data.wheelSpeeds[0] = fl_wheel_speed_signal;
+    this->_data.wheelSpeeds[1] = fr_wheel_speed_signal;
+    this->_data.wheelSpeeds[2] = bl_wheel_speed_signal;
+    this->_data.wheelSpeeds[3] = br_wheel_speed_signal;
 
-    this->_data.wheelSpeeds[0] = (float)inverter_motor_status_rpm;
-    this->_data.wheelSpeeds[1] = (float)inverter_motor_status_rpm;
-    this->_data.wheelSpeeds[2] = (float)inverter_motor_status_rpm;
-    this->_data.wheelSpeeds[3] = (float)inverter_motor_status_rpm;
+    // this->_data.wheelSpeeds[0] = (float)inverter_motor_status_rpm;
+    // this->_data.wheelSpeeds[1] = (float)inverter_motor_status_rpm;
+    // this->_data.wheelSpeeds[2] = (float)inverter_motor_status_rpm;
+    // this->_data.wheelSpeeds[3] = (float)inverter_motor_status_rpm;
 
     this->_data.driveState = drive_state_signal;
     this->_data.HVVoltage = hv_voltage_signal;

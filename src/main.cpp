@@ -10,7 +10,7 @@
 
 Dash dashboard;
 
-Song song{312 * 3, goU};
+Song song{312 * 2, goU};
 
 VirtualTimerGroup loggingTimer;
 
@@ -25,10 +25,10 @@ void setup() {
     Serial.begin(9600);
     Serial.println("Starting setup");
 
+    dashboard.initalize();
+
     Resources::instance().logger.initialize();
     Resources::instance().milageCounter = Resources::instance().logger.readMileCounter();
-
-    dashboard.initalize();
 
     // initialize sound driver
     song.shift(-2);

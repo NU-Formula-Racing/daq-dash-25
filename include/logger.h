@@ -9,14 +9,14 @@
 
 class ByteBuffer {
    public:
-    ByteBuffer() : buffer(0) {}
+    ByteBuffer() : buffer(0), _index(0) {}
     ByteBuffer(size_t size) : buffer(size), _size(size) {}
 
     template <typename T>
     void write(T value) {
         // Serial.printf("Writing %d bytes!\n", sizeof(T));
         memcpy(&(buffer[_index]), (void *)(&value), sizeof(T));
-        _index += _index;
+        _index += sizeof(T);
     }
 
     void reset() {

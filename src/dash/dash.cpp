@@ -42,8 +42,8 @@ void Dash::initalize() {
     pinMode(IMD_INDICATOR, OUTPUT);
     pinMode(BMS_INDICATOR, OUTPUT);
 
-    digitalWrite(IMD_INDICATOR, LOW);
-    digitalWrite(BMS_INDICATOR, LOW);
+    digitalWrite(IMD_INDICATOR, HIGH);
+    digitalWrite(BMS_INDICATOR, HIGH);
 
     int numAttempts = 0;
     while (!_tft.begin(RA8875_800x480)) {

@@ -143,7 +143,7 @@ static void drawMileageCounter(Adafruit_RA8875 tft) {
 }
 
 static void drawWheelSpeed(Adafruit_RA8875 tft) {
-    Drawer::drawNum(tft, (Resources::driveBusData().averageWheelSpeed() / (WHEEL_DIAMETER * 12 * 5280 * 3)), // times 3 cause 3:1 ratio as we are using motor rpm rn
+    Drawer::drawNum(tft, Resources::driveBusData().averageWheelSpeed(),
                     (NumberDrawOptions){
                         .x = SCREEN_WIDTH / 2,
                         .y = SCREEN_HEIGHT / 2 - 40,
@@ -151,7 +151,8 @@ static void drawWheelSpeed(Adafruit_RA8875 tft) {
                         .color = RA8875_WHITE,
                         .backgroundColor = getDriveStateColor(),
                         .hAlign = ALIGN_CENTER,
-                        .vAlign = ALIGN_MIDDLE});
+                        .vAlign = ALIGN_MIDDLE
+                    });
 }
 
 static void drawCircleStatus(Adafruit_RA8875 tft, float startX, float startY, float value, float lowerBound, float upperBound) {
@@ -246,7 +247,7 @@ void DriveScreen::update(Adafruit_RA8875 tft, bool force) {
         drawMileageCounter(tft);
     if (Resources::driveBusData().driveState != Resources::prevDriveBusData().driveState || force) {
         drawDriveState(tft);
-        drawWheelSpeed(tft); // gotta redraw that
+        drawWheelSpeed(tft);  // gotta redraw that
     }
     if (Resources::driveBusData().averageWheelSpeed() != Resources::prevDriveBusData().averageWheelSpeed() || force)
         drawWheelSpeed(tft);
