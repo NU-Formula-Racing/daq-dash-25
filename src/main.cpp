@@ -24,9 +24,13 @@ void setup() {
     // initialize serial communication, when done, turn internal LED off
     Serial.begin(9600);
     Serial.println("Starting setup");
+    // Serial.println("hello");
 
     Resources::instance().logger.initialize();
     Resources::instance().milageCounter = Resources::instance().logger.readMileCounter();
+
+    // read lut file from sd card
+    Resources::instance().throttleCAN.initialize(Resources::instance().logger.readThrottleLUT());
 
     dashboard.initalize();
 
@@ -35,9 +39,6 @@ void setup() {
     Resources::instance().soundDriver.initialize();
     Resources::instance().soundDriver.setSong(song);
     // Resources::instance().soundDriver.playSong();
-
-    // read lut file from sd card
-    Resources::instance().throttleCAN.initialize(Resources::instance().logger.readThrottleLUT());
 
     Resources::instance().dataBus.initialize();
     Resources::instance().driveBus.initialize();
