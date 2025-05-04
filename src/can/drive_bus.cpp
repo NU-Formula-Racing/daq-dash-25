@@ -116,7 +116,8 @@ void DriveBus::update() {
     this->_data.minCellVoltage = bms_status_min_cell_voltage;
     this->_data.bmsSOC = bms_status_bms_soc;
 
-    this->_data.inverterStatus = inverter_fault_status_fault_code_signal;
+    this->_data.inverterStatus = (static_cast<uint8_t>(inverter_fault_status_fault_code_signal));
+    // this->_data.inverterStatus = 0x03;
 
     this->_data.bmsFaults[BMS_FAULT_SUMMARY] = (static_cast<bool>(bms_fault_summary_signal));
     this->_data.bmsFaults[BMS_FAULT_UNDER_VOLTAGE] = static_cast<bool>(bms_fault_under_voltage_signal);
