@@ -32,6 +32,11 @@ class ByteBuffer {
     size_t _size;
 };
 
+enum LoggerStatus {
+    UNABLE_TO_LOG,
+    LOGGING
+};
+
 class Logger {
    public:
     Logger();
@@ -39,6 +44,10 @@ class Logger {
     void initialize();
 
     void log();
+
+    LoggerStatus status() const;
+
+    std::string logFileName() const;
 
     // new functions for mileage logging
     void writeMileCounter();
@@ -50,7 +59,7 @@ class Logger {
     std::string milageFileName = "mileage_counter.txt";
     File milageFile;
     ByteBuffer _lineBuffer;
-    bool _loggerGood = false;
+    LoggerStatus _status;
 };
 
 #endif  // __LOGGER_H__

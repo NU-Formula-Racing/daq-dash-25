@@ -25,20 +25,21 @@ void setup() {
     Serial.begin(9600);
     Serial.println("Starting setup");
 
-    dashboard.initalize();
-
+    
     Resources::instance().logger.initialize();
     Resources::instance().milageCounter = Resources::instance().logger.readMileCounter();
-
+    
     // initialize sound driver
     song.shift(-2);
     Resources::instance().soundDriver.initialize();
     Resources::instance().soundDriver.setSong(song);
     // Resources::instance().soundDriver.playSong();
-
+    
     Resources::instance().dataBus.initialize();
     Resources::instance().driveBus.initialize();
-
+    
+    dashboard.initalize();
+    
     loggingTimer.AddTimer(1000, logData);
 }
 

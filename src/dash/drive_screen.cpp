@@ -151,8 +151,7 @@ static void drawWheelSpeed(Adafruit_RA8875 tft) {
                         .color = RA8875_WHITE,
                         .backgroundColor = getDriveStateColor(),
                         .hAlign = ALIGN_CENTER,
-                        .vAlign = ALIGN_MIDDLE
-                    });
+                        .vAlign = ALIGN_MIDDLE});
 }
 
 static void drawCircleStatus(Adafruit_RA8875 tft, float startX, float startY, float value, float lowerBound, float upperBound) {
@@ -213,6 +212,58 @@ static void drawCircleStatus(Adafruit_RA8875 tft, float startX, float startY, fl
     Drawer::drawNum(tft, value, numOptions);
 }
 
+static void drawLoggerStatus(Adafruit_RA8875 tft) {
+    uint16_t color = NORTHWESTERN_PURPLE;
+    Drawer::drawRect(tft, (RectDrawOptions){
+                              .x = SCREEN_WIDTH / 2,
+                              .y = SCREEN_HEIGHT * 1 / 9,
+                              .width = 300,
+                              .height = 80,
+                              .fill = true,
+                              .strokeThickness = 5,
+                              .strokeColor = OUTLINE_COLOR,
+                              .fillColor = color,
+                              .cornerRadius = 5,
+                              .hAlign = ALIGN_CENTER,
+                              .vAlign = ALIGN_MIDDLE,
+                          });
+
+    if (Resources::instance().logger.status() == LoggerStatus::LOGGING) {
+        Drawer::drawString(tft, "LOGGING",
+                           (TextDrawOptions){
+                               .x = SCREEN_WIDTH / 2,
+                               .y = SCREEN_HEIGHT * 1 / 9 - 15,
+                               .size = 4,
+                               .color = RA8875_WHITE,
+                               .backgroundColor = color,
+                               .hAlign = ALIGN_CENTER,
+                               .vAlign = ALIGN_MIDDLE,
+                           });
+
+        Drawer::drawString(tft, Resources::instance().logger.logFileName(),
+                           (TextDrawOptions){
+                               .x = SCREEN_WIDTH / 2,
+                               .y = SCREEN_HEIGHT * 1 / 9 + 15,
+                               .size = 3,
+                               .color = RA8875_WHITE,
+                               .backgroundColor = color,
+                               .hAlign = ALIGN_CENTER,
+                               .vAlign = ALIGN_MIDDLE,
+                           });
+    } else {
+        Drawer::drawString(tft, "NOT LOGGING",
+                           (TextDrawOptions){
+                               .x = SCREEN_WIDTH / 2,
+                               .y = SCREEN_HEIGHT * 1 / 9 + 15,
+                               .size = 3,
+                               .color = RA8875_WHITE,
+                               .backgroundColor = color,
+                               .hAlign = ALIGN_CENTER,
+                               .vAlign = ALIGN_MIDDLE,
+                           });
+    }
+}
+
 void DriveScreen::draw(Adafruit_RA8875 tft) {
     Serial.print("Drawing DriveScreen!");
     tft.fillScreen(OFF_BLACK);
@@ -248,6 +299,8 @@ void DriveScreen::update(Adafruit_RA8875 tft, bool force) {
     if (Resources::driveBusData().driveState != Resources::prevDriveBusData().driveState || force) {
         drawDriveState(tft);
         drawWheelSpeed(tft);  // gotta redraw that
+        // also just draw the logger stuff cause idk where to put it
+        drawLoggerStatus(tft);
     }
     if (Resources::driveBusData().averageWheelSpeed() != Resources::prevDriveBusData().averageWheelSpeed() || force)
         drawWheelSpeed(tft);
