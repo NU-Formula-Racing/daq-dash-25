@@ -68,10 +68,12 @@ struct DriveBusData {
         // return bmsFaults[BMS_FAULT_SUMMARY] || ecuFaults[ECU_FAULT_PRESENT] || imdState == 0;
     }
 
-    float averageWheelSpeed() const {
-        return std::max({wheelSpeeds[0], wheelSpeeds[1], wheelSpeeds[2], wheelSpeeds[3]});
-        // return (wheelSpeeds[0] + wheelSpeeds[1] + wheelSpeeds[2] + wheelSpeeds[3]) / 4;
+    float averageWheelRPM() const {
+        // return std::max({wheelSpeeds[0], wheelSpeeds[1], wheelSpeeds[2], wheelSpeeds[3]});
+        return ((wheelSpeeds[0] + wheelSpeeds[1] + wheelSpeeds[2] + wheelSpeeds[3])) / 2; // only by two rn cause only two wheel speeds
     }
+
+    float vehicleSpeedMPH() const;
 };
 
 class DriveBus {

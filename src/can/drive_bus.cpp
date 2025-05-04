@@ -3,6 +3,10 @@
 #include "define.h"
 #include "resources.h"
 
+float DriveBusData::vehicleSpeedMPH() const {
+    return (averageWheelRPM() * M_PI * WHEEL_DIAMETER * 60) / (12 * 5280);
+}
+
 const DriveBusData& DriveBus::getData() const {
     return _data;
 }
@@ -10,6 +14,7 @@ const DriveBusData& DriveBus::getData() const {
 const DriveBusData& DriveBus::getPrevData() const {
     return _prevData;
 }
+
 
 void DriveBus::initialize() {
     _driveBus.Initialize(ICAN::BaudRate::kBaud500K);

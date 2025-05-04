@@ -188,8 +188,8 @@ static void drawDriveState(Adafruit_RA8875 tft) {
                        });
 }
 
-static void drawWheelSpeed(Adafruit_RA8875 tft) {
-    Drawer::drawNum(tft, (Resources::driveBusData().averageWheelSpeed() / (WHEEL_DIAMETER * 12 * 5280 * 3)),  // times 3 cause 3:1 ratio as we are using motor rpm rn
+static void drawSpeed(Adafruit_RA8875 tft) {
+    Drawer::drawNum(tft, Resources::driveBusData().vehicleSpeedMPH(),
                     (NumberDrawOptions){
                         .x = SCREEN_WIDTH - 100,
                         .y = SCREEN_HEIGHT / 2 - 40,
@@ -202,7 +202,8 @@ static void drawWheelSpeed(Adafruit_RA8875 tft) {
 
 static bool errorsChanged() {
     return memcmp(Resources::driveBusData().bmsFaults, Resources::prevDriveBusData().bmsFaults, sizeof(bool) * BMS_FAULT_COUNT) == 1 ||
-           memcmp(Resources::driveBusData().ecuFaults, Resources::prevDriveBusData().ecuFaults, sizeof(bool) * ECU_FAULT_COUNT) == 1;
+           memcmp(Resources::driveBusData().ecuFaults, Resources::prevDriveBusData().ecuFaults, sizeof(bool) * ECU_FAULT_COUNT) == 1 ||
+           Resources::driveBusData().inverterStatus != Resources::prevDriveBusData().inverterStatus;
 }
 
 // Helper function to wrap a text string based on a maximum number of characters.
@@ -254,11 +255,11 @@ void ErrorScreen::update(Adafruit_RA8875 tft, bool force) {
         // drawDriveState() is assumed to be defined elsewhere.
         drawDriveState(tft);
         // drawWheelSpeed() is assumed to be defined elsewhere.
-        drawWheelSpeed(tft);
+        drawSpeed(tft);
     }
-    if (Resources::driveBusData().averageWheelSpeed() != Resources::prevDriveBusData().averageWheelSpeed() || force) {
+    if (Resources::driveBusData().averageWheelRPM() != Resources::prevDriveBusData().averageWheelRPM() || force) {
         // drawWheelSpeed() is assumed to be defined elsewhere.
-        drawWheelSpeed(tft);
+        drawSpeed(tft);
     }
 
     // If errors have not changed, no need to update.

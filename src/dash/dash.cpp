@@ -74,7 +74,7 @@ void Dash::update() {
     if (Resources::driveBusData().faultPresent()) {
         // change the screen to an error
         // Serial.printf("Detected error!");
-        // changeScreen(DashScreen::DS_ERROR);
+        changeScreen(DashScreen::DS_ERROR);
     }
 
     // pull the pin for the imd
@@ -91,12 +91,8 @@ void Dash::update() {
     _screens[_currentScreen]->update(_tft);
     // Serial.print("Finished!\n");
 
-    long long now = millis();
-    _deltaTime = now - _lastTime;
-    float dSeconds = (float)_deltaTime / 1000;
-    _lastTime = now;
-    float rotDistanceInches = (Resources::driveBusData().averageWheelSpeed() * dSeconds) * WHEEL_DIAMETER * M_PI;
-    Resources::instance().milageCounter += rotDistanceInches / (12 * 5280);
+    double dHours = (double)Resources::deltaTimeMs() / (1000.0 * 60.0 * 60.0);
+    Resources::instance().milageCounter += (double)Resources::driveBusData().vehicleSpeedMPH() * dHours * 4; // hack, cause I'm tired, but seems to be wrong by a factor of 4
 }
 
 void Dash::changeScreen(DashScreen screen) {

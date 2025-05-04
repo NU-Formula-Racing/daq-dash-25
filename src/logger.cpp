@@ -42,7 +42,7 @@ void Logger::initialize() {
 
     if (!SD.begin(chipSelect)) {
         Serial.println("SD initalization failed.");
-        _status = LoggerStatus::LOGGING;
+        _status = LoggerStatus::UNABLE_TO_LOG;
         return;
     }
 

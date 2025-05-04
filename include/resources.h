@@ -21,12 +21,17 @@ class Resources {
     // Static accessor for the previous DriveBusData.
     static const DriveBusData &prevDriveBusData();
 
+    static float deltaTimeMs();
+
    private:
     // Private constructor.
     Resources();
 
     // Delete assignment operator.
     void operator=(Resources const &other) = delete;
+
+    long long _lastTime;
+    long long _deltaTime;
 
    public:
     DataBus dataBus;
