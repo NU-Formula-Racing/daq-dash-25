@@ -154,79 +154,84 @@ void DriveBus::playReadyToDriveSound() {
     }
 }
 
-void DriveBus::sendLUTCan(uint8_t numPairs, uint8_t interpType, uint8_t LUTId, std::map<int16_t, float> lut) {
-    this->num_lut_pairs = numPairs;
-    this->interp_type = interpType;
-    this->lut_id = LUTId;
-    std::vector<int16_t> x_values;
-    std::vector<float> y_values;
-    for (const auto& [key, value] : lut) {
-        x_values.push_back(key);
-        y_values.push_back(value);
-    }
-    for (int i = 0 ; i < MAX_THROTTLE_LUT_PAIRS - numPairs ; i++) {
-        x_values.push_back(0);
-        y_values.push_back(0.0f);
-    }
-    this->x_zero = x_values.at(0);
-    this->x_one = y_values.at(1);
-    this->x_two = x_values.at(2);
-    this->x_three = y_values.at(3);
-    this->x_four = x_values.at(4);
-    this->x_five = y_values.at(5);
-    this->x_six = x_values.at(6);
-    this->x_seven = y_values.at(7);
-    this->x_eight = x_values.at(8);
-    this->x_nine = y_values.at(9);
-    this->x_ten = x_values.at(10);
-    this->x_eleven = x_values.at(11);
-    this->x_twelve = x_values.at(12);
-    this->x_thirteen = x_values.at(13);
-    this->x_fourteen = x_values.at(14);
-    this->x_fifteen = x_values.at(15);
-    this->x_sixteen = x_values.at(16);
-    this->x_seventeen = x_values.at(17);
-    this->x_eighteen = x_values.at(18);
-    this->x_nineteen = x_values.at(19);
-    this->x_twenty = x_values.at(20);
-    this->x_twenty_one = x_values.at(21);
-    this->x_twenty_two = x_values.at(22);
-    this->x_twenty_three = x_values.at(23);
-    this->x_twenty_four = x_values.at(24);
-    this->x_twenty_five = x_values.at(25);
-    this->x_twenty_six = x_values.at(26);
-    this->x_twenty_seven = x_values.at(27);
-    this->x_twenty_eight = x_values.at(28);
-    this->x_twenty_nine = x_values.at(29);
+void DriveBus::sendLUTCan(bool filesPresent, uint8_t numPairs, uint8_t interpType, uint8_t LUTId, std::vector<int16_t> xVals, std::vector<float> yVals) {
 
-    this->y_zero = y_values.at(0);
-    this->y_one = y_values.at(1);
-    this->y_two = y_values.at(2);
-    this->y_three = y_values.at(3);
-    this->y_four = y_values.at(4);
-    this->y_five = y_values.at(5);
-    this->y_six = y_values.at(6);
-    this->y_seven = y_values.at(7);
-    this->y_eight = y_values.at(8);
-    this->y_nine = y_values.at(9);
-    this->y_ten = y_values.at(10);
-    this->y_eleven = y_values.at(11);
-    this->y_twelve = y_values.at(12);
-    this->y_thirteen = y_values.at(13);
-    this->y_fourteen = y_values.at(14);
-    this->y_fifteen = y_values.at(15);
-    this->y_sixteen = y_values.at(16);
-    this->y_seventeen = y_values.at(17);
-    this->y_eighteen = y_values.at(18);
-    this->y_nineteen = y_values.at(19);
-    this->y_twenty = y_values.at(20);
-    this->y_twenty_one = y_values.at(21);
-    this->y_twenty_two = y_values.at(22);
-    this->y_twenty_three = y_values.at(23);
-    this->y_twenty_four = y_values.at(24);
-    this->y_twenty_five = y_values.at(25);
-    this->y_twenty_six = y_values.at(26);
-    this->y_twenty_seven = y_values.at(27);
-    this->y_twenty_eight = y_values.at(28);
-    this->y_twenty_nine = y_values.at(29);
+    if (!filesPresent) {
+        this->files_present = false;
+        this->num_lut_pairs = 0;
+        this->interp_type = 0;
+        this->lut_id = 0;
+    } else {
+        this->files_present = true;
+        this->num_lut_pairs = numPairs;
+        this->interp_type = interpType;
+        this->lut_id = LUTId;
+
+    }
+
+    this->x_zero = xVals.at(0);
+    this->x_one = xVals.at(1);
+    this->x_two = xVals.at(2);
+    this->x_three = xVals.at(3);
+    this->x_four = xVals.at(4);
+    this->x_five = xVals.at(5);
+    this->x_six = xVals.at(6);
+    this->x_seven = xVals.at(7);
+    this->x_eight = xVals.at(8);
+    this->x_nine = xVals.at(9);
+    this->x_ten = xVals.at(10);
+    this->x_eleven = xVals.at(11);
+    this->x_twelve = xVals.at(12);
+    this->x_thirteen = xVals.at(13);
+    this->x_fourteen = xVals.at(14);
+    this->x_fifteen = xVals.at(15);
+    this->x_sixteen = xVals.at(16);
+    this->x_seventeen = xVals.at(17);
+    this->x_eighteen = xVals.at(18);
+    this->x_nineteen = xVals.at(19);
+    this->x_twenty = xVals.at(20);
+    this->x_twenty_one = xVals.at(21);
+    this->x_twenty_two = xVals.at(22);
+    this->x_twenty_three = xVals.at(23);
+    this->x_twenty_four = xVals.at(24);
+    this->x_twenty_five = xVals.at(25);
+    this->x_twenty_six = xVals.at(26);
+    this->x_twenty_seven = xVals.at(27);
+    this->x_twenty_eight = xVals.at(28);
+    this->x_twenty_nine = xVals.at(29);
+
+    this->y_zero = yVals.at(0);
+    this->y_one = yVals.at(1);
+    this->y_two = yVals.at(2);
+    this->y_three = yVals.at(3);
+    this->y_four = yVals.at(4);
+    this->y_five = yVals.at(5);
+    this->y_six = yVals.at(6);
+    this->y_seven = yVals.at(7);
+    this->y_eight = yVals.at(8);
+    this->y_nine = yVals.at(9);
+    this->y_ten = yVals.at(10);
+    this->y_eleven = yVals.at(11);
+    this->y_twelve = yVals.at(12);
+    this->y_thirteen = yVals.at(13);
+    this->y_fourteen = yVals.at(14);
+    this->y_fifteen = yVals.at(15);
+    this->y_sixteen = yVals.at(16);
+    this->y_seventeen = yVals.at(17);
+    this->y_eighteen = yVals.at(18);
+    this->y_nineteen = yVals.at(19);
+    this->y_twenty = yVals.at(20);
+    this->y_twenty_one = yVals.at(21);
+    this->y_twenty_two = yVals.at(22);
+    this->y_twenty_three = yVals.at(23);
+    this->y_twenty_four = yVals.at(24);
+    this->y_twenty_five = yVals.at(25);
+    this->y_twenty_six = yVals.at(26);
+    this->y_twenty_seven = yVals.at(27);
+    this->y_twenty_eight = yVals.at(28);
+    this->y_twenty_nine = yVals.at(29);
+}
+
+void DriveBus::tickTimerCANTx() {
+    _timerGroup.Tick(millis());
 }

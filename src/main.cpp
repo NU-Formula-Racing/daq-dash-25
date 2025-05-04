@@ -52,6 +52,8 @@ void loop() {
     // logging takes wayy too long right now
     loggingTimer.Tick(millis());
 
+    Resources::instance().driveBus.tickTimerCANTx();
+
     // kind of a work around for the sound driver, cause it is not async
     if (Resources::instance().soundDriver.getState() == SoundDriverState::S_PLAYING) {
         // keep progressing the song

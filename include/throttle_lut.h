@@ -12,11 +12,12 @@ enum class InterpType : uint8_t {
 };
 
 struct ThrottleLut {
-    bool file_present;
+    bool files_present;
     uint8_t num_pairs;
     InterpType interp_type;
     uint8_t lut_id;
-    std::map<int16_t, float> lut;
+    std::vector<int16_t> x_vals;
+    std::vector<float> y_vals;
 };
 
 class ThrottleCAN {
