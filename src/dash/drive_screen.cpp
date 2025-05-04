@@ -201,7 +201,7 @@ static void drawCircleStatus(Adafruit_RA8875 tft, float startX, float startY, fl
     NumberDrawOptions numOptions;
     numOptions.x = circleOptions.centerX;
     numOptions.y = circleOptions.centerY;
-    numOptions.size = 6;
+    numOptions.size = 4;
     numOptions.color = RA8875_BLACK;
     numOptions.backgroundColor = fillColor;
     numOptions.precision = 1;
@@ -213,7 +213,7 @@ static void drawCircleStatus(Adafruit_RA8875 tft, float startX, float startY, fl
 }
 
 static void drawLoggerStatus(Adafruit_RA8875 tft) {
-    uint16_t color = NORTHWESTERN_PURPLE;
+    uint16_t color = KAWAII_BLUE;
     Drawer::drawRect(tft, (RectDrawOptions){
                               .x = SCREEN_WIDTH / 2,
                               .y = SCREEN_HEIGHT * 1 / 9,
@@ -234,7 +234,7 @@ static void drawLoggerStatus(Adafruit_RA8875 tft) {
                                .x = SCREEN_WIDTH / 2,
                                .y = SCREEN_HEIGHT * 1 / 9 - 15,
                                .size = 4,
-                               .color = RA8875_WHITE,
+                               .color = RA8875_BLACK,
                                .backgroundColor = color,
                                .hAlign = ALIGN_CENTER,
                                .vAlign = ALIGN_MIDDLE,
@@ -245,7 +245,7 @@ static void drawLoggerStatus(Adafruit_RA8875 tft) {
                                .x = SCREEN_WIDTH / 2,
                                .y = SCREEN_HEIGHT * 1 / 9 + 15,
                                .size = 3,
-                               .color = RA8875_WHITE,
+                               .color = RA8875_BLACK,
                                .backgroundColor = color,
                                .hAlign = ALIGN_CENTER,
                                .vAlign = ALIGN_MIDDLE,
@@ -290,21 +290,23 @@ void DriveScreen::draw(Adafruit_RA8875 tft) {
     Drawer::drawString(tft, "Max Cell", max_cell_temp_startX * 0.9, max_cell_temp_startY - SCREEN_WIDTH / 6 - 10, 3, RA8875_BLACK, color);
     Drawer::drawString(tft, "Temp", max_cell_temp_startX * 0.95, max_cell_temp_startY - SCREEN_WIDTH / 8 - 10, 3, RA8875_BLACK, color);
     Drawer::drawString(tft, "Min Cell", min_cell_temp_startX * 0.9, min_cell_temp_startY - SCREEN_WIDTH / 6 - 10, 3, RA8875_BLACK, color);
-    Drawer::drawString(tft, "Temp", min_cell_temp_startX * 0.95, min_cell_temp_startY - SCREEN_WIDTH / 8 - 10, 3, RA8875_BLACK, color);
+    Drawer::drawString(tft, "Voltage", min_cell_temp_startX * 0.92, min_cell_temp_startY - SCREEN_WIDTH / 8 - 10, 3, RA8875_BLACK, color);
 }
 
 void DriveScreen::update(Adafruit_RA8875 tft, bool force) {
-    if (abs(Resources::instance().logger.readMileCounter()-prev_mileage) >= 0.1 || force)
+    if (abs(Resources::instance().milageCounter - prev_mileage) >= 0.1 || force) {
         drawMileageCounter(tft);
-        prev_mileage = Resources::instance().logger.readMileCounter();
+    }
+
     if (abs(Resources::driveBusData().driveState - Resources::prevDriveBusData().driveState) >= 0.1 || force) {
         drawDriveState(tft);
         drawWheelSpeed(tft);  // gotta redraw that
         // also just draw the logger stuff cause idk where to put it
         drawLoggerStatus(tft);
     }
-    if (abs(Resources::driveBusData().averageWheelSpeed() - Resources::prevDriveBusData().averageWheelSpeed()) >= 0.1 || force)
+    if (abs(Resources::driveBusData().averageWheelSpeed() - Resources::prevDriveBusData().averageWheelSpeed()) >= 0.1 || force) {
         drawWheelSpeed(tft);
+    }
     // Update high-voltage battery status.
     if (abs(Resources::driveBusData().HVVoltage - Resources::prevDriveBusData().HVVoltage) >= 0.1 || force) {
         drawCircleStatus(tft,
@@ -334,13 +336,13 @@ void DriveScreen::update(Adafruit_RA8875 tft, bool force) {
                          max_cell_temp_mid_state,
                          max_cell_temp_last_state);
     }
-  
+
     // Update minimum cell temperature display.
-    if (abs(Resources::driveBusData().minCellTemp - Resources::prevDriveBusData().minCellTemp) >= 0.1 || force) {
+    if (abs(Resources::driveBusData().minCellVoltage - Resources::prevDriveBusData().minCellVoltage) >= 0.1 || force) {
         drawCircleStatus(tft,
                          min_cell_temp_startX,
                          min_cell_temp_startY,
-                         Resources::driveBusData().minCellTemp,
+                         Resources::driveBusData().minCellVoltage,
                          min_cell_temp_mid_state,
                          min_cell_temp_last_state);
     }

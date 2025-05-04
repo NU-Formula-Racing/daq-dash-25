@@ -41,15 +41,16 @@ void setup() {
     Resources::instance().driveBus.initialize();
     
     dashboard.initalize();
+    dashboard.update();
     
     loggingTimer.AddTimer(1000, logData);
 }
 
 void loop() {
     long long currentTime = millis();
+    Resources::instance().update();
 
-    if(currentTime - lastUpdateTime >= 50){
-        Resources::instance().update();
+    if(currentTime - lastUpdateTime >= 10){
         dashboard.update();
         lastUpdateTime = currentTime;
     }

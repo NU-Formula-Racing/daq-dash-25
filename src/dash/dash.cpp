@@ -12,7 +12,6 @@
 #include "dash/error_screen.h"
 #include "resources.h"
 
-
 // for states, after mid state, goes to last state
 int motor_temp_last_state = 70;
 int motor_temp_mid_state = 30;
@@ -28,7 +27,6 @@ int max_cell_temp_last_state = 50;       // max 50 celsius
 int max_cell_temp_mid_state = 45;
 int min_cell_temp_last_state = 15;
 int min_cell_temp_mid_state = 11;  // min 8 celsius
-
 
 int bar_max_size = 480;
 
@@ -80,21 +78,18 @@ void Dash::update() {
 
     bool bmsFault = Resources::driveBusData().bmsFaults[BMS_FAULT_SUMMARY];
     digitalWrite(BMS_INDICATOR, bmsFault ? LOW : HIGH);
-    
+
     // update the current screen
     // Serial.printf("Updating screen %d\n", (int)_currentScreen);
     _screens[_currentScreen]->update(_tft);
     // Serial.print("Finished!\n");
-    
+
     long long now = millis();
     _deltaTime = now - _lastTime;
     float dSeconds = (float)_deltaTime / 1000;
     _lastTime = now;
     float rotDistanceInches = (Resources::driveBusData().averageWheelSpeed() * dSeconds) * WHEEL_DIAMETER * M_PI;
     Resources::instance().milageCounter += rotDistanceInches / (12 * 5280);
-    if(_deltaTime == 2000){
-        Resources::instance().logger.writeMileCounter();
-    }
 }
 
 void Dash::changeScreen(DashScreen screen) {

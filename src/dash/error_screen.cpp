@@ -181,7 +181,7 @@ static void drawDriveState(Adafruit_RA8875 tft) {
                            .x = SCREEN_WIDTH - 100,
                            .y = SCREEN_HEIGHT / 2 + 60,
                            .size = 4,
-                           .color = RA8875_WHITE,
+                           .color = RA8875_BLACK,
                            .backgroundColor = color,
                            .hAlign = ALIGN_CENTER,
                            .vAlign = ALIGN_MIDDLE,
