@@ -6,7 +6,7 @@
 #include "logger.h"
 #include "songs.h"
 #include "sound.h"
-#include "throttle_lut.h"
+#include "throttle_can.h"
 
 class Resources {
    public:

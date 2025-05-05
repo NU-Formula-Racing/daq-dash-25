@@ -51,17 +51,17 @@ public:
     float readMileCounter();
 
     // functions for lut
-    ThrottleLut readThrottleLUT();
+    ThrottleLUT readThrottleLUT();
 
 private:
     File loggingFile;
     std::string loggingFileName;
     std::string milageFileName = "mileage_counter.txt";
     File milageFile;
-    std::string lutPairsFileName = "throttle_lut_pairs.txt";
-    std::string lutMetadataFileName = "throttle_lut_metadata.txt";
-    File lutPairsFile;
-    File lutMetadataFile;
+    std::string LUTPairsFileName = "throttle_lut_pairs.txt";
+    std::string LUTMetadataFileName = "throttle_lut_metadata.txt";
+    File LUTPairsFile;
+    File LUTMetadataFile;
     ByteBuffer _lineBuffer;
     bool _loggerGood = false;
 };

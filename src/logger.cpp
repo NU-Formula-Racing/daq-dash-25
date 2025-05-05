@@ -134,65 +134,58 @@ float Logger::readMileCounter() {
     return miles;
 }
 
-ThrottleLut Logger::readThrottleLUT() {
-    ThrottleLut throttleLut;
+ThrottleLUT Logger::readThrottleLUT() {
+    ThrottleLUT throttleLUT;
 
     // if file exists, open it an populate
-    if (SD.exists(lutMetadataFileName.c_str()) && SD.exists(lutPairsFileName.c_str())) {
-        throttleLut.files_present = true;
+    if (SD.exists(LUTMetadataFileName.c_str()) && SD.exists(LUTPairsFileName.c_str())) {
+        throttleLUT.filesPresent = true;
 
-        // open lut file
-        this->lutMetadataFile = SD.open(lutMetadataFileName.c_str(), FILE_READ);
-        this->lutPairsFile = SD.open(lutPairsFileName.c_str(), FILE_READ);
+        // open LUT file
+        this->LUTMetadataFile = SD.open(LUTMetadataFileName.c_str(), FILE_READ);
+        this->LUTPairsFile = SD.open(LUTPairsFileName.c_str(), FILE_READ);
 
         // parse file and populate struct fields
-        String num_pairs_string = this->lutMetadataFile.readStringUntil('\n');
-        uint8_t numPairs = num_pairs_string.toInt();
-        throttleLut.num_pairs = numPairs;
-        String interp_type_string = this->lutMetadataFile.readStringUntil('\n');
-        throttleLut.interp_type = static_cast<InterpType>(interp_type_string.toInt());
-        String lut_id_string = this->lutMetadataFile.readStringUntil('\n');
-        throttleLut.lut_id = lut_id_string.toInt();
+        String numPairsString = this->LUTMetadataFile.readStringUntil('\n');
+        uint8_t numPairs = numPairsString.toInt();
+        throttleLUT.numPairs = numPairs;
+        String interpTypeString = this->LUTMetadataFile.readStringUntil('\n');
+        throttleLUT.interpType = static_cast<InterpType>(interpTypeString.toInt());
+        String LUTIdString = this->LUTMetadataFile.readStringUntil('\n');
+        throttleLUT.LUTId = LUTIdString.toInt();
 
         // parse xy pairs and add them to the map
         std::vector<int16_t> xVals;
         std::vector<float> yVals;
-        for (int i = 0 ; i < throttleLut.num_pairs ; i++) {
-            String key_string = this->lutPairsFile.readStringUntil(',');
-            String val_string = this->lutPairsFile.readStringUntil('\n');
+        for (int i = 0 ; i < throttleLUT.numPairs ; i++) {
+            String key_string = this->LUTPairsFile.readStringUntil(',');
+            String val_string = this->LUTPairsFile.readStringUntil('\n');
             key_string.trim();
             val_string.trim();
             xVals.push_back(key_string.toInt());
             yVals.push_back(val_string.toFloat());
-            // lut.insert({key_string.toInt(), val_string.toFloat()});
-            // Serial.print("key: ");
-            // Serial.print(key_string);
-            // Serial.print(" value: ");
-            // Serial.println(val_string);
-            // std::cout << "key: " << key_string.toInt() << "value: " << val_string.toFloat();
-
         }
         for (int j = 0 ; j < MAX_THROTTLE_LUT_PAIRS - numPairs ; j++) {
             xVals.push_back(0);
             yVals.push_back(0.0f);
         }
-        throttleLut.x_vals = xVals;
-        throttleLut.y_vals = yVals;
+        throttleLUT.xVals = xVals;
+        throttleLUT.yVals = yVals;
 
     // if file not present, return empty struct with file_present field set to false
     } else {
-        throttleLut.files_present = false;
+        throttleLUT.filesPresent = false;
     }
 
     // close file and return struct
-    this->lutPairsFile.close();
-    this->lutMetadataFile.close();
-    return throttleLut;
+    this->LUTPairsFile.close();
+    this->LUTMetadataFile.close();
+    return throttleLUT;
 
-    // example lut file layout
-    // 20 - num_pairs
-    // 1 - interp_type (0: linear, 1: smooth_step)
-    // 5 - lut_id
+    // example LUT file layout
+    // 20 - numPairs
+    // 1 - interpType (0: linear, 1: smooth_step)
+    // 5 - LUTId
     // 0 0 - pairs
     // 10 0.4
     // ...

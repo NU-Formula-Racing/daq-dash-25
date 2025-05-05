@@ -10,6 +10,7 @@
 #include "define.h"
 #include "sound.h"
 #include "virtualTimer.h"
+#include "throttle_lut.h"
 
 enum BMSFault {
     BMS_FAULT_SUMMARY,
@@ -89,7 +90,7 @@ class DriveBus {
     void update();
 
     // updates can tx signals for sending throttle map over CAN
-    void sendLUTCan(bool filesPresent, uint8_t numPairs, uint8_t interpType, uint8_t LUTId, std::vector<int16_t> xVals, std::vector<float> yVals);
+    void sendLUTCan(ThrottleLUT throttleLUT);
 
     // tick can tx timer
     void tickTimerCANTx();
