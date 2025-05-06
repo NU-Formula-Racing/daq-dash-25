@@ -1,5 +1,14 @@
 #include "can/data_bus.h"
 
+#include "define.h"
+
+// Helper: Generate a random float between min and max.
+static float randomFloat(float min, float max) {
+    // Generate a value between 0 and 9999, then scale
+    long r = random(0, 10000);
+    return min + (max - min) * (r / 10000.0);
+}
+
 const DataBusData& DataBus::getData() const {
     return this->_data;
 }
@@ -41,6 +50,7 @@ void DataBus::initialize() {
 }
 
 void DataBus::update() {
+#ifndef DATA_DEBUG
     this->_dataBus.Tick();
     this->_data.cellVoltages[0] = cell_v_0;
     this->_data.cellVoltages[1] = cell_v_1;
@@ -264,5 +274,14 @@ void DataBus::update() {
     this->_data.cellTemperatures[78] = cell_t_78;
     this->_data.cellTemperatures[79] = cell_t_79;
 
+#else
+    for (size_t i = 0; i < NUM_TEMP_CELLS; i++) {
+        this->_data.cellTemperatures[i] = randomFloat(0, 100);
+    }
 
+    for (size_t i = 0; i < NUM_VOLT_CELLS; i++) {
+        this->_data.cellVoltages[i] = randomFloat(2, 6);
+    }
+
+#endif
 }

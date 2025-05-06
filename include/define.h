@@ -42,6 +42,6 @@
 #define WHEEL_DIAMETER 16 // in inches
 
 // #define DRIVE_DEBUG
-
+#define DATA_DEBUG
 
 #endif  // __DEFINE_H__
