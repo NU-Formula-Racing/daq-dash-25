@@ -33,6 +33,7 @@ void setup() {
 
     // read lut file from sd card
     Resources::instance().throttleCAN.initialize(Resources::instance().logger.readThrottleLUT());
+    Serial.println("done sending lut can");
 
     dashboard.initalize();
 

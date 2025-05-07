@@ -161,6 +161,7 @@ void DriveBus::playReadyToDriveSound() {
 }
 
 void DriveBus::sendLUTCan(ThrottleLUT throttleLUT) {
+    Serial.println("sending lut can");
 
     if (!throttleLUT.filesPresent) {
         this->files_present = false;

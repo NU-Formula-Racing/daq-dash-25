@@ -163,7 +163,7 @@ ThrottleLUT Logger::readThrottleLUT() {
     ThrottleLUT throttleLUT;
 
     // if file exists, open it an populate
-    if (SD.exists(LUTMetadataFileName.c_str()) && SD.exists(LUTPairsFileName.c_str())) {
+    if (_status == LoggerStatus::LOGGING && SD.exists(LUTMetadataFileName.c_str()) && SD.exists(LUTPairsFileName.c_str())) {
         throttleLUT.filesPresent = true;
 
         // open LUT file
@@ -200,11 +200,17 @@ ThrottleLUT Logger::readThrottleLUT() {
     // if file not present, return empty struct with file_present field set to false
     } else {
         throttleLUT.filesPresent = false;
+        for (uint8_t i = 0 ; i < MAX_THROTTLE_LUT_PAIRS ; i++) {
+            throttleLUT.xVals.push_back(0);
+            throttleLUT.yVals.push_back(0.0f);
+        }
+        Serial.println("lut files not present");
     }
 
     // close file and return struct
     this->LUTPairsFile.close();
     this->LUTMetadataFile.close();
+    Serial.println("returning from reading throttle lut");
     return throttleLUT;
 
     // example LUT file layout
