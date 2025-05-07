@@ -3,9 +3,11 @@
 
 #include <SD.h>
 #include <SPI.h>
+#include <map>
 
 #include "can/data_bus.h"
 #include "can/drive_bus.h"
+#include "throttle_lut.h"
 
 class ByteBuffer {
    public:
@@ -13,13 +15,15 @@ class ByteBuffer {
     ByteBuffer(size_t size) : buffer(size), _size(size) {}
 
     template <typename T>
-    void write(T value) {
+    void write(T value)
+    {
         // Serial.printf("Writing %d bytes!\n", sizeof(T));
         memcpy(&(buffer[_index]), (void *)(&value), sizeof(T));
         _index += sizeof(T);
     }
 
-    void reset() {
+    void reset()
+    {
         _index = 0;
     }
 
@@ -27,7 +31,7 @@ class ByteBuffer {
 
     std::vector<uint8_t> buffer;
 
-   private:
+private:
     size_t _index;
     size_t _size;
 };
@@ -53,13 +57,20 @@ class Logger {
     void writeMileCounter();
     float readMileCounter();
 
-   private:
+    // functions for lut
+    ThrottleLUT readThrottleLUT();
+
+private:
     File loggingFile;
     std::string loggingFileName;
     std::string milageFileName = "mileage_counter.txt";
     File milageFile;
+    std::string LUTPairsFileName = "throttle_lut_pairs.txt";
+    std::string LUTMetadataFileName = "throttle_lut_metadata.txt";
+    File LUTPairsFile;
+    File LUTMetadataFile;
     ByteBuffer _lineBuffer;
     LoggerStatus _status;
 };
 
-#endif  // __LOGGER_H__
+#endif // __LOGGER_H__

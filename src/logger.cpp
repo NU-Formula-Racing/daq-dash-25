@@ -6,6 +6,8 @@
 #include <string>
 
 #include "resources.h"
+// #include <iostream>
+#include <Arduino.h>
 
 #include "dash/dash.h"
 
@@ -155,6 +157,63 @@ float Logger::readMileCounter() {
     this->milageFile = SD.open(milageFileName.c_str(), FILE_WRITE);
     // returns current mileage
     return miles;
+}
+
+ThrottleLUT Logger::readThrottleLUT() {
+    ThrottleLUT throttleLUT;
+
+    // if file exists, open it an populate
+    if (SD.exists(LUTMetadataFileName.c_str()) && SD.exists(LUTPairsFileName.c_str())) {
+        throttleLUT.filesPresent = true;
+
+        // open LUT file
+        this->LUTMetadataFile = SD.open(LUTMetadataFileName.c_str(), FILE_READ);
+        this->LUTPairsFile = SD.open(LUTPairsFileName.c_str(), FILE_READ);
+
+        // parse file and populate struct fields
+        String numPairsString = this->LUTMetadataFile.readStringUntil('\n');
+        uint8_t numPairs = numPairsString.toInt();
+        throttleLUT.numPairs = numPairs;
+        String interpTypeString = this->LUTMetadataFile.readStringUntil('\n');
+        throttleLUT.interpType = static_cast<InterpType>(interpTypeString.toInt());
+        String LUTIdString = this->LUTMetadataFile.readStringUntil('\n');
+        throttleLUT.LUTId = LUTIdString.toInt();
+
+        // parse xy pairs and add them to the map
+        std::vector<int16_t> xVals;
+        std::vector<float> yVals;
+        for (int i = 0 ; i < throttleLUT.numPairs ; i++) {
+            String key_string = this->LUTPairsFile.readStringUntil(',');
+            String val_string = this->LUTPairsFile.readStringUntil('\n');
+            key_string.trim();
+            val_string.trim();
+            xVals.push_back(key_string.toInt());
+            yVals.push_back(val_string.toFloat());
+        }
+        for (int j = 0 ; j < MAX_THROTTLE_LUT_PAIRS - numPairs ; j++) {
+            xVals.push_back(0);
+            yVals.push_back(0.0f);
+        }
+        throttleLUT.xVals = xVals;
+        throttleLUT.yVals = yVals;
+
+    // if file not present, return empty struct with file_present field set to false
+    } else {
+        throttleLUT.filesPresent = false;
+    }
+
+    // close file and return struct
+    this->LUTPairsFile.close();
+    this->LUTMetadataFile.close();
+    return throttleLUT;
+
+    // example LUT file layout
+    // 20 - numPairs
+    // 1 - interpType (0: linear, 1: smooth_step)
+    // 5 - LUTId
+    // 0 0 - pairs
+    // 10 0.4
+    // ...
 }
 
 // every two seconds, update mileage counter

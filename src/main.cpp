@@ -25,11 +25,18 @@ void setup() {
     // initialize serial communication, when done, turn internal LED off
     Serial.begin(9600);
     Serial.println("Starting setup");
+    // Serial.println("hello");
 
     
     Resources::instance().logger.initialize();
     Resources::instance().milageCounter = Resources::instance().logger.readMileCounter();
-    
+
+    // read lut file from sd card
+    Resources::instance().throttleCAN.initialize(Resources::instance().logger.readThrottleLUT());
+
+    dashboard.initalize();
+
+
     // initialize sound driver
     song.shift(-2);
     Resources::instance().soundDriver.initialize();
@@ -52,6 +59,8 @@ void loop() {
     
     // logging takes wayy too long right now
     loggingTimer.Tick(millis());
+
+    Resources::instance().driveBus.tickTimerCANTx();
 
     // kind of a work around for the sound driver, cause it is not async
     if (Resources::instance().soundDriver.getState() == SoundDriverState::S_PLAYING) {

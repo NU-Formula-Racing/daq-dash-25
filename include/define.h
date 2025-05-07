@@ -41,6 +41,9 @@
 
 #define WHEEL_DIAMETER 16 // in inches
 
+// total number of key-value pairs that we have space for in CAN
+#define MAX_THROTTLE_LUT_PAIRS 30
+
 // #define DRIVE_DEBUG
 #define DATA_DEBUG
 

@@ -159,3 +159,85 @@ void DriveBus::playReadyToDriveSound() {
         Resources::instance().soundDriver.playSong();
     }
 }
+
+void DriveBus::sendLUTCan(ThrottleLUT throttleLUT) {
+
+    if (!throttleLUT.filesPresent) {
+        this->files_present = false;
+        this->num_lut_pairs = 0;
+        this->interp_type = 0;
+        this->lut_id = 0;
+    } else {
+        this->files_present = true;
+        this->num_lut_pairs = throttleLUT.numPairs;
+        this->interp_type = static_cast<uint8_t>(throttleLUT.interpType);
+        this->lut_id = throttleLUT.LUTId;
+
+    }
+
+    this->x_zero = throttleLUT.xVals.at(0);
+    this->x_one = throttleLUT.xVals.at(1);
+    this->x_two = throttleLUT.xVals.at(2);
+    this->x_three = throttleLUT.xVals.at(3);
+    this->x_four = throttleLUT.xVals.at(4);
+    this->x_five = throttleLUT.xVals.at(5);
+    this->x_six = throttleLUT.xVals.at(6);
+    this->x_seven = throttleLUT.xVals.at(7);
+    this->x_eight = throttleLUT.xVals.at(8);
+    this->x_nine = throttleLUT.xVals.at(9);
+    this->x_ten = throttleLUT.xVals.at(10);
+    this->x_eleven = throttleLUT.xVals.at(11);
+    this->x_twelve = throttleLUT.xVals.at(12);
+    this->x_thirteen = throttleLUT.xVals.at(13);
+    this->x_fourteen = throttleLUT.xVals.at(14);
+    this->x_fifteen = throttleLUT.xVals.at(15);
+    this->x_sixteen = throttleLUT.xVals.at(16);
+    this->x_seventeen = throttleLUT.xVals.at(17);
+    this->x_eighteen = throttleLUT.xVals.at(18);
+    this->x_nineteen = throttleLUT.xVals.at(19);
+    this->x_twenty = throttleLUT.xVals.at(20);
+    this->x_twenty_one = throttleLUT.xVals.at(21);
+    this->x_twenty_two = throttleLUT.xVals.at(22);
+    this->x_twenty_three = throttleLUT.xVals.at(23);
+    this->x_twenty_four = throttleLUT.xVals.at(24);
+    this->x_twenty_five = throttleLUT.xVals.at(25);
+    this->x_twenty_six = throttleLUT.xVals.at(26);
+    this->x_twenty_seven = throttleLUT.xVals.at(27);
+    this->x_twenty_eight = throttleLUT.xVals.at(28);
+    this->x_twenty_nine = throttleLUT.xVals.at(29);
+
+    this->y_zero = throttleLUT.yVals.at(0);
+    this->y_one = throttleLUT.yVals.at(1);
+    this->y_two = throttleLUT.yVals.at(2);
+    this->y_three = throttleLUT.yVals.at(3);
+    this->y_four = throttleLUT.yVals.at(4);
+    this->y_five = throttleLUT.yVals.at(5);
+    this->y_six = throttleLUT.yVals.at(6);
+    this->y_seven = throttleLUT.yVals.at(7);
+    this->y_eight = throttleLUT.yVals.at(8);
+    this->y_nine = throttleLUT.yVals.at(9);
+    this->y_ten = throttleLUT.yVals.at(10);
+    this->y_eleven = throttleLUT.yVals.at(11);
+    this->y_twelve = throttleLUT.yVals.at(12);
+    this->y_thirteen = throttleLUT.yVals.at(13);
+    this->y_fourteen = throttleLUT.yVals.at(14);
+    this->y_fifteen = throttleLUT.yVals.at(15);
+    this->y_sixteen = throttleLUT.yVals.at(16);
+    this->y_seventeen = throttleLUT.yVals.at(17);
+    this->y_eighteen = throttleLUT.yVals.at(18);
+    this->y_nineteen = throttleLUT.yVals.at(19);
+    this->y_twenty = throttleLUT.yVals.at(20);
+    this->y_twenty_one = throttleLUT.yVals.at(21);
+    this->y_twenty_two = throttleLUT.yVals.at(22);
+    this->y_twenty_three = throttleLUT.yVals.at(23);
+    this->y_twenty_four = throttleLUT.yVals.at(24);
+    this->y_twenty_five = throttleLUT.yVals.at(25);
+    this->y_twenty_six = throttleLUT.yVals.at(26);
+    this->y_twenty_seven = throttleLUT.yVals.at(27);
+    this->y_twenty_eight = throttleLUT.yVals.at(28);
+    this->y_twenty_nine = throttleLUT.yVals.at(29);
+}
+
+void DriveBus::tickTimerCANTx() {
+    _timerGroup.Tick(millis());
+}
