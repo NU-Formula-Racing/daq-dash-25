@@ -25,6 +25,9 @@
 #define IMD_INDICATOR A13
 #define BMS_INDICATOR A12
 
+#define ROTARY_OUTPUT_A A11
+#define ROTARY_OUTPUT_B A10
+
 
 //other pins
 // drive can tx   1

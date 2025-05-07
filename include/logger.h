@@ -9,10 +9,9 @@
 #include "can/drive_bus.h"
 #include "throttle_lut.h"
 
-class ByteBuffer
-{
-public:
-    ByteBuffer() : buffer(0) {}
+class ByteBuffer {
+   public:
+    ByteBuffer() : buffer(0), _index(0) {}
     ByteBuffer(size_t size) : buffer(size), _size(size) {}
 
     template <typename T>
@@ -20,7 +19,7 @@ public:
     {
         // Serial.printf("Writing %d bytes!\n", sizeof(T));
         memcpy(&(buffer[_index]), (void *)(&value), sizeof(T));
-        _index += _index;
+        _index += sizeof(T);
     }
 
     void reset()
@@ -37,14 +36,22 @@ private:
     size_t _size;
 };
 
-class Logger
-{
-public:
+enum LoggerStatus {
+    UNABLE_TO_LOG,
+    LOGGING
+};
+
+class Logger {
+   public:
     Logger();
 
     void initialize();
 
     void log();
+
+    LoggerStatus status() const;
+
+    std::string logFileName() const;
 
     // new functions for mileage logging
     void writeMileCounter();
@@ -63,7 +70,7 @@ private:
     File LUTPairsFile;
     File LUTMetadataFile;
     ByteBuffer _lineBuffer;
-    bool _loggerGood = false;
+    LoggerStatus _status;
 };
 
 #endif // __LOGGER_H__

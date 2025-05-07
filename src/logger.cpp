@@ -9,6 +9,12 @@
 // #include <iostream>
 #include <Arduino.h>
 
+#include "dash/dash.h"
+
+#include "define.h"
+
+#include <string>
+
 const int chipSelect = BUILTIN_SDCARD;
 
 time_t getTeensy3Time() {
@@ -38,21 +44,30 @@ void Logger::initialize() {
 
     if (!SD.begin(chipSelect)) {
         Serial.println("SD initalization failed.");
-        _loggerGood = false;
+        _status = LoggerStatus::UNABLE_TO_LOG;
         return;
     }
 
     Serial.println("SD card initialized.");
-    _loggerGood = true;
+    _status = LoggerStatus::LOGGING;
 
-    // open up the file here
-    // log_dd_mm_yy_time ->>> CORRECTION ":" is not supported in filenames so changed all instances with "_"
-    this->loggingFileName = "log_" + std::to_string(day()) + "_" + std::to_string(month()) + "_" + std::to_string(year()) +
-                            std::to_string(hour()) + "_" + std::to_string(minute()) + "_" + std::to_string(second()) + ".bin";
+    char fname[16];  // "log_" + 3-digits + ".bin" + '\0'
+    uint16_t index = 0;
+
+    do {
+        snprintf(fname, sizeof(fname), "log_%03u.bin", index);
+        ++index;
+    } while (SD.exists(fname) && index < 1000);  // stop at 999 just in case
+
+    loggingFileName = fname;
+    Serial.print("Next log file: ");
+    Serial.println(loggingFileName.c_str());
+
+    _status = LoggerStatus::LOGGING;
 }
 
 void Logger::log() {
-    if (!this->_loggerGood) return;
+    if (_status == LoggerStatus::UNABLE_TO_LOG) return;
 
     this->loggingFile = SD.open(loggingFileName.c_str(), FILE_WRITE);
 
@@ -100,14 +115,22 @@ void Logger::log() {
     this->loggingFile.close();
 }
 
+    
+LoggerStatus Logger::status() const {
+    return _status;
+}
+
+std::string Logger::logFileName() const {
+    return loggingFileName;
+}
+
 void Logger::writeMileCounter() {
-    // currently stored mileage in file
+    if (_status == LoggerStatus::UNABLE_TO_LOG) return;
+
     this->milageFile = SD.open(milageFileName.c_str(), FILE_WRITE_BEGIN);
     String counter = "";
     counter.append(Resources::instance().milageCounter);
     this->milageFile.write(counter.c_str());
-
-    // close mileage file
     this->milageFile.close();
     // reopen old logger file
     this->loggingFile = SD.open(loggingFileName.c_str(), FILE_WRITE);
@@ -115,6 +138,8 @@ void Logger::writeMileCounter() {
 
 // returns current mileage
 float Logger::readMileCounter() {
+    if (_status == LoggerStatus::UNABLE_TO_LOG) return 0;
+
     // open mileage file
     this->milageFile = SD.open(milageFileName.c_str(), FILE_READ);
     float miles = 0;
