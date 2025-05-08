@@ -161,13 +161,27 @@ float Logger::readMileCounter() {
 
 ThrottleLUT Logger::readThrottleLUT() {
     ThrottleLUT throttleLUT;
+    throttleLUT.fileStatus = FileStatus::FILE_PRESENT_AND_VALID;
 
     // if file exists, open it an populate
-    if (_status == LoggerStatus::LOGGING && SD.exists(LUTFileName.c_str())) {
-        throttleLUT.filesPresent = true;
+    if (_status == LoggerStatus::UNABLE_TO_LOG) {
+        throttleLUT.fileStatus = FileStatus::LOGGING_ERROR;
+    }
+    else if (!SD.exists(LUTFileName.c_str())) {
+        throttleLUT.fileStatus = FileStatus::FILE_NOT_PRESENT;
+    }
 
-        // open LUT file
+    if (throttleLUT.fileStatus == FileStatus::FILE_PRESENT_AND_VALID) {
         this->LUTFile = SD.open(LUTFileName.c_str(), FILE_READ);
+        if (!LUTFile) {
+            throttleLUT.fileStatus = FileStatus::FILE_OPEN_ERROR;
+        }
+        else if (this->LUTFile.readStringUntil('\n') != this->LUTFileKeyPhrase) {
+            throttleLUT.fileStatus = FileStatus::INVALID_KEY_PHRASE;
+        }
+    }
+    
+    if (throttleLUT.fileStatus == FileStatus::FILE_PRESENT_AND_VALID) {
 
         // parse file and populate struct fields
         // String numPairsString = this->LUTFile.readStringUntil(',');
@@ -200,7 +214,9 @@ ThrottleLUT Logger::readThrottleLUT() {
 
     // if file not present, return empty struct with file_present field set to false
     } else {
-        throttleLUT.filesPresent = false;
+        throttleLUT.interpType = InterpType::LINEAR;
+        throttleLUT.LUTId = 0;
+        throttleLUT.numPairs = 0;
         for (uint8_t i = 0 ; i < MAX_THROTTLE_LUT_PAIRS ; i++) {
             throttleLUT.xVals.push_back(0);
             throttleLUT.yVals.push_back(0.0f);

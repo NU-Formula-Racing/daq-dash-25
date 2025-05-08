@@ -67,6 +67,7 @@ private:
     File milageFile;
     std::string LUTFileName = "throttle_lut_pairs.txt";
     File LUTFile;
+    String LUTFileKeyPhrase = "This is a valid LUT";
     ByteBuffer _lineBuffer;
     LoggerStatus _status;
 };

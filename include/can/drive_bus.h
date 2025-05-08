@@ -152,11 +152,11 @@ class DriveBus {
 
     // ECU LUT Tx Messages - 15 messages containing xy pairs + metadata message
     // address space: 0x2B0 - 0x2BF
-    MakeUnsignedCANSignal(uint8_t, 0, 8, 1, 0) files_present;
+    MakeUnsignedCANSignal(uint8_t, 0, 8, 1, 0) file_status;
     MakeUnsignedCANSignal(uint8_t, 8, 8, 1, 0) num_lut_pairs;
     MakeUnsignedCANSignal(uint8_t, 16, 8, 1, 0) interp_type;
     MakeUnsignedCANSignal(uint8_t, 24, 8, 1, 0) lut_id;
-    CANTXMessage<4> tx_daq_lut_metadata{_driveBus, 0x2B0, 4, 100, _timerGroup, num_lut_pairs, interp_type, lut_id, files_present};
+    CANTXMessage<4> tx_daq_lut_metadata{_driveBus, 0x2B0, 4, 100, _timerGroup, num_lut_pairs, interp_type, lut_id, file_status};
 
     MakeUnsignedCANSignal(int16_t, 0, 16, 1, 0) x_zero;
     MakeUnsignedCANSignal(float, 16, 16, 1, 0) y_zero;

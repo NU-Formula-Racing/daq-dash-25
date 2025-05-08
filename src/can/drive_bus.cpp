@@ -163,18 +163,12 @@ void DriveBus::playReadyToDriveSound() {
 void DriveBus::sendLUTCan(ThrottleLUT throttleLUT) {
     Serial.println("sending lut can");
 
-    if (!throttleLUT.filesPresent) {
-        this->files_present = false;
-        this->num_lut_pairs = 0;
-        this->interp_type = 0;
-        this->lut_id = 0;
-    } else {
-        this->files_present = true;
-        this->num_lut_pairs = throttleLUT.numPairs;
-        this->interp_type = static_cast<uint8_t>(throttleLUT.interpType);
-        this->lut_id = throttleLUT.LUTId;
+    this->file_status = static_cast<uint8_t>(throttleLUT.fileStatus);
+    this->num_lut_pairs = throttleLUT.numPairs;
+    this->interp_type = static_cast<uint8_t>(throttleLUT.interpType);
+    this->lut_id = throttleLUT.LUTId;
 
-    }
+
 
     this->x_zero = throttleLUT.xVals.at(0);
     this->x_one = throttleLUT.xVals.at(1);
