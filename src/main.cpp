@@ -31,8 +31,6 @@ void setup() {
     Resources::instance().logger.initialize();
     Resources::instance().milageCounter = Resources::instance().logger.readMileCounter();
 
-    Resources::instance().throttleCAN.initialize(Resources::instance().logger.readThrottleLUT());
-
     dashboard.initalize();
 
 
@@ -44,6 +42,8 @@ void setup() {
     
     Resources::instance().dataBus.initialize();
     Resources::instance().driveBus.initialize();
+
+    Resources::instance().throttleCAN.initialize(Resources::instance().logger.readThrottleLUT());
     
     dashboard.initalize();
     dashboard.update();
