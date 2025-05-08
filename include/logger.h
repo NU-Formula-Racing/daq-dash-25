@@ -65,10 +65,8 @@ private:
     std::string loggingFileName;
     std::string milageFileName = "mileage_counter.txt";
     File milageFile;
-    std::string LUTPairsFileName = "throttle_lut_pairs.txt";
-    std::string LUTMetadataFileName = "throttle_lut_metadata.txt";
-    File LUTPairsFile;
-    File LUTMetadataFile;
+    std::string LUTFileName = "throttle_lut_pairs.txt";
+    File LUTFile;
     ByteBuffer _lineBuffer;
     LoggerStatus _status;
 };

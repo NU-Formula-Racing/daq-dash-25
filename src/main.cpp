@@ -31,9 +31,7 @@ void setup() {
     Resources::instance().logger.initialize();
     Resources::instance().milageCounter = Resources::instance().logger.readMileCounter();
 
-    // read lut file from sd card
     Resources::instance().throttleCAN.initialize(Resources::instance().logger.readThrottleLUT());
-    Serial.println("done sending lut can");
 
     dashboard.initalize();
 
