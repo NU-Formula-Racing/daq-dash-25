@@ -64,7 +64,6 @@ struct DriveBusData {
     }
 
     bool faultPresent() const {
-        // return inverterStatus != 0;;
         return bmsFaults[BMS_FAULT_SUMMARY] || ecuFaults[ECU_FAULT_PRESENT] || (inverterStatus != 0 && inverterStatus != 0x02) || imdState == 0;
         // return bmsFaults[BMS_FAULT_SUMMARY] || ecuFaults[ECU_FAULT_PRESENT] || imdState == 0;
     }

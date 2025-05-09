@@ -20,13 +20,14 @@ static std::string getIMDErrorMessage() {
 
 static std::string getBMSErrorMessage() {
     static const char* bmsFaultMessages[7] = {
+        "FAULT_PSNT"
         "UND_VOL",
         "OVR_VOL",
         "UND_TEMP",
         "OVR_TEMP",
         "OVR_CUR",
         "EXTN_KL",
-        "OPN_WIRE"};
+        "OPEN_WIRE"};
 
     std::string result = "BMS:";
     bool any = false;
