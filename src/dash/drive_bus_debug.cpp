@@ -1,143 +1,232 @@
-#ifndef __DRIVE_BUS_DEBUG_H__
-#define __DRIVE_BUS_DEBUG_H__
+// dash/drive_bus_debug.cpp
 
-#include "dash/drawer.h"
 #include "dash/drive_bus_debug.h"
-#include "define.h"
+
+#include <cstdio>
+#include <string>
+#include <vector>
+
 #include "resources.h"
 
-// layout constants
-static constexpr int LEFT_X = 10;
-static constexpr int RIGHT_X = SCREEN_WIDTH / 2 + 10;
-static constexpr int START_Y = 30;
-static constexpr int LINE_H = 35;
-static constexpr int TEXT_OFFSET = 250;
+// dash/drive_bus_debug.cpp
 
-static TextDrawOptions textOpts = {
-    .size = 4,
-    .color = RA8875_WHITE,
-    .backgroundColor = RA8875_BLACK,
-    .hAlign = ALIGN_LEFT,
-    .vAlign = ALIGN_TOP};
+#include <cstdio>
+#include <string>
+#include <vector>
 
-static NumberDrawOptions numOpts = {
-    .size = 3,
-    .color = RA8875_WHITE,
-    .backgroundColor = RA8875_BLACK,
-    .hAlign = ALIGN_LEFT,
-    .vAlign = ALIGN_TOP};
+#include "dash/drive_bus_debug.h"
+#include "resources.h"
+// dash/drive_bus_debug.cpp
+
+#include <cstdio>
+#include <string>
+#include <vector>
+
+#include "dash/drive_bus_debug.h"
+#include "resources.h"
+
+using std::string;
+using std::vector;
+
+// ——— helpers ———
+
+static string fmt(const char* fmt, float v) {
+    char buf[32];
+    std::snprintf(buf, sizeof(buf), fmt, v);
+    return string(buf);
+}
+static string hex8(unsigned v) {
+    char buf[8];
+    std::snprintf(buf, sizeof(buf), "0x%02X", v);
+    return string(buf);
+}
+static string hex16(unsigned v) {
+    char buf[8];
+    std::snprintf(buf, sizeof(buf), "0x%04X", v);
+    return string(buf);
+}
+
+// ——— the table of all fields ———
+
+static const vector<DebugField> debugFields = {
+    // speeds
+    {"FL_Spd",
+     []() { return fmt("%.2f", Resources::driveBusData().wheelSpeeds[0]); },
+     []() { return fmt("%.2f", Resources::prevDriveBusData().wheelSpeeds[0]); }},
+    {"FR_Spd",
+     []() { return fmt("%.2f", Resources::driveBusData().wheelSpeeds[1]); },
+     []() { return fmt("%.2f", Resources::prevDriveBusData().wheelSpeeds[1]); }},
+    {"BL_Spd",
+     []() { return fmt("%.2f", Resources::driveBusData().wheelSpeeds[2]); },
+     []() { return fmt("%.2f", Resources::prevDriveBusData().wheelSpeeds[2]); }},
+    {"BR_Spd",
+     []() { return fmt("%.2f", Resources::driveBusData().wheelSpeeds[3]); },
+     []() { return fmt("%.2f", Resources::prevDriveBusData().wheelSpeeds[3]); }},
+
+    // displacement
+    {"FL_Disp",
+     []() { return fmt("%.2f", Resources::driveBusData().wheelDisplacement[0]); },
+     []() { return fmt("%.2f", Resources::prevDriveBusData().wheelDisplacement[0]); }},
+    {"FR_Disp",
+     []() { return fmt("%.2f", Resources::driveBusData().wheelDisplacement[1]); },
+     []() { return fmt("%.2f", Resources::prevDriveBusData().wheelDisplacement[1]); }},
+    {"BL_Disp",
+     []() { return fmt("%.2f", Resources::driveBusData().wheelDisplacement[2]); },
+     []() { return fmt("%.2f", Resources::prevDriveBusData().wheelDisplacement[2]); }},
+    {"BR_Disp",
+     []() { return fmt("%.2f", Resources::driveBusData().wheelDisplacement[3]); },
+     []() { return fmt("%.2f", Resources::prevDriveBusData().wheelDisplacement[3]); }},
+
+    // strain
+    {"FL_Strain",
+     []() { return fmt("%.2f", Resources::driveBusData().prStrain[0]); },
+     []() { return fmt("%.2f", Resources::prevDriveBusData().prStrain[0]); }},
+    {"FR_Strain",
+     []() { return fmt("%.2f", Resources::driveBusData().prStrain[1]); },
+     []() { return fmt("%.2f", Resources::prevDriveBusData().prStrain[1]); }},
+    {"BL_Strain",
+     []() { return fmt("%.2f", Resources::driveBusData().prStrain[2]); },
+     []() { return fmt("%.2f", Resources::prevDriveBusData().prStrain[2]); }},
+    {"BR_Strain",
+     []() { return fmt("%.2f", Resources::driveBusData().prStrain[3]); },
+     []() { return fmt("%.2f", Resources::prevDriveBusData().prStrain[3]); }},
+
+    // averages & speeds
+    {"Avg_RPM",
+     []() { return fmt("%.2f", Resources::driveBusData().averageWheelRPM()); },
+     []() { return fmt("%.2f", Resources::prevDriveBusData().averageWheelRPM()); }},
+    {"Veh_MPH",
+     []() { return fmt("%.2f", Resources::driveBusData().vehicleSpeedMPH()); },
+     []() { return fmt("%.2f", Resources::prevDriveBusData().vehicleSpeedMPH()); }},
+
+    // states
+    {"Drv_St",
+     []() { return std::to_string(Resources::driveBusData().driveState); },
+     []() { return std::to_string(Resources::prevDriveBusData().driveState); }},
+    {"BMS_St",
+     []() { return std::to_string(Resources::driveBusData().bmsState); },
+     []() { return std::to_string(Resources::prevDriveBusData().bmsState); }},
+    {"IMD_St",
+     []() { return std::to_string(Resources::driveBusData().imdState); },
+     []() { return std::to_string(Resources::prevDriveBusData().imdState); }},
+
+    // SOC
+    {"BMS_SOC",
+     []() { return fmt("%.1f", Resources::driveBusData().bmsSOC); },
+     []() { return fmt("%.1f", Resources::prevDriveBusData().bmsSOC); }},
+
+    // LV warning
+    {"LV_Warn",
+     []() { return Resources::driveBusData().lvVoltageWarning ? "WARN" : "OK"; },
+     []() { return Resources::prevDriveBusData().lvVoltageWarning ? "WARN" : "OK"; }},
+
+    // right-side floats
+    {"HV_Volt",
+     []() { return fmt("%.2f", Resources::driveBusData().hvVoltage); },
+     []() { return fmt("%.2f", Resources::prevDriveBusData().hvVoltage); }},
+    {"LV_Volt",
+     []() { return fmt("%.2f", Resources::driveBusData().lvVoltage); },
+     []() { return fmt("%.2f", Resources::prevDriveBusData().lvVoltage); }},
+    {"Max_DisChg",
+     []() { return fmt("%.2f", Resources::driveBusData().maxDischargeCurrent); },
+     []() { return fmt("%.2f", Resources::prevDriveBusData().maxDischargeCurrent); }},
+    {"Max_Regen",
+     []() { return fmt("%.2f", Resources::driveBusData().maxRegenCurrent); },
+     []() { return fmt("%.2f", Resources::prevDriveBusData().maxRegenCurrent); }},
+    {"Batt_Temp",
+     []() { return fmt("%.1f", Resources::driveBusData().batteryTemp); },
+     []() { return fmt("%.1f", Resources::prevDriveBusData().batteryTemp); }},
+    {"Max_Cell_T",
+     []() { return fmt("%.1f", Resources::driveBusData().maxCellTemp); },
+     []() { return fmt("%.1f", Resources::prevDriveBusData().maxCellTemp); }},
+    {"Min_Cell_T",
+     []() { return fmt("%.1f", Resources::driveBusData().minCellTemp); },
+     []() { return fmt("%.1f", Resources::prevDriveBusData().minCellTemp); }},
+    {"Max_Cell_V",
+     []() { return fmt("%.2f", Resources::driveBusData().maxCellVoltage); },
+     []() { return fmt("%.2f", Resources::prevDriveBusData().maxCellVoltage); }},
+    {"Min_Cell_V",
+     []() { return fmt("%.2f", Resources::driveBusData().minCellVoltage); },
+     []() { return fmt("%.2f", Resources::prevDriveBusData().minCellVoltage); }},
+
+    // inverter & raw faults
+    {"Inv_St",
+     []() { return hex8(Resources::driveBusData().inverterStatus); },
+     []() { return hex8(Resources::prevDriveBusData().inverterStatus); }},
+    {"BMS_FltsRaw",
+     []() { return hex16(Resources::driveBusData().bmsFaultsRaw); },
+     []() { return hex16(Resources::prevDriveBusData().bmsFaultsRaw); }},
+
+    // motor stats
+    {"Motor_RPM",
+     []() { return std::to_string(Resources::driveBusData().motorRPM); },
+     []() { return std::to_string(Resources::prevDriveBusData().motorRPM); }},
+    {"Motor_Curr",
+     []() { return std::to_string(Resources::driveBusData().motorCurrent); },
+     []() { return std::to_string(Resources::prevDriveBusData().motorCurrent); }},
+    {"Motor_DC_V",
+     []() { return std::to_string(Resources::driveBusData().motorDCVoltage); },
+     []() { return std::to_string(Resources::prevDriveBusData().motorDCVoltage); }},
+    {"Motor_DC_C",
+     []() { return std::to_string(Resources::driveBusData().motorDCCurrent); },
+     []() { return std::to_string(Resources::prevDriveBusData().motorDCCurrent); }},
+
+    // ECU faults bitmask
+    {"ECU_Flts",
+     []() {
+         uint16_t bits = 0;
+         for (int i = 0; i < ECU_FAULT_COUNT; i++)
+             if (Resources::driveBusData().ecuFaults[i]) bits |= (1 << i);
+         return hex16(bits);
+     },
+     []() {
+         uint16_t bits = 0;
+         for (int i = 0; i < ECU_FAULT_COUNT; i++)
+             if (Resources::prevDriveBusData().ecuFaults[i]) bits |= (1 << i);
+         return hex16(bits);
+     }}};
+
+const std::vector<DebugField>& DriveBusDebugScreen::fields() {
+    return debugFields;
+}
+
+// ——— draw & update ———
 
 void DriveBusDebugScreen::draw(Adafruit_RA8875 tft) {
-    // 1) clear screen
     tft.fillScreen(RA8875_BLACK);
+    Drawer::drawString(tft, "DRIVE BUS DEBUG", {.x = SCREEN_WIDTH / 2, .y = 5, .size = 4, .color = RA8875_WHITE, .backgroundColor = RA8875_BLACK, .hAlign = ALIGN_CENTER, .vAlign = ALIGN_TOP});
 
-    // 2) header
-    Drawer::drawString(tft, "DRIVE BUS DEBUG", {.x = SCREEN_WIDTH / 2, .y = 5, .size = 4, .color = RA8875_CYAN, .backgroundColor = RA8875_BLACK, .hAlign = ALIGN_CENTER, .vAlign = ALIGN_TOP});
+    const auto& flds = fields();
+    int perCol = (flds.size() + COL_COUNT - 1) / COL_COUNT;
 
-    // 3) labels
-    int line = 0;
-    // left column
-    const char* leftLabels[] = {
-        "FL_Speed", "FR_Speed", "BL_Speed", "BR_Speed",
-        "Avg_RPM", "Veh_MPH", "Drive_St", "BMS_St",
-        "IMD_St", "BMS_SOC"};
-    for (auto lbl : leftLabels) {
-        Drawer::drawString(tft, lbl, {.x = LEFT_X, .y = START_Y + line * LINE_H, .size = textOpts.size, .color = textOpts.color, .backgroundColor = textOpts.backgroundColor, .hAlign = textOpts.hAlign, .vAlign = textOpts.vAlign});
-        line++;
+    for (size_t i = 0; i < flds.size(); ++i) {
+        int col = i / perCol;
+        int row = i % perCol;
+        int x = col * COL_WIDTH + LABEL_X_OFF;
+        int y = START_Y + row * LINE_H;
+
+        // draw label
+        Drawer::drawString(tft, flds[i].label, {.x = x, .y = y, .size = textOpts.size, .color = textOpts.color, .backgroundColor = textOpts.backgroundColor, .hAlign = textOpts.hAlign, .vAlign = textOpts.vAlign});
+
+        // draw initial value
+        Drawer::drawString(tft, flds[i].current(), {.x = x + VALUE_X_OFF, .y = y, .size = textOpts.size, .color = textOpts.color, .backgroundColor = textOpts.backgroundColor, .hAlign = textOpts.hAlign, .vAlign = textOpts.vAlign});
     }
-
-    // right column
-    line = 0;
-    const char* rightLabels[] = {
-        "HV_Volt", "LV_Volt", "Batt_Temp", "Max_Cell_T",
-        "Min_Cell_T", "Max_Cell_V", "Min_Cell_V",
-        "INV_Status", "BMS_Faults", "ECU_Faults"};
-    for (auto lbl : rightLabels) {
-        Drawer::drawString(tft, lbl, {.x = RIGHT_X, .y = START_Y + line * LINE_H, .size = textOpts.size, .color = textOpts.color, .backgroundColor = textOpts.backgroundColor, .hAlign = textOpts.hAlign, .vAlign = textOpts.vAlign});
-        line++;
-    }
-
-    // 4) first-pass draw of all values
-    update(tft, /*force=*/true);
 }
 
 void DriveBusDebugScreen::update(Adafruit_RA8875 tft, bool force) {
-    const auto& d = Resources::driveBusData();
-    const auto& pd = Resources::prevDriveBusData();
+    const auto& flds = fields();
+    int perCol = (flds.size() + COL_COUNT - 1) / COL_COUNT;
 
-    auto drawIf = [&](float newVal, float oldVal, int x, int y) {
-        if (force || newVal != oldVal) {
-            Drawer::drawNum(tft, newVal, {.x = x, .y = y, .size = numOpts.size, .color = numOpts.color, .backgroundColor = numOpts.backgroundColor, .hAlign = numOpts.hAlign, .vAlign = numOpts.vAlign});
+    for (size_t i = 0; i < flds.size(); ++i) {
+        int col = i / perCol;
+        int row = i % perCol;
+        int x = col * COL_WIDTH + LABEL_X_OFF + VALUE_X_OFF;
+        int y = START_Y + row * LINE_H;
+
+        auto cur = flds[i].current();
+        auto prv = flds[i].previous();
+        if (force || cur != prv) {
+            Drawer::drawString(tft, cur, {.x = x, .y = y, .size = textOpts.size, .color = textOpts.color, .backgroundColor = textOpts.backgroundColor, .hAlign = textOpts.hAlign, .vAlign = textOpts.vAlign});
         }
-    };
-    auto drawIfU8 = [&](uint8_t newVal, uint8_t oldVal, int x, int y) {
-        if (force || newVal != oldVal) {
-            Drawer::drawNum(tft, newVal, {.x = x, .y = y, .size = numOpts.size, .color = numOpts.color, .backgroundColor = numOpts.backgroundColor, .hAlign = numOpts.hAlign, .vAlign = numOpts.vAlign});
-        }
-    };
-    auto drawIfHex = [&](uint16_t newVal, uint16_t oldVal, int x, int y) {
-        if (force || newVal != oldVal) {
-            char buf[8];
-            sprintf(buf, "0x%04X", newVal);
-            Drawer::drawString(tft, buf, {.x = x, .y = y, .size = textOpts.size, .color = textOpts.color, .backgroundColor = textOpts.backgroundColor, .hAlign = textOpts.hAlign, .vAlign = textOpts.vAlign});
-        }
-    };
-
-    // left col positions
-    int ly = START_Y;
-    drawIf(d.wheelSpeeds[0], pd.wheelSpeeds[0], LEFT_X + TEXT_OFFSET, ly);
-    ly += LINE_H;
-    drawIf(d.wheelSpeeds[1], pd.wheelSpeeds[1], LEFT_X + TEXT_OFFSET, ly);
-    ly += LINE_H;
-    drawIf(d.wheelSpeeds[2], pd.wheelSpeeds[2], LEFT_X + TEXT_OFFSET, ly);
-    ly += LINE_H;
-    drawIf(d.wheelSpeeds[3], pd.wheelSpeeds[3], LEFT_X + TEXT_OFFSET, ly);
-    ly += LINE_H;
-
-    drawIf(d.averageWheelRPM(), pd.averageWheelRPM(), LEFT_X + TEXT_OFFSET, ly);
-    ly += LINE_H;
-    drawIf(d.vehicleSpeedMPH(), pd.vehicleSpeedMPH(), LEFT_X + TEXT_OFFSET, ly);
-    ly += LINE_H;
-
-    drawIfU8(d.driveState, pd.driveState, LEFT_X + TEXT_OFFSET, ly);
-    ly += LINE_H;
-    drawIfU8(d.bmsState, pd.bmsState, LEFT_X + TEXT_OFFSET, ly);
-    ly += LINE_H;
-    drawIfU8(d.imdState, pd.imdState, LEFT_X + TEXT_OFFSET, ly);
-    ly += LINE_H;
-    drawIfU8(d.bmsSOC, pd.bmsSOC, LEFT_X + TEXT_OFFSET, ly); /* ly+=LINE_H; */
-
-    // right col positions
-    int ry = START_Y;
-    drawIf(d.hvVoltage, pd.hvVoltage, RIGHT_X + TEXT_OFFSET, ry);
-    ry += LINE_H;
-    drawIf(d.lvVoltage, pd.lvVoltage, RIGHT_X + TEXT_OFFSET, ry);
-    ry += LINE_H;
-    drawIf(d.batteryTemp, pd.batteryTemp, RIGHT_X + TEXT_OFFSET, ry);
-    ry += LINE_H;
-    drawIf(d.maxCellTemp, pd.maxCellTemp, RIGHT_X + TEXT_OFFSET, ry);
-    ry += LINE_H;
-    drawIf(d.minCellTemp, pd.minCellTemp, RIGHT_X + TEXT_OFFSET, ry);
-    ry += LINE_H;
-    drawIf(d.maxCellVoltage, pd.maxCellVoltage, RIGHT_X + TEXT_OFFSET, ry);
-    ry += LINE_H;
-    drawIf(d.minCellVoltage, pd.minCellVoltage, RIGHT_X + TEXT_OFFSET, ry);
-    ry += LINE_H;
-
-    drawIfU8(d.inverterStatus, pd.inverterStatus, RIGHT_X + TEXT_OFFSET, ry);
-    ry += LINE_H;
-
-    drawIfHex(d.bmsFaultsRaw, pd.bmsFaultsRaw, RIGHT_X + TEXT_OFFSET, ry);
-    ry += LINE_H;
-
-    // simplest way to pack ECU faults as bits in hex too:
-    uint16_t ecuBits = 0;
-    for (int i = 0; i < ECU_FAULT_COUNT; i++)
-        if (d.ecuFaults[i]) ecuBits |= (1 << i);
-    uint16_t pEcuBits = 0;
-    for (int i = 0; i < ECU_FAULT_COUNT; i++)
-        if (pd.ecuFaults[i]) pEcuBits |= (1 << i);
-    drawIfHex(ecuBits, pEcuBits, RIGHT_X + TEXT_OFFSET, ry);
+    }
 }
-
-#endif  // __DRIVE_BUS_DEBUG_H__
