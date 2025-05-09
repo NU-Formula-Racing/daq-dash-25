@@ -8,6 +8,7 @@
 #include <memory>
 #include <string>
 
+#include "dash/drive_bus_debug.h"
 #include "dash/drive_screen.h"
 #include "dash/error_screen.h"
 #include "resources.h"
@@ -33,7 +34,8 @@ int bar_max_size = 480;
 Dash::Dash() : _tft(RA8875_CS, RA8875_RESET), _currentScreen(DashScreen::DS_DRIVE) {
     _screens = {
         std::make_shared<DriveScreen>(),
-        std::make_shared<ErrorScreen>()};
+        std::make_shared<ErrorScreen>(),
+        std::make_shared<DriveBusDebugScreen>()};
 }
 
 void Dash::initalize() {
@@ -92,7 +94,7 @@ void Dash::update() {
     // Serial.print("Finished!\n");
 
     double dHours = (double)Resources::deltaTimeMs() / (1000.0 * 60.0 * 60.0);
-    Resources::instance().milageCounter += (double)Resources::driveBusData().vehicleSpeedMPH() * dHours * 4; // hack, cause I'm tired, but seems to be wrong by a factor of 4
+    Resources::instance().milageCounter += (double)Resources::driveBusData().vehicleSpeedMPH() * dHours * 4;  // hack, cause I'm tired, but seems to be wrong by a factor of 4
 }
 
 void Dash::changeScreen(DashScreen screen) {

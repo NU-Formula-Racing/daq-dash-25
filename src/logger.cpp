@@ -5,13 +5,9 @@
 #include <memory>
 #include <string>
 
-#include "resources.h"
-
 #include "dash/dash.h"
-
 #include "define.h"
-
-#include <string>
+#include "resources.h"
 
 const int chipSelect = BUILTIN_SDCARD;
 
@@ -21,16 +17,9 @@ time_t getTeensy3Time() {
 
 Logger::Logger() {
     // calculate the size of the data
-    size_t timeSize = 3 * sizeof(int);
-    size_t dataDataSize = NUM_TEMP_CELLS * sizeof(float) + NUM_VOLT_CELLS * sizeof(float);
-    size_t driveDataSize =
-        4 * sizeof(float) +    // wheel speeds
-        1 * sizeof(uint8_t) +  // drive state, bmsState, imdState, bmsSOC, inverterStatus
-        7 * sizeof(float) +    // HVVoltage, LVVoltage, batteryTemp, maxCellTemp, minCellTemp, maxCellVoltage, minCellVoltage
-        BMS_FAULT_COUNT * sizeof(bool);
-    // ECU_FAULT_COUNT * sizeof(bool); // NOT USED RIGHT NOW
+    size_t timeSize = sizeof(uint32_t);  // millis
 
-    _lineBuffer = ByteBuffer(timeSize + dataDataSize + driveDataSize);
+    _lineBuffer = ByteBuffer(timeSize + sizeof(DataBusData) + sizeof(DriveBusData));
 }
 
 void Logger::initialize() {
@@ -62,6 +51,19 @@ void Logger::initialize() {
     Serial.println(loggingFileName.c_str());
 
     _status = LoggerStatus::LOGGING;
+
+    this->loggingFile = SD.open(loggingFileName.c_str(), FILE_WRITE);
+
+    /// write the preamble
+    this->loggingFile.write('N');
+    this->loggingFile.write('F');
+    this->loggingFile.write('R');
+    this->loggingFile.write('2');
+    this->loggingFile.write('5');
+    this->loggingFile.write((uint8_t)0);
+    this->loggingFile.write((uint8_t)0);
+    this->loggingFile.write((uint8_t)1);
+    this->loggingFile.write(_lineBuffer.size());
 }
 
 void Logger::log() {
@@ -71,49 +73,21 @@ void Logger::log() {
 
     this->loggingFile.seek(this->loggingFile.size());
 
-    // Serial.println("Beginning to log!");
-
     DriveBusData driveData = Resources::instance().driveBus.getData();
     DataBusData dataData = Resources::instance().dataBus.getData();
 
     _lineBuffer.reset();
+
     // write the time
-    _lineBuffer.write(hour());
-    _lineBuffer.write(minute());
-    _lineBuffer.write(second());
+    _lineBuffer.writeValue(millis());
+    _lineBuffer.writeFromPtr(&driveData);
+    _lineBuffer.writeFromPtr(&dataData);
 
-    for (const auto& wheel : driveData.wheelSpeeds) {
-        _lineBuffer.write(wheel);
-    }
-
-    _lineBuffer.write(driveData.driveState);
-    _lineBuffer.write(driveData.HVVoltage);
-    _lineBuffer.write(driveData.LVVoltage);
-    _lineBuffer.write(driveData.batteryTemp);
-    _lineBuffer.write(driveData.maxCellTemp);
-    _lineBuffer.write(driveData.minCellTemp);
-    _lineBuffer.write(driveData.maxCellVoltage);
-    _lineBuffer.write(driveData.minCellVoltage);
-
-    for (const auto& fault : driveData.bmsFaults) {
-        _lineBuffer.write(fault);
-    }
-
-    for (const auto& voltage : dataData.cellVoltages) {
-        _lineBuffer.write(voltage);
-    }
-
-    for (const auto& temp : dataData.cellTemperatures) {
-        _lineBuffer.write(temp);
-    }
-
-    // Serial.println("Finished logging!");
     this->loggingFile.write(_lineBuffer.buffer.data(), _lineBuffer.size());
 
     this->loggingFile.close();
 }
 
-    
 LoggerStatus Logger::status() const {
     return _status;
 }

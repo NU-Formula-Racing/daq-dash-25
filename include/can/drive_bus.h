@@ -38,25 +38,35 @@ enum DriveState : uint8_t {
 };
 
 struct DriveBusData {
-    float wheelSpeeds[4];
+    bool bmsFaults[BMS_FAULT_COUNT];
+    bool ecuFaults[ECU_FAULT_COUNT];
 
-    uint8_t driveState;
-    uint8_t bmsState;
-    uint8_t imdState = 1;  // healthy when high
-    uint8_t bmsSOC;
-    uint8_t inverterStatus;
-
-    float HVVoltage;
-    float LVVoltage;
+    float hvVoltage;
+    float lvVoltage;
     float batteryTemp;
     float maxCellTemp;
     float minCellTemp;
     float maxCellVoltage;
     float minCellVoltage;
+    float maxDischargeCurrent;
+    float maxRegenCurrent;
+    float bmsSOC;
+
+    float wheelSpeeds[4];
+    float wheelDisplacement[4];
+    float prStrain[4];
 
     uint16_t bmsFaultsRaw;
-    bool bmsFaults[BMS_FAULT_COUNT];
-    bool ecuFaults[ECU_FAULT_COUNT];
+    int16_t motorRPM;
+    int16_t motorCurrent;
+    int16_t motorDCVoltage;
+    int16_t motorDCCurrent;
+
+    uint8_t driveState;
+    uint8_t bmsState;
+    uint8_t imdState = 1;  // healthy when high
+    uint8_t inverterStatus;
+    bool lvVoltageWarning;
 
     DriveBusData() {
         memset(bmsFaults, 0, sizeof(bool) * BMS_FAULT_COUNT);
@@ -71,7 +81,7 @@ struct DriveBusData {
 
     float averageWheelRPM() const {
         // return std::max({wheelSpeeds[0], wheelSpeeds[1], wheelSpeeds[2], wheelSpeeds[3]});
-        return ((wheelSpeeds[0] + wheelSpeeds[1] + wheelSpeeds[2] + wheelSpeeds[3])) / 2; // only by two rn cause only two wheel speeds
+        return ((wheelSpeeds[0] + wheelSpeeds[1] + wheelSpeeds[2] + wheelSpeeds[3])) / 2;  // only by two rn cause only two wheel speeds
     }
 
     float vehicleSpeedMPH() const;
@@ -103,24 +113,24 @@ class DriveBus {
     // all of the CAN message stuff and setup
 
     // Wheel speeds
-    MakeUnsignedCANSignal(float, 0, 16, 1, 0) fl_wheel_speed_signal;
-    MakeUnsignedCANSignal(float, 16, 16, 1, 0) fl_wheel_displacement_signal;
-    MakeUnsignedCANSignal(float, 32, 16, 1, 0) fl_wheel_load_signal;
+    MakeUnsignedCANSignal(float, 0, 16, 0.01, 0) fl_wheel_speed_signal;
+    MakeUnsignedCANSignal(float, 16, 16, 0.01, 0) fl_wheel_displacement_signal;
+    MakeUnsignedCANSignal(float, 32, 16, 0.01, 0) fl_wheel_load_signal;
     CANRXMessage<3> rx_fl_wheel_speed{_driveBus, 0x249, fl_wheel_speed_signal, fl_wheel_displacement_signal, fl_wheel_load_signal};
 
-    MakeUnsignedCANSignal(float, 0, 16, 1, 0) fr_wheel_speed_signal;
-    MakeUnsignedCANSignal(float, 16, 16, 1, 0) fr_wheel_displacement_signal;
-    MakeUnsignedCANSignal(float, 32, 16, 1, 0) fr_wheel_load_signal;
+    MakeUnsignedCANSignal(float, 0, 16, 0.01, 0) fr_wheel_speed_signal;
+    MakeUnsignedCANSignal(float, 16, 16, 0.01, 0) fr_wheel_displacement_signal;
+    MakeUnsignedCANSignal(float, 32, 16, 0.01, 0) fr_wheel_load_signal;
     CANRXMessage<3> rx_fr_wheel_speed{_driveBus, 0x24A, fr_wheel_speed_signal, fr_wheel_displacement_signal, fr_wheel_load_signal};
 
-    MakeUnsignedCANSignal(float, 0, 16, 1, 0) bl_wheel_speed_signal;
-    MakeUnsignedCANSignal(float, 16, 16, 1, 0) bl_wheel_displacement_signal;
-    MakeUnsignedCANSignal(float, 32, 16, 1, 0) bl_wheel_load_signal;
+    MakeUnsignedCANSignal(float, 0, 16, 0.01, 0) bl_wheel_speed_signal;
+    MakeUnsignedCANSignal(float, 16, 16, 0.01, 0) bl_wheel_displacement_signal;
+    MakeUnsignedCANSignal(float, 32, 16, 0.01, 0) bl_wheel_load_signal;
     CANRXMessage<3> rx_bl_wheel_speed{_driveBus, 0x24B, bl_wheel_speed_signal, bl_wheel_displacement_signal, bl_wheel_load_signal};
 
-    MakeUnsignedCANSignal(float, 0, 16, 1, 0) br_wheel_speed_signal;
-    MakeUnsignedCANSignal(float, 16, 16, 1, 0) br_wheel_displacement_signal;
-    MakeUnsignedCANSignal(float, 32, 16, 1, 0) br_wheel_load_signal;
+    MakeUnsignedCANSignal(float, 0, 16, 0.01, 0) br_wheel_speed_signal;
+    MakeUnsignedCANSignal(float, 16, 16, 0.01, 0) br_wheel_displacement_signal;
+    MakeUnsignedCANSignal(float, 32, 16, 0.01, 0) br_wheel_load_signal;
     CANRXMessage<3> rx_br_wheel_speed{_driveBus, 0x24C, br_wheel_speed_signal, br_wheel_displacement_signal, br_wheel_load_signal};
 
     // ECU Stuff

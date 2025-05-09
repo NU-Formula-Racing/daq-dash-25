@@ -320,21 +320,21 @@ void DriveScreen::update(Adafruit_RA8875 tft, bool force) {
         drawSpeed(tft);
     }
     // Update high-voltage battery status.
-    if (Resources::driveBusData().HVVoltage != Resources::prevDriveBusData().HVVoltage  || force) {
+    if (Resources::driveBusData().hvVoltage != Resources::prevDriveBusData().hvVoltage  || force) {
         drawCircleStatus(tft,
                          hv_bat_volt_startX,
                          hv_bat_volt_startY,
-                         Resources::driveBusData().HVVoltage,
+                         Resources::driveBusData().hvVoltage,
                          hv_battery_voltage_mid_state,
                          hv_battery_voltage_last_state);
     }
 
     // Update low-voltage battery status.
-    if (Resources::driveBusData().LVVoltage != Resources::prevDriveBusData().LVVoltage || force) {
+    if (Resources::driveBusData().lvVoltage != Resources::prevDriveBusData().lvVoltage || force) {
         drawCircleStatus(tft,
                          lv_bat_volt_startX,
                          lv_bat_volt_startY,
-                         Resources::driveBusData().LVVoltage,
+                         Resources::driveBusData().lvVoltage,
                          lv_battery_voltage_mid_state,
                          lv_battery_voltage_last_state);
     }

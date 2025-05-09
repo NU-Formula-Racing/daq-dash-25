@@ -99,17 +99,23 @@ void DriveBus::update() {
     this->_data.wheelSpeeds[2] = bl_wheel_speed_signal;
     this->_data.wheelSpeeds[3] = br_wheel_speed_signal;
 
-    // this->_data.wheelSpeeds[0] = (float)inverter_motor_status_rpm;
-    // this->_data.wheelSpeeds[1] = (float)inverter_motor_status_rpm;
-    // this->_data.wheelSpeeds[2] = (float)inverter_motor_status_rpm;
-    // this->_data.wheelSpeeds[3] = (float)inverter_motor_status_rpm;
+    this->_data.wheelDisplacement[0] = fl_wheel_displacement_signal;
+    this->_data.wheelDisplacement[1] = fr_wheel_displacement_signal;
+    this->_data.wheelDisplacement[2] = bl_wheel_displacement_signal;
+    this->_data.wheelDisplacement[3] = br_wheel_displacement_signal;
+
+    this->_data.prStrain[0] = fl_wheel_load_signal;
+    this->_data.prStrain[1] = fr_wheel_load_signal;
+    this->_data.prStrain[2] = bl_wheel_load_signal;
+    this->_data.prStrain[3] = br_wheel_load_signal;
 
     this->_data.driveState = drive_state_signal;
-    this->_data.HVVoltage = hv_voltage_signal;
-    this->_data.LVVoltage = lv_voltage_signal;
+    this->_data.hvVoltage = hv_voltage_signal;
+    this->_data.lvVoltage = lv_voltage_signal;
     this->_data.bmsState = bms_status_bms_state;
-    if (this->_data.imdState == 0)  // latch this
-        this->_data.imdState = bms_status_imd_state;
+
+    this->_data.imdState = bms_status_imd_state;
+
     this->_data.maxCellTemp = bms_status_max_cell_temp;
     this->_data.minCellTemp = bms_status_min_cell_temp;
     this->_data.maxCellVoltage = bms_status_max_cell_voltage;
@@ -128,7 +134,6 @@ void DriveBus::update() {
     this->_data.bmsFaults[BMS_FAULT_OPEN_WIRE] = static_cast<bool>(bms_fault_open_wire_signal);
 
     uint16_t bmsFaultsRaw = 0;
-
     for (int i = 0; i < BMS_FAULT_COUNT; i++) {
         bmsFaultsRaw |= ((uint16_t)(this->_data.bmsFaults) << i);
     }
@@ -139,7 +144,14 @@ void DriveBus::update() {
     this->_data.ecuFaults[ECU_FAULT_BRAKE_INVALID] = static_cast<bool>(ecu_implausibility_brake_invalid_imp_signal);
     this->_data.ecuFaults[ECU_FAULT_APPPS_INVALID] = static_cast<bool>(ecu_implausibility_appss_invalid_imp_signal);
 
-    this->_data.LVVoltage = static_cast<float>(lv_voltage_signal);
+    this->_data.lvVoltage = static_cast<float>(lv_voltage_signal);
+
+    this->_data.maxDischargeCurrent = max_discharge_current_signal;
+    this->_data.maxRegenCurrent = max_regen_current_signal;
+    this->_data.motorCurrent = inverter_motor_status_rpm;
+    this->_data.motorCurrent = inverter_motor_status_motor_current;
+    this->_data.motorDCVoltage = inverter_motor_status_dc_voltage;
+    this->_data.motorDCCurrent = inverter_motor_status_dc_current;
 
 #endif
 }
