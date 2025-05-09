@@ -54,6 +54,7 @@ struct DriveBusData {
     float maxCellVoltage;
     float minCellVoltage;
 
+    uint16_t bmsFaultsRaw;
     bool bmsFaults[BMS_FAULT_COUNT];
     bool ecuFaults[ECU_FAULT_COUNT];
 
@@ -177,7 +178,7 @@ class DriveBus {
 
     // inverter stuff
     MakeUnsignedCANSignal(uint8_t, 0, 8, 1.0, 0.0) inverter_fault_status_fault_code_signal;
-    CANRXMessage<1> rx_inverter_fault_status{_driveBus, 0x208, inverter_fault_status_fault_code_signal};
+    CANRXMessage<1> rx_inverter_fault_status{_driveBus, 0x280, inverter_fault_status_fault_code_signal};
 
     MakeSignedCANSignal(int16_t, 0, 16, 1.0, 0.0) inverter_motor_status_rpm;
     MakeSignedCANSignal(int16_t, 16, 16, 0.1, 0.0) inverter_motor_status_motor_current;

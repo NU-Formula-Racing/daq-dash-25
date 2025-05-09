@@ -15,7 +15,6 @@ const DriveBusData& DriveBus::getPrevData() const {
     return _prevData;
 }
 
-
 void DriveBus::initialize() {
     _driveBus.Initialize(ICAN::BaudRate::kBaud500K);
 
@@ -33,7 +32,8 @@ void DriveBus::initialize() {
     _driveBus.RegisterRXMessage(rx_inverter_motor_status);
 
     // lowkey mad annoying but we gotta pull the imd status to be high
-    bms_status_imd_state = 1; // drake why can't you be normal
+    bms_status_imd_state = 1;  // drake why can't you be normal
+    inverter_fault_status_fault_code_signal = 0;
 }
 
 // Helper: Generate a random float between min and max.
@@ -108,7 +108,7 @@ void DriveBus::update() {
     this->_data.HVVoltage = hv_voltage_signal;
     this->_data.LVVoltage = lv_voltage_signal;
     this->_data.bmsState = bms_status_bms_state;
-    if (this->_data.imdState == 0) // latch this
+    if (this->_data.imdState == 0)  // latch this
         this->_data.imdState = bms_status_imd_state;
     this->_data.maxCellTemp = bms_status_max_cell_temp;
     this->_data.minCellTemp = bms_status_min_cell_temp;
@@ -117,7 +117,6 @@ void DriveBus::update() {
     this->_data.bmsSOC = bms_status_bms_soc;
 
     this->_data.inverterStatus = (static_cast<uint8_t>(inverter_fault_status_fault_code_signal));
-    // this->_data.inverterStatus = 0x03;
 
     this->_data.bmsFaults[BMS_FAULT_SUMMARY] = (static_cast<bool>(bms_fault_summary_signal));
     this->_data.bmsFaults[BMS_FAULT_UNDER_VOLTAGE] = static_cast<bool>(bms_fault_under_voltage_signal);
@@ -127,6 +126,12 @@ void DriveBus::update() {
     this->_data.bmsFaults[BMS_FAULT_OVER_CURRENT] = static_cast<bool>(bms_fault_over_current_signal);
     this->_data.bmsFaults[BMS_FAULT_EXTERNAL_KILL] = static_cast<bool>(bms_fault_external_kill_signal);
     this->_data.bmsFaults[BMS_FAULT_OPEN_WIRE] = static_cast<bool>(bms_fault_open_wire_signal);
+
+    uint16_t bmsFaultsRaw = 0;
+
+    for (int i = 0; i < BMS_FAULT_COUNT; i++) {
+        bmsFaultsRaw |= ((uint16_t)(this->_data.bmsFaults) << i);
+    }
 
     this->_data.ecuFaults[ECU_FAULT_PRESENT] = static_cast<bool>(ecu_implausibility_present_signal);
     this->_data.ecuFaults[ECU_FAULT_APPSS_DISAGREEMENT] = static_cast<bool>(ecu_implausibility_appss_disagreement_imp_signal);
@@ -149,7 +154,7 @@ void DriveBus::playReadyToDriveSound() {
         return;  // no need to play the sound
     }
 
-    // we only play the sound if we are transitioning from neutral to on 
+    // we only play the sound if we are transitioning from neutral to on
     // have to check current and previous, just in case
     // this is called during an interrupt
     if (Resources::driveBusData().driveState == DriveState::DS_NEUTRAL ||

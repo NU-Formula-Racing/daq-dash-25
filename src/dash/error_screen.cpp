@@ -15,7 +15,7 @@ static std::string getIMDErrorMessage() {
     if (Resources::driveBusData().imdState == 0) {
         return "IMD_ERR";
     }
-    return "";
+    return "NO_IMD_ERR";
 }
 
 static std::string getBMSErrorMessage() {
@@ -29,7 +29,9 @@ static std::string getBMSErrorMessage() {
         "EXTN_KL",
         "OPEN_WIRE"};
 
-    std::string result = "BMS:";
+    char errorCodeBuf[16];
+    sprintf(errorCodeBuf, "0x%04x", Resources::driveBusData().bmsFaultsRaw);
+    std::string result = "BMS(" + std::string(errorCodeBuf) + ") ";
     bool any = false;
     for (int i = 0; i < ECU_FAULT_COUNT; i++) {
         if (Resources::driveBusData().bmsFaults[i]) {
@@ -41,8 +43,6 @@ static std::string getBMSErrorMessage() {
 
     if (any) {  // Remove trailing comma
         result.pop_back();
-    } else {
-        return "";
     }
 
     return result;
@@ -69,7 +69,7 @@ static std::string getECUErrorMessage() {
     if (any) {
         result.pop_back();
     } else {
-        return "";
+        return "NO_ECU_IMPL";
     }
 
     return result;
@@ -109,15 +109,22 @@ static std::string getInverterErrorMessage() {
         {0x19, "ENCDR_NO_MAG"},
         {0x1A, "ENCDR_MAG_2_STRNG"},
         {0x1B, "PHS_FILTR_FLT"}};
+
+    char errorCodeBuf[16];
+    sprintf(errorCodeBuf, "0x%04x", Resources::driveBusData().inverterStatus);
+    std::string result = "INV(" + std::string(errorCodeBuf) + ") ";
+
     const int lutSize = sizeof(inverterFaultLUT) / sizeof(inverterFaultLUT[0]);
     for (int i = 0; i < lutSize; i++) {
         if (inverterFaultLUT[i].code == Resources::driveBusData().inverterStatus) {
-            return std::string(inverterFaultLUT[i].msg);
+            result += inverterFaultLUT[i].msg;
+            return result;
         }
     }
 
-    return "";
+    return result;
 }
+
 
 static uint16_t getDriveStateColor() {
     switch (Resources::driveBusData().driveState) {
