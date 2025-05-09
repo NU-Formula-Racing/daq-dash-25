@@ -12,7 +12,8 @@
 #include "virtualTimer.h"
 #include "throttle_lut.h"
 
-enum BMSFault {
+enum BMSFault
+{
     BMS_FAULT_SUMMARY,
     BMS_FAULT_UNDER_VOLTAGE,
     BMS_FAULT_OVER_VOLTAGE,
@@ -24,7 +25,8 @@ enum BMSFault {
     BMS_FAULT_COUNT,
 };
 
-enum ECUFault {
+enum ECUFault
+{
     ECU_FAULT_PRESENT,
     ECU_FAULT_APPSS_DISAGREEMENT,
     ECU_FAULT_BPPC,
@@ -33,18 +35,20 @@ enum ECUFault {
     ECU_FAULT_COUNT
 };
 
-enum DriveState : uint8_t {
+enum DriveState : uint8_t
+{
     DS_OFF = 0,
     DS_NEUTRAL = 1,
     DS_ON = 2
 };
 
-struct DriveBusData {
+struct DriveBusData
+{
     float wheelSpeeds[4];
 
     uint8_t driveState;
     uint8_t bmsState;
-    uint8_t imdState = 1;  // healthy when high
+    uint8_t imdState = 1; // healthy when high
     uint8_t bmsSOC;
     uint8_t inverterStatus;
 
@@ -59,19 +63,22 @@ struct DriveBusData {
     bool bmsFaults[BMS_FAULT_COUNT];
     bool ecuFaults[ECU_FAULT_COUNT];
 
-    DriveBusData() {
+    DriveBusData()
+    {
         memset(bmsFaults, 0, sizeof(bool) * BMS_FAULT_COUNT);
         memset(ecuFaults, 0, sizeof(bool) * ECU_FAULT_COUNT);
         imdState = 1;
     }
 
-    bool faultPresent() const {
+    bool faultPresent() const
+    {
         // return inverterStatus != 0;;
         return bmsFaults[BMS_FAULT_SUMMARY] || ecuFaults[ECU_FAULT_PRESENT] || (inverterStatus != 0 && inverterStatus != 0x02) || imdState == 0;
         // return bmsFaults[BMS_FAULT_SUMMARY] || ecuFaults[ECU_FAULT_PRESENT] || imdState == 0;
     }
 
-    float averageWheelRPM() const {
+    float averageWheelRPM() const
+    {
         // return std::max({wheelSpeeds[0], wheelSpeeds[1], wheelSpeeds[2], wheelSpeeds[3]});
         return ((wheelSpeeds[0] + wheelSpeeds[1] + wheelSpeeds[2] + wheelSpeeds[3])) / 2; // only by two rn cause only two wheel speeds
     }
@@ -79,8 +86,9 @@ struct DriveBusData {
     float vehicleSpeedMPH() const;
 };
 
-class DriveBus {
-   public:
+class DriveBus
+{
+public:
     DriveBus() {}
 
     // returns imuatable reference to _data
@@ -99,7 +107,7 @@ class DriveBus {
     // tick can tx timer
     void tickTimerCANTx();
 
-   private:
+private:
     DriveBusData _data;
     DriveBusData _prevData;
     TeensyCAN<3> _driveBus;
@@ -134,7 +142,8 @@ class DriveBus {
     // ECU Stuff
     MakeUnsignedCANSignal(uint8_t, 0, 8, 1, 0) drive_state_signal;
     CANRXMessage<1> rx_drive_state{_driveBus, 0x206,
-                                   [this]() {
+                                   [this]()
+                                   {
                                        this->playReadyToDriveSound();
                                    },
                                    drive_state_signal};
@@ -159,93 +168,93 @@ class DriveBus {
     CANTXMessage<4> tx_daq_lut_metadata{_driveBus, 0x2B0, 4, 100, _timerGroup, num_lut_pairs, interp_type, lut_id, file_status};
 
     MakeUnsignedCANSignal(int16_t, 0, 16, 1, 0) x_zero;
-    MakeUnsignedCANSignal(float, 16, 16, 1, 0) y_zero;
+    MakeUnsignedCANSignal(float, 16, 16, 0.01, 0) y_zero;
     MakeUnsignedCANSignal(int16_t, 32, 16, 1, 0) x_one;
-    MakeUnsignedCANSignal(float, 48, 16, 1, 0) y_one;
+    MakeUnsignedCANSignal(float, 48, 16, 0.01, 0) y_one;
     CANTXMessage<4> tx_daq_lut_pair_zero_one{_driveBus, 0x2B1, 8, 100, _timerGroup, x_zero, y_zero, x_one, y_one};
 
     MakeUnsignedCANSignal(int16_t, 0, 16, 1, 0) x_two;
-    MakeUnsignedCANSignal(float, 16, 16, 1, 0) y_two;
+    MakeUnsignedCANSignal(float, 16, 16, 0.01, 0) y_two;
     MakeUnsignedCANSignal(int16_t, 32, 16, 1, 0) x_three;
-    MakeUnsignedCANSignal(float, 48, 16, 1, 0) y_three;
+    MakeUnsignedCANSignal(float, 48, 16, 0.01, 0) y_three;
     CANTXMessage<4> tx_daq_lut_pair_two_three{_driveBus, 0x2B2, 8, 100, _timerGroup, x_two, y_two, x_three, y_three};
 
     MakeUnsignedCANSignal(int16_t, 0, 16, 1, 0) x_four;
-    MakeUnsignedCANSignal(float, 16, 16, 1, 0) y_four;
+    MakeUnsignedCANSignal(float, 16, 16, 0.01, 0) y_four;
     MakeUnsignedCANSignal(int16_t, 32, 16, 1, 0) x_five;
-    MakeUnsignedCANSignal(float, 48, 16, 1, 0) y_five;
+    MakeUnsignedCANSignal(float, 48, 16, 0.01, 0) y_five;
     CANTXMessage<4> tx_daq_lut_pair_four_five{_driveBus, 0x2B3, 8, 100, _timerGroup, x_four, y_four, x_five, y_five};
 
     MakeUnsignedCANSignal(int16_t, 0, 16, 1, 0) x_six;
-    MakeUnsignedCANSignal(float, 16, 16, 1, 0) y_six;
+    MakeUnsignedCANSignal(float, 16, 16, 0.01, 0) y_six;
     MakeUnsignedCANSignal(int16_t, 32, 16, 1, 0) x_seven;
-    MakeUnsignedCANSignal(float, 48, 16, 1, 0) y_seven;
+    MakeUnsignedCANSignal(float, 48, 16, 0.01, 0) y_seven;
     CANTXMessage<4> tx_daq_lut_pair_six_seven{_driveBus, 0x2B4, 8, 100, _timerGroup, x_six, y_six, x_seven, y_seven};
 
     MakeUnsignedCANSignal(int16_t, 0, 16, 1, 0) x_eight;
-    MakeUnsignedCANSignal(float, 16, 16, 1, 0) y_eight;
+    MakeUnsignedCANSignal(float, 16, 16, 0.01, 0) y_eight;
     MakeUnsignedCANSignal(int16_t, 32, 16, 1, 0) x_nine;
-    MakeUnsignedCANSignal(float, 48, 16, 1, 0) y_nine;
+    MakeUnsignedCANSignal(float, 48, 16, 0.01, 0) y_nine;
     CANTXMessage<4> tx_daq_lut_pair_eight_nine{_driveBus, 0x2B5, 8, 100, _timerGroup, x_eight, y_eight, x_nine, y_nine};
 
     MakeUnsignedCANSignal(int16_t, 0, 16, 1, 0) x_ten;
-    MakeUnsignedCANSignal(float, 16, 16, 1, 0) y_ten;
+    MakeUnsignedCANSignal(float, 16, 16, 0.01, 0) y_ten;
     MakeUnsignedCANSignal(int16_t, 32, 16, 1, 0) x_eleven;
-    MakeUnsignedCANSignal(float, 48, 16, 1, 0) y_eleven;
+    MakeUnsignedCANSignal(float, 48, 16, 0.01, 0) y_eleven;
     CANTXMessage<4> tx_daq_lut_pair_ten_eleven{_driveBus, 0x2B6, 8, 100, _timerGroup, x_ten, y_ten, x_eleven, y_eleven};
 
     MakeUnsignedCANSignal(int16_t, 0, 16, 1, 0) x_twelve;
-    MakeUnsignedCANSignal(float, 16, 16, 1, 0) y_twelve;
+    MakeUnsignedCANSignal(float, 16, 16, 0.01, 0) y_twelve;
     MakeUnsignedCANSignal(int16_t, 32, 16, 1, 0) x_thirteen;
-    MakeUnsignedCANSignal(float, 48, 16, 1, 0) y_thirteen;
+    MakeUnsignedCANSignal(float, 48, 16, 0.01, 0) y_thirteen;
     CANTXMessage<4> tx_daq_lut_pair_twelve_thirteen{_driveBus, 0x2B7, 8, 100, _timerGroup, x_twelve, y_twelve, x_thirteen, y_thirteen};
 
     MakeUnsignedCANSignal(int16_t, 0, 16, 1, 0) x_fourteen;
-    MakeUnsignedCANSignal(float, 16, 16, 1, 0) y_fourteen;
+    MakeUnsignedCANSignal(float, 16, 16, 0.01, 0) y_fourteen;
     MakeUnsignedCANSignal(int16_t, 32, 16, 1, 0) x_fifteen;
-    MakeUnsignedCANSignal(float, 48, 16, 1, 0) y_fifteen;
+    MakeUnsignedCANSignal(float, 48, 16, 0.01, 0) y_fifteen;
     CANTXMessage<4> tx_daq_lut_pair_fourteen_fifteen{_driveBus, 0x2B8, 8, 100, _timerGroup, x_fourteen, y_fourteen, x_fifteen, y_fifteen};
 
     MakeUnsignedCANSignal(int16_t, 0, 16, 1, 0) x_sixteen;
-    MakeUnsignedCANSignal(float, 16, 16, 1, 0) y_sixteen;
+    MakeUnsignedCANSignal(float, 16, 16, 0.01, 0) y_sixteen;
     MakeUnsignedCANSignal(int16_t, 32, 16, 1, 0) x_seventeen;
-    MakeUnsignedCANSignal(float, 48, 16, 1, 0) y_seventeen;
+    MakeUnsignedCANSignal(float, 48, 16, 0.01, 0) y_seventeen;
     CANTXMessage<4> tx_daq_lut_pair_sixteen_seventeen{_driveBus, 0x2B9, 8, 100, _timerGroup, x_sixteen, y_sixteen, x_seventeen, y_seventeen};
-    
+
     MakeUnsignedCANSignal(int16_t, 0, 16, 1, 0) x_eighteen;
-    MakeUnsignedCANSignal(float, 16, 16, 1, 0) y_eighteen;
+    MakeUnsignedCANSignal(float, 16, 16, 0.01, 0) y_eighteen;
     MakeUnsignedCANSignal(int16_t, 32, 16, 1, 0) x_nineteen;
-    MakeUnsignedCANSignal(float, 48, 16, 1, 0) y_nineteen;
+    MakeUnsignedCANSignal(float, 48, 16, 0.01, 0) y_nineteen;
     CANTXMessage<4> tx_daq_lut_pair_eighteen_nineteen{_driveBus, 0x2BA, 8, 100, _timerGroup, x_eighteen, y_eighteen, x_nineteen, y_nineteen};
 
     MakeUnsignedCANSignal(int16_t, 0, 16, 1, 0) x_twenty;
-    MakeUnsignedCANSignal(float, 16, 16, 1, 0) y_twenty;
+    MakeUnsignedCANSignal(float, 16, 16, 0.01, 0) y_twenty;
     MakeUnsignedCANSignal(int16_t, 32, 16, 1, 0) x_twenty_one;
-    MakeUnsignedCANSignal(float, 48, 16, 1, 0) y_twenty_one;
+    MakeUnsignedCANSignal(float, 48, 16, 0.01, 0) y_twenty_one;
     CANTXMessage<4> tx_daq_lut_pair_twenty_twenty_one{_driveBus, 0x2BB, 8, 100, _timerGroup, x_twenty, y_twenty, x_twenty_one, y_twenty_one};
 
     MakeUnsignedCANSignal(int16_t, 0, 16, 1, 0) x_twenty_two;
-    MakeUnsignedCANSignal(float, 16, 16, 1, 0) y_twenty_two;
+    MakeUnsignedCANSignal(float, 16, 16, 0.01, 0) y_twenty_two;
     MakeUnsignedCANSignal(int16_t, 32, 16, 1, 0) x_twenty_three;
-    MakeUnsignedCANSignal(float, 48, 16, 1, 0) y_twenty_three;
+    MakeUnsignedCANSignal(float, 48, 16, 0.01, 0) y_twenty_three;
     CANTXMessage<4> tx_daq_lut_pair_twenty_two_twenty_three{_driveBus, 0x2BC, 8, 100, _timerGroup, x_twenty_two, y_twenty_two, x_twenty_three, y_twenty_three};
 
     MakeUnsignedCANSignal(int16_t, 0, 16, 1, 0) x_twenty_four;
-    MakeUnsignedCANSignal(float, 16, 16, 1, 0) y_twenty_four;
+    MakeUnsignedCANSignal(float, 16, 16, 0.01, 0) y_twenty_four;
     MakeUnsignedCANSignal(int16_t, 32, 16, 1, 0) x_twenty_five;
-    MakeUnsignedCANSignal(float, 48, 16, 1, 0) y_twenty_five;
+    MakeUnsignedCANSignal(float, 48, 16, 0.01, 0) y_twenty_five;
     CANTXMessage<4> tx_daq_lut_pair_twenty_four_twenty_five{_driveBus, 0x2BD, 8, 100, _timerGroup, x_twenty_four, y_twenty_four, x_twenty_five, y_twenty_five};
 
     MakeUnsignedCANSignal(int16_t, 0, 16, 1, 0) x_twenty_six;
-    MakeUnsignedCANSignal(float, 16, 16, 1, 0) y_twenty_six;
+    MakeUnsignedCANSignal(float, 16, 16, 0.01, 0) y_twenty_six;
     MakeUnsignedCANSignal(int16_t, 32, 16, 1, 0) x_twenty_seven;
-    MakeUnsignedCANSignal(float, 48, 16, 1, 0) y_twenty_seven;
+    MakeUnsignedCANSignal(float, 48, 16, 0.01, 0) y_twenty_seven;
     CANTXMessage<4> tx_daq_lut_pair_twenty_six_twenty_seven{_driveBus, 0x2BE, 8, 100, _timerGroup, x_twenty_six, y_twenty_six, x_twenty_seven, y_twenty_seven};
 
     MakeUnsignedCANSignal(int16_t, 0, 16, 1, 0) x_twenty_eight;
-    MakeUnsignedCANSignal(float, 16, 16, 1, 0) y_twenty_eight;
+    MakeUnsignedCANSignal(float, 16, 16, 0.01, 0) y_twenty_eight;
     MakeUnsignedCANSignal(int16_t, 32, 16, 1, 0) x_twenty_nine;
-    MakeUnsignedCANSignal(float, 48, 16, 1, 0) y_twenty_nine;
+    MakeUnsignedCANSignal(float, 48, 16, 0.01, 0) y_twenty_nine;
     CANTXMessage<4> tx_daq_lut_pair_twenty_eight_twenty_nine{_driveBus, 0x2BF, 8, 100, _timerGroup, x_twenty_eight, y_twenty_eight, x_twenty_nine, y_twenty_nine};
 
     // BMS
@@ -299,4 +308,4 @@ class DriveBus {
 #endif
 };
 
-#endif  // __DRIVE_BUS_H__
+#endif // __DRIVE_BUS_H__
