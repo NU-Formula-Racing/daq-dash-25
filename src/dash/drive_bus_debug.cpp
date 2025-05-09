@@ -31,8 +31,8 @@ using std::vector;
 // ——— helpers ———
 
 static string fmt(const char* fmt, float v) {
-    char buf[32];
-    std::snprintf(buf, sizeof(buf), fmt, v);
+    char buf[8];
+    std::snprintf(buf, sizeof(buf), "%f", v);
     return string(buf);
 }
 static string hex8(unsigned v) {
@@ -51,53 +51,53 @@ static string hex16(unsigned v) {
 static const vector<DebugField> debugFields = {
     // speeds
     {"FL_Spd",
-     []() { return fmt("%.2f", Resources::driveBusData().wheelSpeeds[0]); },
-     []() { return fmt("%.2f", Resources::prevDriveBusData().wheelSpeeds[0]); }},
+     []() { return fmt("%0.2f", Resources::driveBusData().wheelSpeeds[0]); },
+     []() { return fmt("%0.2f", Resources::prevDriveBusData().wheelSpeeds[0]); }},
     {"FR_Spd",
-     []() { return fmt("%.2f", Resources::driveBusData().wheelSpeeds[1]); },
-     []() { return fmt("%.2f", Resources::prevDriveBusData().wheelSpeeds[1]); }},
+     []() { return fmt("%0.2f", Resources::driveBusData().wheelSpeeds[1]); },
+     []() { return fmt("%0.2f", Resources::prevDriveBusData().wheelSpeeds[1]); }},
     {"BL_Spd",
-     []() { return fmt("%.2f", Resources::driveBusData().wheelSpeeds[2]); },
-     []() { return fmt("%.2f", Resources::prevDriveBusData().wheelSpeeds[2]); }},
+     []() { return fmt("%0.2f", Resources::driveBusData().wheelSpeeds[2]); },
+     []() { return fmt("%0.2f", Resources::prevDriveBusData().wheelSpeeds[2]); }},
     {"BR_Spd",
-     []() { return fmt("%.2f", Resources::driveBusData().wheelSpeeds[3]); },
-     []() { return fmt("%.2f", Resources::prevDriveBusData().wheelSpeeds[3]); }},
+     []() { return fmt("%0.2f", Resources::driveBusData().wheelSpeeds[3]); },
+     []() { return fmt("%0.2f", Resources::prevDriveBusData().wheelSpeeds[3]); }},
 
     // displacement
     {"FL_Disp",
-     []() { return fmt("%.2f", Resources::driveBusData().wheelDisplacement[0]); },
-     []() { return fmt("%.2f", Resources::prevDriveBusData().wheelDisplacement[0]); }},
+     []() { return fmt("%0.2f", Resources::driveBusData().wheelDisplacement[0]); },
+     []() { return fmt("%0.2f", Resources::prevDriveBusData().wheelDisplacement[0]); }},
     {"FR_Disp",
-     []() { return fmt("%.2f", Resources::driveBusData().wheelDisplacement[1]); },
-     []() { return fmt("%.2f", Resources::prevDriveBusData().wheelDisplacement[1]); }},
+     []() { return fmt("%0.2f", Resources::driveBusData().wheelDisplacement[1]); },
+     []() { return fmt("%0.2f", Resources::prevDriveBusData().wheelDisplacement[1]); }},
     {"BL_Disp",
-     []() { return fmt("%.2f", Resources::driveBusData().wheelDisplacement[2]); },
-     []() { return fmt("%.2f", Resources::prevDriveBusData().wheelDisplacement[2]); }},
+     []() { return fmt("%0.2f", Resources::driveBusData().wheelDisplacement[2]); },
+     []() { return fmt("%0.2f", Resources::prevDriveBusData().wheelDisplacement[2]); }},
     {"BR_Disp",
-     []() { return fmt("%.2f", Resources::driveBusData().wheelDisplacement[3]); },
-     []() { return fmt("%.2f", Resources::prevDriveBusData().wheelDisplacement[3]); }},
+     []() { return fmt("%0.2f", Resources::driveBusData().wheelDisplacement[3]); },
+     []() { return fmt("%0.2f", Resources::prevDriveBusData().wheelDisplacement[3]); }},
 
     // strain
     {"FL_Strain",
-     []() { return fmt("%.2f", Resources::driveBusData().prStrain[0]); },
-     []() { return fmt("%.2f", Resources::prevDriveBusData().prStrain[0]); }},
+     []() { return fmt("%0.2f", Resources::driveBusData().prStrain[0]); },
+     []() { return fmt("%0.2f", Resources::prevDriveBusData().prStrain[0]); }},
     {"FR_Strain",
-     []() { return fmt("%.2f", Resources::driveBusData().prStrain[1]); },
-     []() { return fmt("%.2f", Resources::prevDriveBusData().prStrain[1]); }},
+     []() { return fmt("%0.2f", Resources::driveBusData().prStrain[1]); },
+     []() { return fmt("%0.2f", Resources::prevDriveBusData().prStrain[1]); }},
     {"BL_Strain",
-     []() { return fmt("%.2f", Resources::driveBusData().prStrain[2]); },
-     []() { return fmt("%.2f", Resources::prevDriveBusData().prStrain[2]); }},
+     []() { return fmt("%0.2f", Resources::driveBusData().prStrain[2]); },
+     []() { return fmt("%0.2f", Resources::prevDriveBusData().prStrain[2]); }},
     {"BR_Strain",
-     []() { return fmt("%.2f", Resources::driveBusData().prStrain[3]); },
-     []() { return fmt("%.2f", Resources::prevDriveBusData().prStrain[3]); }},
+     []() { return fmt("%0.2f", Resources::driveBusData().prStrain[3]); },
+     []() { return fmt("%0.2f", Resources::prevDriveBusData().prStrain[3]); }},
 
     // averages & speeds
     {"Avg_RPM",
-     []() { return fmt("%.2f", Resources::driveBusData().averageWheelRPM()); },
-     []() { return fmt("%.2f", Resources::prevDriveBusData().averageWheelRPM()); }},
+     []() { return fmt("%0.2f", Resources::driveBusData().averageWheelRPM()); },
+     []() { return fmt("%0.2f", Resources::prevDriveBusData().averageWheelRPM()); }},
     {"Veh_MPH",
-     []() { return fmt("%.2f", Resources::driveBusData().vehicleSpeedMPH()); },
-     []() { return fmt("%.2f", Resources::prevDriveBusData().vehicleSpeedMPH()); }},
+     []() { return fmt("%0.2f", Resources::driveBusData().vehicleSpeedMPH()); },
+     []() { return fmt("%0.2f", Resources::prevDriveBusData().vehicleSpeedMPH()); }},
 
     // states
     {"Drv_St",
@@ -112,8 +112,8 @@ static const vector<DebugField> debugFields = {
 
     // SOC
     {"BMS_SOC",
-     []() { return fmt("%.1f", Resources::driveBusData().bmsSOC); },
-     []() { return fmt("%.1f", Resources::prevDriveBusData().bmsSOC); }},
+     []() { return fmt("%0.1f", Resources::driveBusData().bmsSOC); },
+     []() { return fmt("%0.1f", Resources::prevDriveBusData().bmsSOC); }},
 
     // LV warning
     {"LV_Warn",
@@ -122,17 +122,17 @@ static const vector<DebugField> debugFields = {
 
     // right-side floats
     {"HV_Volt",
-     []() { return fmt("%.2f", Resources::driveBusData().hvVoltage); },
-     []() { return fmt("%.2f", Resources::prevDriveBusData().hvVoltage); }},
+     []() { return fmt("%0.2f", Resources::driveBusData().hvVoltage); },
+     []() { return fmt("%0.2f", Resources::prevDriveBusData().hvVoltage); }},
     {"LV_Volt",
-     []() { return fmt("%.2f", Resources::driveBusData().lvVoltage); },
-     []() { return fmt("%.2f", Resources::prevDriveBusData().lvVoltage); }},
+     []() { return fmt("%0.2f", Resources::driveBusData().lvVoltage); },
+     []() { return fmt("%0.2f", Resources::prevDriveBusData().lvVoltage); }},
     {"Max_DisChg",
-     []() { return fmt("%.2f", Resources::driveBusData().maxDischargeCurrent); },
-     []() { return fmt("%.2f", Resources::prevDriveBusData().maxDischargeCurrent); }},
+     []() { return fmt("%0.2f", Resources::driveBusData().maxDischargeCurrent); },
+     []() { return fmt("%0.2f", Resources::prevDriveBusData().maxDischargeCurrent); }},
     {"Max_Regen",
-     []() { return fmt("%.2f", Resources::driveBusData().maxRegenCurrent); },
-     []() { return fmt("%.2f", Resources::prevDriveBusData().maxRegenCurrent); }},
+     []() { return fmt("%0.2f", Resources::driveBusData().maxRegenCurrent); },
+     []() { return fmt("%0.2f", Resources::prevDriveBusData().maxRegenCurrent); }},
     {"Batt_Temp",
      []() { return fmt("%.1f", Resources::driveBusData().batteryTemp); },
      []() { return fmt("%.1f", Resources::prevDriveBusData().batteryTemp); }},
@@ -143,11 +143,11 @@ static const vector<DebugField> debugFields = {
      []() { return fmt("%.1f", Resources::driveBusData().minCellTemp); },
      []() { return fmt("%.1f", Resources::prevDriveBusData().minCellTemp); }},
     {"Max_Cell_V",
-     []() { return fmt("%.2f", Resources::driveBusData().maxCellVoltage); },
-     []() { return fmt("%.2f", Resources::prevDriveBusData().maxCellVoltage); }},
+     []() { return fmt("%0.2f", Resources::driveBusData().maxCellVoltage); },
+     []() { return fmt("%0.2f", Resources::prevDriveBusData().maxCellVoltage); }},
     {"Min_Cell_V",
-     []() { return fmt("%.2f", Resources::driveBusData().minCellVoltage); },
-     []() { return fmt("%.2f", Resources::prevDriveBusData().minCellVoltage); }},
+     []() { return fmt("%0.2f", Resources::driveBusData().minCellVoltage); },
+     []() { return fmt("%0.2f", Resources::prevDriveBusData().minCellVoltage); }},
 
     // inverter & raw faults
     {"Inv_St",
