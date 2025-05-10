@@ -3,19 +3,23 @@
 #include "define.h"
 #include "resources.h"
 
-float DriveBusData::vehicleSpeedMPH() const {
+float DriveBusData::vehicleSpeedMPH() const
+{
     return (averageWheelRPM() * M_PI * WHEEL_DIAMETER * 60) / (12 * 5280);
 }
 
-const DriveBusData& DriveBus::getData() const {
+const DriveBusData &DriveBus::getData() const
+{
     return _data;
 }
 
-const DriveBusData& DriveBus::getPrevData() const {
+const DriveBusData &DriveBus::getPrevData() const
+{
     return _prevData;
 }
 
-void DriveBus::initialize() {
+void DriveBus::initialize()
+{
     _driveBus.Initialize(ICAN::BaudRate::kBaud500K);
 
     _driveBus.RegisterRXMessage(rx_fl_wheel_speed);
@@ -30,20 +34,27 @@ void DriveBus::initialize() {
     _driveBus.RegisterRXMessage(rx_bms_status);
     _driveBus.RegisterRXMessage(rx_inverter_fault_status);
     _driveBus.RegisterRXMessage(rx_inverter_motor_status);
+    _driveBus.RegisterRXMessage(ecu_bms_command_message);
+    _driveBus.RegisterRXMessage(ecu_brake);
+    _driveBus.RegisterRXMessage(ecu_throttle);
+    _driveBus.RegisterRXMessage(inverter_temp_status);
+    _driveBus.RegisterRXMessage(pdm_current);
 
     // lowkey mad annoying but we gotta pull the imd status to be high
-    bms_status_imd_state = 1;  // drake why can't you be normal
+    bms_status_imd_state = 1; // drake why can't you be normal
     inverter_fault_status_fault_code_signal = 0;
 }
 
 // Helper: Generate a random float between min and max.
-static float randomFloat(float min, float max) {
+static float randomFloat(float min, float max)
+{
     // Generate a value between 0 and 9999, then scale
     long r = random(0, 10000);
     return min + (max - min) * (r / 10000.0);
 }
 
-void DriveBus::update() {
+void DriveBus::update()
+{
     this->_driveBus.Tick();
     // update the previous data
     this->_prevData = this->_data;
@@ -52,13 +63,15 @@ void DriveBus::update() {
     // Initialize debug timers if not set
     unsigned long now = millis();
 
-    if (this->_debugStartTime == 0) {
+    if (this->_debugStartTime == 0)
+    {
         this->_debugStartTime = now;
         this->_debugLastFaultUpdate = now;
     }
 
     // Use random values for all numeric fields
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < 4; i++)
+    {
         // Set each wheel speed to a random value (for example, 0 to 100 RPM)
         this->_data.wheelSpeeds[i] = randomFloat(0.0f, 100.0f);
     }
@@ -71,21 +84,27 @@ void DriveBus::update() {
 
     // Now update the fault arrays.
     // For the first 5 seconds, leave all fault flags false.
-    if (now - this->_debugStartTime < 500UL) {
-        for (int i = 0; i < BMS_FAULT_COUNT; i++) {
+    if (now - this->_debugStartTime < 500UL)
+    {
+        for (int i = 0; i < BMS_FAULT_COUNT; i++)
+        {
             this->_data.bmsFaults[i] = false;
         }
-        for (int i = 0; i < ECU_FAULT_COUNT; i++) {
+        for (int i = 0; i < ECU_FAULT_COUNT; i++)
+        {
             this->_data.ecuFaults[i] = false;
         }
     }
     // After 5 seconds, every 10 seconds randomly update the fault flags.
-    else if (now - this->_debugLastFaultUpdate >= 10000UL) {
-        for (int i = 0; i < BMS_FAULT_COUNT; i++) {
+    else if (now - this->_debugLastFaultUpdate >= 10000UL)
+    {
+        for (int i = 0; i < BMS_FAULT_COUNT; i++)
+        {
             // Randomly set each BMS fault flag (true or false)
             this->_data.bmsFaults[i] = (random(0, 2) == 1);
         }
-        for (int i = 0; i < ECU_FAULT_COUNT; i++) {
+        for (int i = 0; i < ECU_FAULT_COUNT; i++)
+        {
             // Randomly set each ECU fault flag
             this->_data.ecuFaults[i] = (random(0, 2) == 1);
         }
@@ -134,7 +153,8 @@ void DriveBus::update() {
     this->_data.bmsFaults[BMS_FAULT_OPEN_WIRE] = static_cast<bool>(bms_fault_open_wire_signal);
 
     uint16_t bmsFaultsRaw = 0;
-    for (int i = 0; i < BMS_FAULT_COUNT; i++) {
+    for (int i = 0; i < BMS_FAULT_COUNT; i++)
+    {
         bmsFaultsRaw |= ((uint16_t)(this->_data.bmsFaults) << i);
     }
 
@@ -153,24 +173,41 @@ void DriveBus::update() {
     this->_data.motorDCVoltage = inverter_motor_status_dc_voltage;
     this->_data.motorDCCurrent = inverter_motor_status_dc_current;
 
+    this->_data.bmsCommand = ecu_bms_command_message_bms_command;
+    this->_data.frontBrakePressure = ecu_brake_front_brake_pressure;
+    this->_data.rearBreakPressure = ecu_brake_rear_brake_pressure;
+
+    this->_data.apps1 = ecu_throttle_apps1_throttle;
+    this->_data.apps2 = ecu_throttle_apps2_throttle;
+
+    this->_data.inverterIGBTTemp = inverter_temp_status_igbt_temp;
+    this->_data.inverterMotorTemp = inverter_temp_status_motor_temp;
+
+    this->_data.genAmps = pdm_current_gen_amps;
+    this->_data.fanAmps = pdm_current_fan_amps;
+    this->_data.pumpAmps = pdm_current_pump_amps;
+
 #endif
 }
 
-void DriveBus::playReadyToDriveSound() {
+void DriveBus::playReadyToDriveSound()
+{
     // check if we are changing into neutral
 
     uint8_t current = drive_state_signal;
 
     // are we channging into ON?
-    if (current != DriveState::DS_ON) {
-        return;  // no need to play the sound
+    if (current != DriveState::DS_ON)
+    {
+        return; // no need to play the sound
     }
 
     // we only play the sound if we are transitioning from neutral to on
     // have to check current and previous, just in case
     // this is called during an interrupt
     if (Resources::driveBusData().driveState == DriveState::DS_NEUTRAL ||
-        Resources::prevDriveBusData().driveState == DriveState::DS_NEUTRAL) {
+        Resources::prevDriveBusData().driveState == DriveState::DS_NEUTRAL)
+    {
         // we must be transitioining neutral -> on
         // Serial.println("Playing ready to drive!");
         Resources::instance().soundDriver.playSong();

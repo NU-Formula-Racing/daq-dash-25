@@ -30,19 +30,21 @@ using std::vector;
 
 // ——— helpers ———
 
-
-static string fmt(const char* fmtStr, float v) {
-    char buf[32];                                 
+static string fmt(const char *fmtStr, float v)
+{
+    char buf[32];
     dtostrf(v, 0, 2, buf);
     return std::string(buf);
 }
 
-static string hex8(unsigned v) {
+static string hex8(unsigned v)
+{
     char buf[8];
     std::snprintf(buf, sizeof(buf), "0x%02X", v);
     return string(buf);
 }
-static string hex16(unsigned v) {
+static string hex16(unsigned v)
+{
     char buf[8];
     std::snprintf(buf, sizeof(buf), "0x%04X", v);
     return string(buf);
@@ -53,162 +55,289 @@ static string hex16(unsigned v) {
 static const vector<DebugField> debugFields = {
     // speeds
     {"FL_Spd",
-     []() { return fmt("%0.2f", Resources::driveBusData().wheelSpeeds[0]); },
-     []() { return fmt("%0.2f", Resources::prevDriveBusData().wheelSpeeds[0]); }},
+     []()
+     { return fmt("%0.2f", Resources::driveBusData().wheelSpeeds[0]); },
+     []()
+     { return fmt("%0.2f", Resources::prevDriveBusData().wheelSpeeds[0]); }},
     {"FR_Spd",
-     []() { return fmt("%0.2f", Resources::driveBusData().wheelSpeeds[1]); },
-     []() { return fmt("%0.2f", Resources::prevDriveBusData().wheelSpeeds[1]); }},
+     []()
+     { return fmt("%0.2f", Resources::driveBusData().wheelSpeeds[1]); },
+     []()
+     { return fmt("%0.2f", Resources::prevDriveBusData().wheelSpeeds[1]); }},
     {"BL_Spd",
-     []() { return fmt("%0.2f", Resources::driveBusData().wheelSpeeds[2]); },
-     []() { return fmt("%0.2f", Resources::prevDriveBusData().wheelSpeeds[2]); }},
+     []()
+     { return fmt("%0.2f", Resources::driveBusData().wheelSpeeds[2]); },
+     []()
+     { return fmt("%0.2f", Resources::prevDriveBusData().wheelSpeeds[2]); }},
     {"BR_Spd",
-     []() { return fmt("%0.2f", Resources::driveBusData().wheelSpeeds[3]); },
-     []() { return fmt("%0.2f", Resources::prevDriveBusData().wheelSpeeds[3]); }},
+     []()
+     { return fmt("%0.2f", Resources::driveBusData().wheelSpeeds[3]); },
+     []()
+     { return fmt("%0.2f", Resources::prevDriveBusData().wheelSpeeds[3]); }},
 
     // displacement
     {"FL_Disp",
-     []() { return fmt("%0.2f", Resources::driveBusData().wheelDisplacement[0]); },
-     []() { return fmt("%0.2f", Resources::prevDriveBusData().wheelDisplacement[0]); }},
+     []()
+     { return fmt("%0.2f", Resources::driveBusData().wheelDisplacement[0]); },
+     []()
+     { return fmt("%0.2f", Resources::prevDriveBusData().wheelDisplacement[0]); }},
     {"FR_Disp",
-     []() { return fmt("%0.2f", Resources::driveBusData().wheelDisplacement[1]); },
-     []() { return fmt("%0.2f", Resources::prevDriveBusData().wheelDisplacement[1]); }},
+     []()
+     { return fmt("%0.2f", Resources::driveBusData().wheelDisplacement[1]); },
+     []()
+     { return fmt("%0.2f", Resources::prevDriveBusData().wheelDisplacement[1]); }},
     {"BL_Disp",
-     []() { return fmt("%0.2f", Resources::driveBusData().wheelDisplacement[2]); },
-     []() { return fmt("%0.2f", Resources::prevDriveBusData().wheelDisplacement[2]); }},
+     []()
+     { return fmt("%0.2f", Resources::driveBusData().wheelDisplacement[2]); },
+     []()
+     { return fmt("%0.2f", Resources::prevDriveBusData().wheelDisplacement[2]); }},
     {"BR_Disp",
-     []() { return fmt("%0.2f", Resources::driveBusData().wheelDisplacement[3]); },
-     []() { return fmt("%0.2f", Resources::prevDriveBusData().wheelDisplacement[3]); }},
+     []()
+     { return fmt("%0.2f", Resources::driveBusData().wheelDisplacement[3]); },
+     []()
+     { return fmt("%0.2f", Resources::prevDriveBusData().wheelDisplacement[3]); }},
 
     // strain
     {"FL_Strain",
-     []() { return fmt("%0.2f", Resources::driveBusData().prStrain[0]); },
-     []() { return fmt("%0.2f", Resources::prevDriveBusData().prStrain[0]); }},
+     []()
+     { return fmt("%0.2f", Resources::driveBusData().prStrain[0]); },
+     []()
+     { return fmt("%0.2f", Resources::prevDriveBusData().prStrain[0]); }},
     {"FR_Strain",
-     []() { return fmt("%0.2f", Resources::driveBusData().prStrain[1]); },
-     []() { return fmt("%0.2f", Resources::prevDriveBusData().prStrain[1]); }},
+     []()
+     { return fmt("%0.2f", Resources::driveBusData().prStrain[1]); },
+     []()
+     { return fmt("%0.2f", Resources::prevDriveBusData().prStrain[1]); }},
     {"BL_Strain",
-     []() { return fmt("%0.2f", Resources::driveBusData().prStrain[2]); },
-     []() { return fmt("%0.2f", Resources::prevDriveBusData().prStrain[2]); }},
+     []()
+     { return fmt("%0.2f", Resources::driveBusData().prStrain[2]); },
+     []()
+     { return fmt("%0.2f", Resources::prevDriveBusData().prStrain[2]); }},
     {"BR_Strain",
-     []() { return fmt("%0.2f", Resources::driveBusData().prStrain[3]); },
-     []() { return fmt("%0.2f", Resources::prevDriveBusData().prStrain[3]); }},
+     []()
+     { return fmt("%0.2f", Resources::driveBusData().prStrain[3]); },
+     []()
+     { return fmt("%0.2f", Resources::prevDriveBusData().prStrain[3]); }},
 
     // averages & speeds
     {"Avg_RPM",
-     []() { return fmt("%0.2f", Resources::driveBusData().averageWheelRPM()); },
-     []() { return fmt("%0.2f", Resources::prevDriveBusData().averageWheelRPM()); }},
+     []()
+     { return fmt("%0.2f", Resources::driveBusData().averageWheelRPM()); },
+     []()
+     { return fmt("%0.2f", Resources::prevDriveBusData().averageWheelRPM()); }},
     {"Veh_MPH",
-     []() { return fmt("%0.2f", Resources::driveBusData().vehicleSpeedMPH()); },
-     []() { return fmt("%0.2f", Resources::prevDriveBusData().vehicleSpeedMPH()); }},
+     []()
+     { return fmt("%0.2f", Resources::driveBusData().vehicleSpeedMPH()); },
+     []()
+     { return fmt("%0.2f", Resources::prevDriveBusData().vehicleSpeedMPH()); }},
 
     // states
     {"Drv_St",
-     []() { return std::to_string(Resources::driveBusData().driveState); },
-     []() { return std::to_string(Resources::prevDriveBusData().driveState); }},
+     []()
+     { return std::to_string(Resources::driveBusData().driveState); },
+     []()
+     { return std::to_string(Resources::prevDriveBusData().driveState); }},
     {"BMS_St",
-     []() { return std::to_string(Resources::driveBusData().bmsState); },
-     []() { return std::to_string(Resources::prevDriveBusData().bmsState); }},
+     []()
+     { return std::to_string(Resources::driveBusData().bmsState); },
+     []()
+     { return std::to_string(Resources::prevDriveBusData().bmsState); }},
     {"IMD_St",
-     []() { return std::to_string(Resources::driveBusData().imdState); },
-     []() { return std::to_string(Resources::prevDriveBusData().imdState); }},
+     []()
+     { return std::to_string(Resources::driveBusData().imdState); },
+     []()
+     { return std::to_string(Resources::prevDriveBusData().imdState); }},
 
     // SOC
     {"BMS_SOC",
-     []() { return fmt("%0.1f", Resources::driveBusData().bmsSOC); },
-     []() { return fmt("%0.1f", Resources::prevDriveBusData().bmsSOC); }},
+     []()
+     { return fmt("%0.1f", Resources::driveBusData().bmsSOC); },
+     []()
+     { return fmt("%0.1f", Resources::prevDriveBusData().bmsSOC); }},
 
     // LV warning
     {"LV_Warn",
-     []() { return Resources::driveBusData().lvVoltageWarning ? "WARN" : "OK"; },
-     []() { return Resources::prevDriveBusData().lvVoltageWarning ? "WARN" : "OK"; }},
+     []()
+     { return Resources::driveBusData().lvVoltageWarning ? "WARN" : "OK"; },
+     []()
+     { return Resources::prevDriveBusData().lvVoltageWarning ? "WARN" : "OK"; }},
 
     // right-side floats
     {"HV_Volt",
-     []() { return fmt("%0.2f", Resources::driveBusData().hvVoltage); },
-     []() { return fmt("%0.2f", Resources::prevDriveBusData().hvVoltage); }},
+     []()
+     { return fmt("%0.2f", Resources::driveBusData().hvVoltage); },
+     []()
+     { return fmt("%0.2f", Resources::prevDriveBusData().hvVoltage); }},
     {"LV_Volt",
-     []() { return fmt("%0.2f", Resources::driveBusData().lvVoltage); },
-     []() { return fmt("%0.2f", Resources::prevDriveBusData().lvVoltage); }},
+     []()
+     { return fmt("%0.2f", Resources::driveBusData().lvVoltage); },
+     []()
+     { return fmt("%0.2f", Resources::prevDriveBusData().lvVoltage); }},
     {"Max_DisChg",
-     []() { return fmt("%0.2f", Resources::driveBusData().maxDischargeCurrent); },
-     []() { return fmt("%0.2f", Resources::prevDriveBusData().maxDischargeCurrent); }},
+     []()
+     { return fmt("%0.2f", Resources::driveBusData().maxDischargeCurrent); },
+     []()
+     { return fmt("%0.2f", Resources::prevDriveBusData().maxDischargeCurrent); }},
     {"Max_Regen",
-     []() { return fmt("%0.2f", Resources::driveBusData().maxRegenCurrent); },
-     []() { return fmt("%0.2f", Resources::prevDriveBusData().maxRegenCurrent); }},
+     []()
+     { return fmt("%0.2f", Resources::driveBusData().maxRegenCurrent); },
+     []()
+     { return fmt("%0.2f", Resources::prevDriveBusData().maxRegenCurrent); }},
     {"Batt_Temp",
-     []() { return fmt("%.1f", Resources::driveBusData().batteryTemp); },
-     []() { return fmt("%.1f", Resources::prevDriveBusData().batteryTemp); }},
+     []()
+     { return fmt("%.1f", Resources::driveBusData().batteryTemp); },
+     []()
+     { return fmt("%.1f", Resources::prevDriveBusData().batteryTemp); }},
     {"Max_Cell_T",
-     []() { return fmt("%.1f", Resources::driveBusData().maxCellTemp); },
-     []() { return fmt("%.1f", Resources::prevDriveBusData().maxCellTemp); }},
+     []()
+     { return fmt("%.1f", Resources::driveBusData().maxCellTemp); },
+     []()
+     { return fmt("%.1f", Resources::prevDriveBusData().maxCellTemp); }},
     {"Min_Cell_T",
-     []() { return fmt("%.1f", Resources::driveBusData().minCellTemp); },
-     []() { return fmt("%.1f", Resources::prevDriveBusData().minCellTemp); }},
+     []()
+     { return fmt("%.1f", Resources::driveBusData().minCellTemp); },
+     []()
+     { return fmt("%.1f", Resources::prevDriveBusData().minCellTemp); }},
     {"Max_Cell_V",
-     []() { return fmt("%0.2f", Resources::driveBusData().maxCellVoltage); },
-     []() { return fmt("%0.2f", Resources::prevDriveBusData().maxCellVoltage); }},
+     []()
+     { return fmt("%0.2f", Resources::driveBusData().maxCellVoltage); },
+     []()
+     { return fmt("%0.2f", Resources::prevDriveBusData().maxCellVoltage); }},
     {"Min_Cell_V",
-     []() { return fmt("%0.2f", Resources::driveBusData().minCellVoltage); },
-     []() { return fmt("%0.2f", Resources::prevDriveBusData().minCellVoltage); }},
+     []()
+     { return fmt("%0.2f", Resources::driveBusData().minCellVoltage); },
+     []()
+     { return fmt("%0.2f", Resources::prevDriveBusData().minCellVoltage); }},
 
     // inverter & raw faults
     {"Inv_St",
-     []() { return hex8(Resources::driveBusData().inverterStatus); },
-     []() { return hex8(Resources::prevDriveBusData().inverterStatus); }},
+     []()
+     { return hex8(Resources::driveBusData().inverterStatus); },
+     []()
+     { return hex8(Resources::prevDriveBusData().inverterStatus); }},
     {"BMS_FltsRaw",
-     []() { return hex16(Resources::driveBusData().bmsFaultsRaw); },
-     []() { return hex16(Resources::prevDriveBusData().bmsFaultsRaw); }},
+     []()
+     { return hex16(Resources::driveBusData().bmsFaultsRaw); },
+     []()
+     { return hex16(Resources::prevDriveBusData().bmsFaultsRaw); }},
 
     // motor stats
     {"Motor_RPM",
-     []() { return std::to_string(Resources::driveBusData().motorRPM); },
-     []() { return std::to_string(Resources::prevDriveBusData().motorRPM); }},
+     []()
+     { return std::to_string(Resources::driveBusData().motorRPM); },
+     []()
+     { return std::to_string(Resources::prevDriveBusData().motorRPM); }},
     {"Motor_Curr",
-     []() { return std::to_string(Resources::driveBusData().motorCurrent); },
-     []() { return std::to_string(Resources::prevDriveBusData().motorCurrent); }},
+     []()
+     { return std::to_string(Resources::driveBusData().motorCurrent); },
+     []()
+     { return std::to_string(Resources::prevDriveBusData().motorCurrent); }},
     {"Motor_DC_V",
-     []() { return std::to_string(Resources::driveBusData().motorDCVoltage); },
-     []() { return std::to_string(Resources::prevDriveBusData().motorDCVoltage); }},
+     []()
+     { return std::to_string(Resources::driveBusData().motorDCVoltage); },
+     []()
+     { return std::to_string(Resources::prevDriveBusData().motorDCVoltage); }},
     {"Motor_DC_C",
-     []() { return std::to_string(Resources::driveBusData().motorDCCurrent); },
-     []() { return std::to_string(Resources::prevDriveBusData().motorDCCurrent); }},
+     []()
+     { return std::to_string(Resources::driveBusData().motorDCCurrent); },
+     []()
+     { return std::to_string(Resources::prevDriveBusData().motorDCCurrent); }},
 
     // ECU faults bitmask
     {"ECU_Flts",
-     []() {
+     []()
+     {
          uint16_t bits = 0;
          for (int i = 0; i < ECU_FAULT_COUNT; i++)
-             if (Resources::driveBusData().ecuFaults[i]) bits |= (1 << i);
+             if (Resources::driveBusData().ecuFaults[i])
+                 bits |= (1 << i);
          return hex16(bits);
      },
-     []() {
+     []()
+     {
          uint16_t bits = 0;
          for (int i = 0; i < ECU_FAULT_COUNT; i++)
-             if (Resources::prevDriveBusData().ecuFaults[i]) bits |= (1 << i);
+             if (Resources::prevDriveBusData().ecuFaults[i])
+                 bits |= (1 << i);
          return hex16(bits);
      }},
-     {"Log",
-        [](){ return Resources::instance().logger.logFileName(); },
-        [](){ return Resources::instance().logger.logFileName(); },
-     },
-    
+    {
+        "Log",
+        []()
+        { return Resources::instance().logger.logFileName(); },
+        []()
+        { return Resources::instance().logger.logFileName(); },
+    },
+    {"BMS_CMD",
+     []()
+     { return std::to_string(Resources::driveBusData().bmsCommand); },
+     []()
+     { return std::to_string(Resources::prevDriveBusData().bmsCommand); }},
+    {"FB_Pres",
+     []()
+     { return std::to_string(Resources::driveBusData().frontBrakePressure); },
+     []()
+     { return std::to_string(Resources::prevDriveBusData().frontBrakePressure); }},
+    {"RB_Pres",
+     []()
+     { return std::to_string(Resources::driveBusData().rearBreakPressure); },
+     []()
+     { return std::to_string(Resources::prevDriveBusData().rearBreakPressure); }},
+    {"APPS1",
+     []()
+     { return std::to_string(Resources::driveBusData().apps1); },
+     []()
+     { return std::to_string(Resources::prevDriveBusData().apps1); }},
+    {"APPS2",
+     []()
+     { return std::to_string(Resources::driveBusData().apps2); },
+     []()
+     { return std::to_string(Resources::prevDriveBusData().apps2); }},
+    {"IGBT_T",
+     []()
+     { return std::to_string(Resources::driveBusData().inverterIGBTTemp); },
+     []()
+     { return std::to_string(Resources::prevDriveBusData().inverterIGBTTemp); }},
+    {"Motor_T",
+     []()
+     { return std::to_string(Resources::driveBusData().inverterMotorTemp); },
+     []()
+     { return std::to_string(Resources::prevDriveBusData().inverterMotorTemp); }},
+    {"Gen_Amps",
+     []()
+     { return std::to_string(Resources::driveBusData().genAmps); },
+     []()
+     { return std::to_string(Resources::prevDriveBusData().genAmps); }},
+    {"Fan_Amps",
+     []()
+     { return std::to_string(Resources::driveBusData().fanAmps); },
+     []()
+     { return std::to_string(Resources::prevDriveBusData().fanAmps); }},
+    {"Pump_Amps",
+     []()
+     { return std::to_string(Resources::driveBusData().pumpAmps); },
+     []()
+     { return std::to_string(Resources::prevDriveBusData().pumpAmps); }},
+
 };
 
-
-const std::vector<DebugField>& DriveBusDebugScreen::fields() {
+const std::vector<DebugField> &DriveBusDebugScreen::fields()
+{
     return debugFields;
 }
 
 // ——— draw & update ———
 
-void DriveBusDebugScreen::draw(Adafruit_RA8875 tft) {
+void DriveBusDebugScreen::draw(Adafruit_RA8875 tft)
+{
     tft.fillScreen(RA8875_BLACK);
     Drawer::drawString(tft, "DRIVE BUS DEBUG", {.x = SCREEN_WIDTH / 2, .y = 5, .size = 4, .color = RA8875_WHITE, .backgroundColor = RA8875_BLACK, .hAlign = ALIGN_CENTER, .vAlign = ALIGN_TOP});
 
-    const auto& flds = fields();
+    const auto &flds = fields();
     int perCol = (flds.size() + COL_COUNT - 1) / COL_COUNT;
 
-    for (size_t i = 0; i < flds.size(); ++i) {
+    for (size_t i = 0; i < flds.size(); ++i)
+    {
         int col = i / perCol;
         int row = i % perCol;
         int x = col * COL_WIDTH + LABEL_X_OFF;
@@ -222,11 +351,13 @@ void DriveBusDebugScreen::draw(Adafruit_RA8875 tft) {
     }
 }
 
-void DriveBusDebugScreen::update(Adafruit_RA8875 tft, bool force) {
-    const auto& flds = fields();
+void DriveBusDebugScreen::update(Adafruit_RA8875 tft, bool force)
+{
+    const auto &flds = fields();
     int perCol = (flds.size() + COL_COUNT - 1) / COL_COUNT;
 
-    for (size_t i = 0; i < flds.size(); ++i) {
+    for (size_t i = 0; i < flds.size(); ++i)
+    {
         int col = i / perCol;
         int row = i % perCol;
         int x = col * COL_WIDTH + LABEL_X_OFF + VALUE_X_OFF;
@@ -234,7 +365,8 @@ void DriveBusDebugScreen::update(Adafruit_RA8875 tft, bool force) {
 
         auto cur = flds[i].current();
         auto prv = flds[i].previous();
-        if (force || cur != prv) {
+        if (force || cur != prv)
+        {
             Drawer::drawString(tft, cur, {.x = x, .y = y, .size = textOpts.size, .color = textOpts.color, .backgroundColor = textOpts.backgroundColor, .hAlign = textOpts.hAlign, .vAlign = textOpts.vAlign});
         }
     }

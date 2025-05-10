@@ -10,7 +10,8 @@
 #include "sound.h"
 #include "virtualTimer.h"
 
-enum BMSFault {
+enum BMSFault
+{
     BMS_FAULT_SUMMARY,
     BMS_FAULT_UNDER_VOLTAGE,
     BMS_FAULT_OVER_VOLTAGE,
@@ -22,7 +23,8 @@ enum BMSFault {
     BMS_FAULT_COUNT,
 };
 
-enum ECUFault {
+enum ECUFault
+{
     ECU_FAULT_PRESENT,
     ECU_FAULT_APPSS_DISAGREEMENT,
     ECU_FAULT_BPPC,
@@ -31,13 +33,15 @@ enum ECUFault {
     ECU_FAULT_COUNT
 };
 
-enum DriveState : uint8_t {
+enum DriveState : uint8_t
+{
     DS_OFF = 0,
     DS_NEUTRAL = 1,
     DS_ON = 2
 };
 
-struct DriveBusData {
+struct DriveBusData
+{
     bool bmsFaults[BMS_FAULT_COUNT];
     bool ecuFaults[ECU_FAULT_COUNT];
 
@@ -55,43 +59,59 @@ struct DriveBusData {
     float wheelSpeeds[4];
     float wheelDisplacement[4];
     float prStrain[4];
+    float genAmps;
+    float fanAmps;
+    float pumpAmps;
 
     uint16_t bmsFaultsRaw;
     int16_t motorRPM;
     int16_t motorCurrent;
     int16_t motorDCVoltage;
     int16_t motorDCCurrent;
+    int16_t frontBrakePressure;
+    int16_t rearBreakPressure;
+    int16_t apps1;
+    int16_t apps2;
+    uint16_t inverterIGBTTemp;
+    uint16_t inverterMotorTemp;
 
     uint8_t driveState;
     uint8_t bmsState;
-    uint8_t imdState = 1;  // healthy when high
+    uint8_t imdState = 1; // healthy when high
     uint8_t inverterStatus;
+    uint8_t bmsCommand;
+
+    bool brakePressed;
     bool lvVoltageWarning;
 
-    DriveBusData() {
+    DriveBusData()
+    {
         memset(bmsFaults, 0, sizeof(bool) * BMS_FAULT_COUNT);
         memset(ecuFaults, 0, sizeof(bool) * ECU_FAULT_COUNT);
         imdState = 1;
     }
 
-    bool faultPresent() const {
-        if (driveState != 0)  // if not in off, don't ignore undervoltage
+    bool faultPresent() const
+    {
+        if (driveState != 0) // if not in off, don't ignore undervoltage
             return bmsFaults[BMS_FAULT_SUMMARY] || ecuFaults[ECU_FAULT_PRESENT] || inverterStatus != 0 || imdState == 0;
 
         // if we are off, ignore the undervoltage
         return bmsFaults[BMS_FAULT_SUMMARY] || ecuFaults[ECU_FAULT_PRESENT] || (inverterStatus != 0 && inverterStatus != 2) || imdState == 0;
     }
 
-    float averageWheelRPM() const {
+    float averageWheelRPM() const
+    {
         // return std::max({wheelSpeeds[0], wheelSpeeds[1], wheelSpeeds[2], wheelSpeeds[3]});
-        return ((wheelSpeeds[0] + wheelSpeeds[1] + wheelSpeeds[2] + wheelSpeeds[3])) / 2;  // only by two rn cause only two wheel speeds
+        return ((wheelSpeeds[0] + wheelSpeeds[1] + wheelSpeeds[2] + wheelSpeeds[3])) / 2; // only by two rn cause only two wheel speeds
     }
 
     float vehicleSpeedMPH() const;
 };
 
-class DriveBus {
-   public:
+class DriveBus
+{
+public:
     DriveBus() {}
 
     // returns imuatable reference to _data
@@ -104,7 +124,7 @@ class DriveBus {
     // takes all of the can signals, and populates the DriveBusData
     void update();
 
-   private:
+private:
     DriveBusData _data;
     DriveBusData _prevData;
     TeensyCAN<3> _driveBus;
@@ -139,7 +159,8 @@ class DriveBus {
     // ECU Stuff
     MakeUnsignedCANSignal(uint8_t, 0, 8, 1, 0) drive_state_signal;
     CANRXMessage<1> rx_drive_state{_driveBus, 0x206,
-                                   [this]() {
+                                   [this]()
+                                   {
                                        this->playReadyToDriveSound();
                                    },
                                    drive_state_signal};
@@ -200,10 +221,30 @@ class DriveBus {
 
     CANRXMessage<4> rx_inverter_motor_status{_driveBus, 0x281, inverter_motor_status_rpm, inverter_motor_status_motor_current, inverter_motor_status_dc_voltage, inverter_motor_status_dc_current};
 
+    MakeUnsignedCANSignal(uint8_t, 0, 8, 1.0, 0.0) ecu_bms_command_message_bms_command {};
+    CANRXMessage<1> ecu_bms_command_message{_driveBus, 0x205, ecu_bms_command_message_bms_command};
+
+    MakeSignedCANSignal(int16_t, 0, 16, 1.0, 0.0) ecu_brake_front_brake_pressure {};
+    MakeSignedCANSignal(int16_t, 16, 16, 1.0, 0.0) ecu_brake_rear_brake_pressure {};
+    MakeSignedCANSignal(bool, 32, 8, 1.0, 0.0) ecu_brake_brake_pressed {};
+    CANRXMessage<3> ecu_brake{_driveBus, 0x203, ecu_brake_front_brake_pressure, ecu_brake_rear_brake_pressure, ecu_brake_brake_pressed};
+
+    MakeSignedCANSignal(int16_t, 0, 16, 1.0, 0.0) ecu_throttle_apps1_throttle {};
+    MakeSignedCANSignal(int16_t, 16, 16, 1.0, 0.0) ecu_throttle_apps2_throttle {};
+    CANRXMessage<2> ecu_throttle{_driveBus, 0x202, ecu_throttle_apps1_throttle, ecu_throttle_apps2_throttle};
+
+    MakeUnsignedCANSignal(uint16_t, 0, 16, 0.1, 0.0) inverter_temp_status_igbt_temp {};
+    MakeUnsignedCANSignal(uint16_t, 16, 16, 0.1, 0.0) inverter_temp_status_motor_temp {};
+    CANRXMessage<2> inverter_temp_status{_driveBus, 0x282, inverter_temp_status_igbt_temp, inverter_temp_status_motor_temp};
+
+    MakeSignedCANSignal(float, 0, 16, 0.01, 0.0) pdm_current_gen_amps {};
+    MakeSignedCANSignal(float, 16, 16, 0.01, 0.0) pdm_current_fan_amps {};
+    MakeSignedCANSignal(float, 32, 16, 0.01, 0.0) pdm_current_pump_amps {};
+    CANRXMessage<3> pdm_current{_driveBus, 0x2A1, pdm_current_gen_amps, pdm_current_fan_amps, pdm_current_pump_amps};
 #ifdef DRIVE_DEBUG
     uint64_t _debugStartTime = 0;
     uint64_t _debugLastFaultUpdate = 0;
 #endif
 };
 
-#endif  // __DRIVE_BUS_H__
+#endif // __DRIVE_BUS_H__
