@@ -7,7 +7,7 @@
 #include "define.h"  // Must define SCREEN_WIDTH, SCREEN_HEIGHT, colors, etc.
 #include "resources.h"
 
-#define OUTLINE_COLOR GOLD
+#define OUTLINE_COLOR KAWAII_BLACK
 #define MAX_CHARS_PER_LINE 30
 
 // --- IMD Error Lookup ---
@@ -15,20 +15,23 @@ static std::string getIMDErrorMessage() {
     if (Resources::driveBusData().imdState == 0) {
         return "IMD_ERR";
     }
-    return "";
+    return "NO_IMD_ERR";
 }
 
 static std::string getBMSErrorMessage() {
     static const char* bmsFaultMessages[7] = {
+        "FAULT_PSNT"
         "UND_VOL",
         "OVR_VOL",
         "UND_TEMP",
         "OVR_TEMP",
         "OVR_CUR",
         "EXTN_KL",
-        "OPN_WIRE"};
+        "OPEN_WIRE"};
 
-    std::string result = "BMS:";
+    char errorCodeBuf[16];
+    sprintf(errorCodeBuf, "0x%04x", Resources::driveBusData().bmsFaultsRaw);
+    std::string result = "BMS(" + std::string(errorCodeBuf) + ") ";
     bool any = false;
     for (int i = 0; i < ECU_FAULT_COUNT; i++) {
         if (Resources::driveBusData().bmsFaults[i]) {
@@ -40,8 +43,6 @@ static std::string getBMSErrorMessage() {
 
     if (any) {  // Remove trailing comma
         result.pop_back();
-    } else {
-        return "";
     }
 
     return result;
@@ -68,7 +69,7 @@ static std::string getECUErrorMessage() {
     if (any) {
         result.pop_back();
     } else {
-        return "";
+        return "NO_ECU_IMPL";
     }
 
     return result;
@@ -108,26 +109,33 @@ static std::string getInverterErrorMessage() {
         {0x19, "ENCDR_NO_MAG"},
         {0x1A, "ENCDR_MAG_2_STRNG"},
         {0x1B, "PHS_FILTR_FLT"}};
+
+    char errorCodeBuf[16];
+    sprintf(errorCodeBuf, "0x%04x", Resources::driveBusData().inverterStatus);
+    std::string result = "INV(" + std::string(errorCodeBuf) + ") ";
+
     const int lutSize = sizeof(inverterFaultLUT) / sizeof(inverterFaultLUT[0]);
     for (int i = 0; i < lutSize; i++) {
         if (inverterFaultLUT[i].code == Resources::driveBusData().inverterStatus) {
-            return std::string(inverterFaultLUT[i].msg);
+            result += inverterFaultLUT[i].msg;
+            return result;
         }
     }
 
-    return "";
+    return result;
 }
+
 
 static uint16_t getDriveStateColor() {
     switch (Resources::driveBusData().driveState) {
         case 0:
-            return INDIAN_RED;
+            return KAWAII_PINK;
         case 1:
-            return GOLD;
+            return KAWAII_YELLOW;
         case 2:
-            return FERN_GREEN;
+            return KAWAII_GREEN;
         default:
-            return INDIAN_RED;
+            return KAWAII_PINK;
     }
 }
 
@@ -181,20 +189,20 @@ static void drawDriveState(Adafruit_RA8875 tft) {
                            .x = SCREEN_WIDTH - 100,
                            .y = SCREEN_HEIGHT / 2 + 60,
                            .size = 4,
-                           .color = RA8875_WHITE,
+                           .color = RA8875_BLACK,
                            .backgroundColor = color,
                            .hAlign = ALIGN_CENTER,
                            .vAlign = ALIGN_MIDDLE,
                        });
 }
 
-static void drawWheelSpeed(Adafruit_RA8875 tft) {
-    Drawer::drawNum(tft, (Resources::driveBusData().averageWheelSpeed() / (WHEEL_DIAMETER * 12 * 5280 * 3)),  // times 3 cause 3:1 ratio as we are using motor rpm rn
+static void drawSpeed(Adafruit_RA8875 tft) {
+    Drawer::drawNum(tft, Resources::driveBusData().vehicleSpeedMPH(),
                     (NumberDrawOptions){
                         .x = SCREEN_WIDTH - 100,
                         .y = SCREEN_HEIGHT / 2 - 40,
                         .size = 6,
-                        .color = RA8875_WHITE,
+                        .color = RA8875_BLACK,
                         .backgroundColor = getDriveStateColor(),
                         .hAlign = ALIGN_CENTER,
                         .vAlign = ALIGN_MIDDLE});
@@ -202,7 +210,8 @@ static void drawWheelSpeed(Adafruit_RA8875 tft) {
 
 static bool errorsChanged() {
     return memcmp(Resources::driveBusData().bmsFaults, Resources::prevDriveBusData().bmsFaults, sizeof(bool) * BMS_FAULT_COUNT) == 1 ||
-           memcmp(Resources::driveBusData().ecuFaults, Resources::prevDriveBusData().ecuFaults, sizeof(bool) * ECU_FAULT_COUNT) == 1;
+           memcmp(Resources::driveBusData().ecuFaults, Resources::prevDriveBusData().ecuFaults, sizeof(bool) * ECU_FAULT_COUNT) == 1 ||
+           Resources::driveBusData().inverterStatus != Resources::prevDriveBusData().inverterStatus;
 }
 
 // Helper function to wrap a text string based on a maximum number of characters.
@@ -254,11 +263,11 @@ void ErrorScreen::update(Adafruit_RA8875 tft, bool force) {
         // drawDriveState() is assumed to be defined elsewhere.
         drawDriveState(tft);
         // drawWheelSpeed() is assumed to be defined elsewhere.
-        drawWheelSpeed(tft);
+        drawSpeed(tft);
     }
-    if (Resources::driveBusData().averageWheelSpeed() != Resources::prevDriveBusData().averageWheelSpeed() || force) {
+    if (Resources::driveBusData().averageWheelRPM() != Resources::prevDriveBusData().averageWheelRPM() || force) {
         // drawWheelSpeed() is assumed to be defined elsewhere.
-        drawWheelSpeed(tft);
+        drawSpeed(tft);
     }
 
     // If errors have not changed, no need to update.

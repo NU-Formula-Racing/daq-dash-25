@@ -8,34 +8,20 @@
 #include <memory>
 #include <string>
 
+#include "dash/drive_bus_debug.h"
 #include "dash/drive_screen.h"
 #include "dash/error_screen.h"
 #include "resources.h"
 
-
-// for states, after mid state, goes to last state
-int motor_temp_last_state = 70;
-int motor_temp_mid_state = 30;
-int inverter_current_last_state = 100;
-int inverter_current_mid_state = 50;
-int min_voltage_last_state = 2.7;
-int min_voltage_mid_state = 3.2;
-int hv_battery_voltage_last_state = 3.4;
-int hv_battery_voltage_mid_state = 3.2;
-int lv_battery_voltage_last_state = 3.5;
-int lv_battery_voltage_mid_state = 3.1;  // min 2.7
-int max_cell_temp_last_state = 50;       // max 50 celsius
-int max_cell_temp_mid_state = 45;
-int min_cell_temp_last_state = 15;
-int min_cell_temp_mid_state = 11;  // min 8 celsius
-
-
 int bar_max_size = 480;
 
-Dash::Dash() : _tft(RA8875_CS, RA8875_RESET), _currentScreen(DashScreen::DS_DRIVE) {
+DashScreen defaultScreen = DashScreen::DS_DRIVE_DEBUG;
+
+Dash::Dash() : _tft(RA8875_CS, RA8875_RESET), _currentScreen(defaultScreen) {
     _screens = {
         std::make_shared<DriveScreen>(),
-        std::make_shared<ErrorScreen>()};
+        std::make_shared<ErrorScreen>(),
+        std::make_shared<DriveBusDebugScreen>()};
 }
 
 void Dash::initalize() {
@@ -62,14 +48,23 @@ void Dash::initalize() {
     _screens[_currentScreen]->update(_tft, true);
 
     _lastTime = 0;
+
+    _timer.AddTimer(1000,
+                    [&]() {
+                        _screens[_currentScreen]->periodicDraw(_tft);
+                    });
 }
 
 void Dash::update() {
+    _timer.Tick(millis());
+
     // check for errors
     if (Resources::driveBusData().faultPresent()) {
         // change the screen to an error
         // Serial.printf("Detected error!");
         changeScreen(DashScreen::DS_ERROR);
+    } else {
+        changeScreen(defaultScreen);
     }
 
     // pull the pin for the imd
@@ -80,17 +75,14 @@ void Dash::update() {
 
     bool bmsFault = Resources::driveBusData().bmsFaults[BMS_FAULT_SUMMARY];
     digitalWrite(BMS_INDICATOR, bmsFault ? LOW : HIGH);
-    
+
     // update the current screen
     // Serial.printf("Updating screen %d\n", (int)_currentScreen);
     _screens[_currentScreen]->update(_tft);
-    // Serial.print("Finished!\n");\
-    
-    long long now = millis();
-    _deltaTime = now - _lastTime;
-    float dSeconds = (float)_deltaTime / 1000;
-    float rotDistanceInches = (Resources::driveBusData().averageWheelSpeed() * dSeconds) / WHEEL_DIAMETER;
-    Resources::instance().milageCounter += rotDistanceInches / (12 * 5280);
+    // Serial.print("Finished!\n");
+
+    double dHours = (double)Resources::deltaTimeMs() / (1000.0 * 60.0 * 60.0);
+    Resources::instance().milageCounter += (double)Resources::driveBusData().vehicleSpeedMPH() * dHours * 4;  // hack, cause I'm tired, but seems to be wrong by a factor of 4
 }
 
 void Dash::changeScreen(DashScreen screen) {

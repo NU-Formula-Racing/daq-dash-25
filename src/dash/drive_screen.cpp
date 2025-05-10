@@ -37,16 +37,16 @@ static const float max_cell_temp_mid_state = 45;
 static const float min_cell_temp_last_state = 15;
 static const float min_cell_temp_mid_state = 11;  // min 8 celsius
 
-#define OUTLINE_COLOR GOLD
+#define OUTLINE_COLOR KAWAII_BLACK
 
 static uint16_t getDriveStateColor() {
     switch (Resources::driveBusData().driveState) {
         case 0:
             return INDIAN_RED;
         case 1:
-            return GOLD;
+            return KAWAII_YELLOW;
         case 2:
-            return FERN_GREEN;
+            return KAWAII_GREEN;
         default:
             return INDIAN_RED;
     }
@@ -60,7 +60,7 @@ static void drawDriveState(Adafruit_RA8875 tft) {
     Drawer::drawRect(tft, (RectDrawOptions){
                               .x = SCREEN_WIDTH / 2,
                               .y = SCREEN_HEIGHT / 2,
-                              .width = 350,
+                              .width = 400,
                               .height = 250,
                               .fill = true,
                               .strokeThickness = 20,
@@ -93,7 +93,7 @@ static void drawDriveState(Adafruit_RA8875 tft) {
                            .x = SCREEN_WIDTH / 2,
                            .y = SCREEN_HEIGHT / 2 + 60,
                            .size = 8,
-                           .color = RA8875_WHITE,
+                           .color = RA8875_BLACK,
                            .backgroundColor = color,
                            .hAlign = ALIGN_CENTER,
                            .vAlign = ALIGN_MIDDLE,
@@ -102,7 +102,7 @@ static void drawDriveState(Adafruit_RA8875 tft) {
 
 static void drawMileageCounter(Adafruit_RA8875 tft) {
     // dont need wheel speed start x y anymore i think
-    uint16_t color = NORTHWESTERN_PURPLE;
+    uint16_t color = KAWAII_BLUE;
 
     Drawer::drawRect(tft, (RectDrawOptions){
                               .x = SCREEN_WIDTH / 2,
@@ -118,13 +118,12 @@ static void drawMileageCounter(Adafruit_RA8875 tft) {
                               .vAlign = ALIGN_MIDDLE,
                           });
 
-    // change sizes via if statement
     Drawer::drawNum(tft, Resources::instance().milageCounter,
                     (NumberDrawOptions){
                         .x = SCREEN_WIDTH / 2,
                         .y = SCREEN_HEIGHT * 8 / 9,
                         .size = 6,
-                        .color = RA8875_WHITE,
+                        .color = RA8875_BLACK,
                         .backgroundColor = color,
                         .hAlign = ALIGN_CENTER,
                         .vAlign = ALIGN_MIDDLE,
@@ -135,24 +134,38 @@ static void drawMileageCounter(Adafruit_RA8875 tft) {
                            .x = SCREEN_WIDTH * 2 / 3 - 10,
                            .y = SCREEN_HEIGHT * 8 / 9,
                            .size = 3,
-                           .color = RA8875_WHITE,
+                           .color = RA8875_BLACK,
                            .backgroundColor = color,
                            .hAlign = ALIGN_CENTER,
                            .vAlign = ALIGN_MIDDLE,
                        });
 }
 
-static void drawWheelSpeed(Adafruit_RA8875 tft) {
-    Drawer::drawNum(tft, Resources::driveBusData().averageWheelSpeed(),
+static void drawSpeed(Adafruit_RA8875 tft) {
+    uint16_t color = getDriveStateColor();
+
+    Drawer::drawRect(tft, (RectDrawOptions){
+                              .x = SCREEN_WIDTH / 2,
+                              .y = SCREEN_HEIGHT / 2 - 40,
+                              .width = 400,
+                              .height = 100,
+                              .fill = true,
+                              .strokeThickness = 0,
+                              .strokeColor = OUTLINE_COLOR,
+                              .fillColor = color,
+                              .hAlign = ALIGN_CENTER,
+                              .vAlign = ALIGN_MIDDLE,
+                          });
+
+    Drawer::drawNum(tft, Resources::driveBusData().vehicleSpeedMPH(),
                     (NumberDrawOptions){
                         .x = SCREEN_WIDTH / 2,
                         .y = SCREEN_HEIGHT / 2 - 40,
-                        .size = 8,
-                        .color = RA8875_WHITE,
+                        .size = 10,
+                        .color = RA8875_BLACK,
                         .backgroundColor = getDriveStateColor(),
                         .hAlign = ALIGN_CENTER,
-                        .vAlign = ALIGN_MIDDLE
-                    });
+                        .vAlign = ALIGN_MIDDLE});
 }
 
 static void drawCircleStatus(Adafruit_RA8875 tft, float startX, float startY, float value, float lowerBound, float upperBound) {
@@ -169,16 +182,16 @@ static void drawCircleStatus(Adafruit_RA8875 tft, float startX, float startY, fl
     int16_t fillColor;
     switch (currState) {
         case 0:
-            fillColor = FERN_GREEN;
+            fillColor = KAWAII_GREEN;
             break;
         case 1:
-            fillColor = GOLD;
+            fillColor = KAWAII_YELLOW;
             break;
         case 2:
-            fillColor = INDIAN_RED;
+            fillColor = KAWAII_PINK;
             break;
         default:
-            fillColor = FERN_GREEN;
+            fillColor = KAWAII_GREEN;
             break;
     }
 
@@ -203,7 +216,7 @@ static void drawCircleStatus(Adafruit_RA8875 tft, float startX, float startY, fl
     numOptions.x = circleOptions.centerX;
     numOptions.y = circleOptions.centerY;
     numOptions.size = 4;
-    numOptions.color = RA8875_WHITE;
+    numOptions.color = RA8875_BLACK;
     numOptions.backgroundColor = fillColor;
     numOptions.precision = 1;
     numOptions.hAlign = ALIGN_CENTER;
@@ -213,9 +226,63 @@ static void drawCircleStatus(Adafruit_RA8875 tft, float startX, float startY, fl
     Drawer::drawNum(tft, value, numOptions);
 }
 
+static void drawLoggerStatus(Adafruit_RA8875 tft) {
+    uint16_t color =
+        (Resources::instance().logger.status() == LoggerStatus::LOGGING) ? KAWAII_BLUE : INDIAN_RED;
+
+    Drawer::drawRect(tft, (RectDrawOptions){
+                              .x = SCREEN_WIDTH / 2,
+                              .y = SCREEN_HEIGHT * 1 / 9,
+                              .width = 300,
+                              .height = 80,
+                              .fill = true,
+                              .strokeThickness = 5,
+                              .strokeColor = OUTLINE_COLOR,
+                              .fillColor = color,
+                              .cornerRadius = 5,
+                              .hAlign = ALIGN_CENTER,
+                              .vAlign = ALIGN_MIDDLE,
+                          });
+
+    if (Resources::instance().logger.status() == LoggerStatus::LOGGING) {
+        Drawer::drawString(tft, "LOGGING",
+                           (TextDrawOptions){
+                               .x = SCREEN_WIDTH / 2,
+                               .y = SCREEN_HEIGHT * 1 / 9 - 15,
+                               .size = 4,
+                               .color = RA8875_BLACK,
+                               .backgroundColor = color,
+                               .hAlign = ALIGN_CENTER,
+                               .vAlign = ALIGN_MIDDLE,
+                           });
+
+        Drawer::drawString(tft, Resources::instance().logger.logFileName(),
+                           (TextDrawOptions){
+                               .x = SCREEN_WIDTH / 2,
+                               .y = SCREEN_HEIGHT * 1 / 9 + 15,
+                               .size = 3,
+                               .color = RA8875_BLACK,
+                               .backgroundColor = color,
+                               .hAlign = ALIGN_CENTER,
+                               .vAlign = ALIGN_MIDDLE,
+                           });
+    } else {
+        Drawer::drawString(tft, "NOT LOGGING",
+                           (TextDrawOptions){
+                               .x = SCREEN_WIDTH / 2,
+                               .y = SCREEN_HEIGHT * 1 / 9 + 5,
+                               .size = 4,
+                               .color = RA8875_BLACK,
+                               .backgroundColor = color,
+                               .hAlign = ALIGN_CENTER,
+                               .vAlign = ALIGN_MIDDLE,
+                           });
+    }
+}
+
 void DriveScreen::draw(Adafruit_RA8875 tft) {
     Serial.print("Drawing DriveScreen!");
-    tft.fillScreen(OFF_BLACK);
+    tft.fillScreen(BACKGROUND_GRAY);
 
     // draw a nice gold line down the middle
     RectDrawOptions options = {0};
@@ -223,7 +290,7 @@ void DriveScreen::draw(Adafruit_RA8875 tft) {
     options.y = SCREEN_HEIGHT / 2;
     options.width = 100;
     options.height = SCREEN_HEIGHT;
-    options.fillColor = GOLD;
+    options.fillColor = KAWAII_BLACK;
     options.fill = true;
     options.strokeThickness = 0;
     options.hAlign = ALIGN_CENTER;
@@ -231,48 +298,49 @@ void DriveScreen::draw(Adafruit_RA8875 tft) {
     Drawer::drawRect(tft, options);
 
     // write circle labels
-    int16_t color = RA8875_WHITE;
-    Drawer::drawString(tft, "HV Battery", hv_bat_volt_startX * 0.15, hv_bat_volt_startY - SCREEN_WIDTH / 6 - 10, 3, RA8875_WHITE, color);
-    Drawer::drawString(tft, "Voltage", hv_bat_volt_startX * 0.4, hv_bat_volt_startY - SCREEN_WIDTH / 8 - 10, 3, RA8875_WHITE, color);
-    Drawer::drawString(tft, "LV Battery", lv_bat_volt_startX * 0.15, lv_bat_volt_startY - SCREEN_WIDTH / 6 - 10, 3, RA8875_WHITE, color);
-    Drawer::drawString(tft, "Voltage", lv_bat_volt_startX * 0.4, lv_bat_volt_startY - SCREEN_WIDTH / 8 - 10, 3, RA8875_WHITE, color);
-    Drawer::drawString(tft, "Max Cell", max_cell_temp_startX * 0.9, max_cell_temp_startY - SCREEN_WIDTH / 6 - 10, 3, RA8875_WHITE, color);
-    Drawer::drawString(tft, "Temp", max_cell_temp_startX * 0.95, max_cell_temp_startY - SCREEN_WIDTH / 8 - 10, 3, RA8875_WHITE, color);
-    Drawer::drawString(tft, "Min Cell", min_cell_temp_startX * 0.9, min_cell_temp_startY - SCREEN_WIDTH / 6 - 10, 3, RA8875_WHITE, color);
-    Drawer::drawString(tft, "Voltage", min_cell_temp_startX * 0.92, min_cell_temp_startY - SCREEN_WIDTH / 8 - 10, 3, RA8875_WHITE, color);
+    int16_t color = RA8875_BLACK;
+    Drawer::drawString(tft, "HV Battery", hv_bat_volt_startX * 0.15, hv_bat_volt_startY - SCREEN_WIDTH / 6 - 10, 3, RA8875_BLACK, color);
+    Drawer::drawString(tft, "Voltage", hv_bat_volt_startX * 0.4, hv_bat_volt_startY - SCREEN_WIDTH / 8 - 10, 3, RA8875_BLACK, color);
+    Drawer::drawString(tft, "LV Battery", lv_bat_volt_startX * 0.15, lv_bat_volt_startY - SCREEN_WIDTH / 6 - 10, 3, RA8875_BLACK, color);
+    Drawer::drawString(tft, "Voltage", lv_bat_volt_startX * 0.4, lv_bat_volt_startY - SCREEN_WIDTH / 8 - 10, 3, RA8875_BLACK, color);
+    Drawer::drawString(tft, "Max Cell", max_cell_temp_startX * 0.9, max_cell_temp_startY - SCREEN_WIDTH / 6 - 10, 3, RA8875_BLACK, color);
+    Drawer::drawString(tft, "Temp", max_cell_temp_startX * 0.95, max_cell_temp_startY - SCREEN_WIDTH / 8 - 10, 3, RA8875_BLACK, color);
+    Drawer::drawString(tft, "Min Cell", min_cell_temp_startX * 0.9, min_cell_temp_startY - SCREEN_WIDTH / 6 - 10, 3, RA8875_BLACK, color);
+    Drawer::drawString(tft, "Voltage", min_cell_temp_startX * 0.92, min_cell_temp_startY - SCREEN_WIDTH / 8 - 10, 3, RA8875_BLACK, color);
 }
 
 void DriveScreen::update(Adafruit_RA8875 tft, bool force) {
-    if (Resources::driveBusData().averageWheelSpeed() != 0 || force)
-        drawMileageCounter(tft);
     if (Resources::driveBusData().driveState != Resources::prevDriveBusData().driveState || force) {
         drawDriveState(tft);
-        drawWheelSpeed(tft);  // gotta redraw that
+        drawSpeed(tft);  // gotta redraw that
+        // also just draw the logger stuff cause idk where to put it
+        drawLoggerStatus(tft);
     }
-    if (Resources::driveBusData().averageWheelSpeed() != Resources::prevDriveBusData().averageWheelSpeed() || force)
-        drawWheelSpeed(tft);
+    if (abs(Resources::driveBusData().averageWheelRPM() - Resources::prevDriveBusData().averageWheelRPM()) >= 0.1 || force) {
+        drawSpeed(tft);
+    }
     // Update high-voltage battery status.
-    if (Resources::driveBusData().HVVoltage != Resources::prevDriveBusData().HVVoltage || force) {
+    if (Resources::driveBusData().hvVoltage != Resources::prevDriveBusData().hvVoltage  || force) {
         drawCircleStatus(tft,
                          hv_bat_volt_startX,
                          hv_bat_volt_startY,
-                         Resources::driveBusData().HVVoltage,
+                         Resources::driveBusData().hvVoltage,
                          hv_battery_voltage_mid_state,
                          hv_battery_voltage_last_state);
     }
 
     // Update low-voltage battery status.
-    // if (Resources::driveBusData().LVVoltage != Resources::prevDriveBusData().LVVoltage || force) {
-    //     drawCircleStatus(tft,
-    //                      lv_bat_volt_startX,
-    //                      lv_bat_volt_startY,
-    //                      Resources::driveBusData().LVVoltage,
-    //                      lv_battery_voltage_mid_state,
-    //                      lv_battery_voltage_last_state);
-    // }
+    if (Resources::driveBusData().lvVoltage != Resources::prevDriveBusData().lvVoltage || force) {
+        drawCircleStatus(tft,
+                         lv_bat_volt_startX,
+                         lv_bat_volt_startY,
+                         Resources::driveBusData().lvVoltage,
+                         lv_battery_voltage_mid_state,
+                         lv_battery_voltage_last_state);
+    }
 
     // Update maximum cell temperature display.
-    if (abs(Resources::driveBusData().maxCellTemp - Resources::prevDriveBusData().maxCellTemp) > 0.5 || force) {
+    if (Resources::driveBusData().maxCellTemp != Resources::prevDriveBusData().maxCellTemp || force) {
         drawCircleStatus(tft,
                          max_cell_temp_startX,
                          max_cell_temp_startY,
@@ -281,13 +349,17 @@ void DriveScreen::update(Adafruit_RA8875 tft, bool force) {
                          max_cell_temp_last_state);
     }
 
-    // // Update minimum cell temperature display.
-    // if (abs(Resources::driveBusData().minCellTemp - Resources::prevDriveBusData().minCellVoltage) > 0.5 || force) {
-    //     drawCircleStatus(tft,
-    //                      min_cell_temp_startX,
-    //                      min_cell_temp_startY,
-    //                      Resources::driveBusData().minCellVoltage,
-    //                      min_cell_temp_mid_state,
-    //                      min_cell_temp_last_state);
-    // }
+    // Update minimum cell temperature display.
+    if (Resources::driveBusData().minCellVoltage - Resources::prevDriveBusData().minCellVoltage || force) {
+        drawCircleStatus(tft,
+                         min_cell_temp_startX,
+                         min_cell_temp_startY,
+                         Resources::driveBusData().minCellVoltage,
+                         min_cell_temp_mid_state,
+                         min_cell_temp_last_state);
+    }
+}
+
+void DriveScreen::periodicDraw(Adafruit_RA8875 tft) {
+    drawMileageCounter(tft);
 }

@@ -13,9 +13,16 @@ class ByteBuffer {
     ByteBuffer(size_t size) : buffer(size), _size(size) {}
 
     template <typename T>
-    void write(T value) {
+    void writeValue(T value) {
         // Serial.printf("Writing %d bytes!\n", sizeof(T));
         memcpy(&(buffer[_index]), (void *)(&value), sizeof(T));
+        _index += sizeof(T);
+    }
+
+    template <typename T>
+    void writeFromPtr(T *value) {
+        // Serial.printf("Writing %d bytes!\n", sizeof(T));
+        memcpy(&(buffer[_index]), (void *)(value), sizeof(T));
         _index += sizeof(T);
     }
 
@@ -32,6 +39,11 @@ class ByteBuffer {
     size_t _size;
 };
 
+enum LoggerStatus {
+    UNABLE_TO_LOG,
+    LOGGING
+};
+
 class Logger {
    public:
     Logger();
@@ -40,17 +52,21 @@ class Logger {
 
     void log();
 
+    LoggerStatus status() const;
+
+    std::string logFileName() const;
+
     // new functions for mileage logging
     void writeMileCounter();
     float readMileCounter();
 
    private:
     File loggingFile;
-    std::string loggingFileName;
+    std::string loggingFileName = "none!";
     std::string milageFileName = "mileage_counter.txt";
     File milageFile;
     ByteBuffer _lineBuffer;
-    bool _loggerGood = false;
+    LoggerStatus _status;
 };
 
 #endif  // __LOGGER_H__

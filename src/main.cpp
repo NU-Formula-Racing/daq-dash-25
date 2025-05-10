@@ -14,6 +14,7 @@ Song song{312 * 2, goU};
 
 VirtualTimerGroup loggingTimer;
 
+
 void logData() {
     // Serial.println("Logging timer func!");
     Resources::instance().logger.log();
@@ -25,27 +26,30 @@ void setup() {
     Serial.begin(9600);
     Serial.println("Starting setup");
 
-    dashboard.initalize();
-
+    
     Resources::instance().logger.initialize();
     Resources::instance().milageCounter = Resources::instance().logger.readMileCounter();
-
+    
     // initialize sound driver
     song.shift(-2);
     Resources::instance().soundDriver.initialize();
     Resources::instance().soundDriver.setSong(song);
     // Resources::instance().soundDriver.playSong();
-
+    
     Resources::instance().dataBus.initialize();
     Resources::instance().driveBus.initialize();
-
-    loggingTimer.AddTimer(1000, logData);
+    
+    dashboard.initalize();
+    dashboard.update();
+    
+    loggingTimer.AddTimer(100, logData);
 }
 
 void loop() {
+
     Resources::instance().update();
     dashboard.update();
-
+    
     // logging takes wayy too long right now
     loggingTimer.Tick(millis());
 

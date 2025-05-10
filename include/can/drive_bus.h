@@ -38,24 +38,35 @@ enum DriveState : uint8_t {
 };
 
 struct DriveBusData {
-    float wheelSpeeds[4];
+    bool bmsFaults[BMS_FAULT_COUNT];
+    bool ecuFaults[ECU_FAULT_COUNT];
 
-    uint8_t driveState;
-    uint8_t bmsState;
-    uint8_t imdState = 1;  // healthy when high
-    uint8_t bmsSOC;
-    uint8_t inverterStatus;
-
-    float HVVoltage;
-    float LVVoltage;
+    float hvVoltage;
+    float lvVoltage;
     float batteryTemp;
     float maxCellTemp;
     float minCellTemp;
     float maxCellVoltage;
     float minCellVoltage;
+    float maxDischargeCurrent;
+    float maxRegenCurrent;
+    float bmsSOC;
 
-    bool bmsFaults[BMS_FAULT_COUNT];
-    bool ecuFaults[ECU_FAULT_COUNT];
+    float wheelSpeeds[4];
+    float wheelDisplacement[4];
+    float prStrain[4];
+
+    uint16_t bmsFaultsRaw;
+    int16_t motorRPM;
+    int16_t motorCurrent;
+    int16_t motorDCVoltage;
+    int16_t motorDCCurrent;
+
+    uint8_t driveState;
+    uint8_t bmsState;
+    uint8_t imdState = 1;  // healthy when high
+    uint8_t inverterStatus;
+    bool lvVoltageWarning;
 
     DriveBusData() {
         memset(bmsFaults, 0, sizeof(bool) * BMS_FAULT_COUNT);
@@ -64,14 +75,19 @@ struct DriveBusData {
     }
 
     bool faultPresent() const {
-        return bmsFaults[BMS_FAULT_SUMMARY] || ecuFaults[ECU_FAULT_PRESENT] || (inverterStatus != 0 && inverterStatus != 0x02) || imdState == 0;
-        // return bmsFaults[BMS_FAULT_SUMMARY] || ecuFaults[ECU_FAULT_PRESENT] || imdState == 0;
+        if (driveState != 0)  // if not in off, don't ignore undervoltage
+            return bmsFaults[BMS_FAULT_SUMMARY] || ecuFaults[ECU_FAULT_PRESENT] || inverterStatus != 0 || imdState == 0;
+
+        // if we are off, ignore the undervoltage
+        return bmsFaults[BMS_FAULT_SUMMARY] || ecuFaults[ECU_FAULT_PRESENT] || (inverterStatus != 0 && inverterStatus != 2) || imdState == 0;
     }
 
-    float averageWheelSpeed() const {
-        return std::max({wheelSpeeds[0], wheelSpeeds[1], wheelSpeeds[2], wheelSpeeds[3]});
-        // return (wheelSpeeds[0] + wheelSpeeds[1] + wheelSpeeds[2] + wheelSpeeds[3]) / 4;
+    float averageWheelRPM() const {
+        // return std::max({wheelSpeeds[0], wheelSpeeds[1], wheelSpeeds[2], wheelSpeeds[3]});
+        return ((wheelSpeeds[0] + wheelSpeeds[1] + wheelSpeeds[2] + wheelSpeeds[3])) / 2;  // only by two rn cause only two wheel speeds
     }
+
+    float vehicleSpeedMPH() const;
 };
 
 class DriveBus {
@@ -100,24 +116,24 @@ class DriveBus {
     // all of the CAN message stuff and setup
 
     // Wheel speeds
-    MakeUnsignedCANSignal(float, 0, 16, 1, 0) fl_wheel_speed_signal;
-    MakeUnsignedCANSignal(float, 16, 16, 1, 0) fl_wheel_displacement_signal;
-    MakeUnsignedCANSignal(float, 32, 16, 1, 0) fl_wheel_load_signal;
+    MakeUnsignedCANSignal(float, 0, 16, 1.0, 0) fl_wheel_speed_signal;
+    MakeUnsignedCANSignal(float, 16, 16, 0.01, 0) fl_wheel_displacement_signal;
+    MakeUnsignedCANSignal(float, 32, 16, 0.01, 0) fl_wheel_load_signal;
     CANRXMessage<3> rx_fl_wheel_speed{_driveBus, 0x249, fl_wheel_speed_signal, fl_wheel_displacement_signal, fl_wheel_load_signal};
 
-    MakeUnsignedCANSignal(float, 0, 16, 1, 0) fr_wheel_speed_signal;
-    MakeUnsignedCANSignal(float, 16, 16, 1, 0) fr_wheel_displacement_signal;
-    MakeUnsignedCANSignal(float, 32, 16, 1, 0) fr_wheel_load_signal;
+    MakeUnsignedCANSignal(float, 0, 16, 1.0, 0) fr_wheel_speed_signal;
+    MakeUnsignedCANSignal(float, 16, 16, 0.01, 0) fr_wheel_displacement_signal;
+    MakeUnsignedCANSignal(float, 32, 16, 0.01, 0) fr_wheel_load_signal;
     CANRXMessage<3> rx_fr_wheel_speed{_driveBus, 0x24A, fr_wheel_speed_signal, fr_wheel_displacement_signal, fr_wheel_load_signal};
 
-    MakeUnsignedCANSignal(float, 0, 16, 1, 0) bl_wheel_speed_signal;
-    MakeUnsignedCANSignal(float, 16, 16, 1, 0) bl_wheel_displacement_signal;
-    MakeUnsignedCANSignal(float, 32, 16, 1, 0) bl_wheel_load_signal;
+    MakeUnsignedCANSignal(float, 0, 16, 1.0, 0) bl_wheel_speed_signal;
+    MakeUnsignedCANSignal(float, 16, 16, 0.01, 0) bl_wheel_displacement_signal;
+    MakeUnsignedCANSignal(float, 32, 16, 0.01, 0) bl_wheel_load_signal;
     CANRXMessage<3> rx_bl_wheel_speed{_driveBus, 0x24B, bl_wheel_speed_signal, bl_wheel_displacement_signal, bl_wheel_load_signal};
 
-    MakeUnsignedCANSignal(float, 0, 16, 1, 0) br_wheel_speed_signal;
-    MakeUnsignedCANSignal(float, 16, 16, 1, 0) br_wheel_displacement_signal;
-    MakeUnsignedCANSignal(float, 32, 16, 1, 0) br_wheel_load_signal;
+    MakeUnsignedCANSignal(float, 0, 16, 1.0, 0) br_wheel_speed_signal;
+    MakeUnsignedCANSignal(float, 16, 16, 0.01, 0) br_wheel_displacement_signal;
+    MakeUnsignedCANSignal(float, 32, 16, 0.01, 0) br_wheel_load_signal;
     CANRXMessage<3> rx_br_wheel_speed{_driveBus, 0x24C, br_wheel_speed_signal, br_wheel_displacement_signal, br_wheel_load_signal};
 
     // ECU Stuff
@@ -153,7 +169,7 @@ class DriveBus {
     MakeUnsignedCANSignal(float, 24, 8, 1.0, -40.0) bms_status_min_cell_temp;
     MakeUnsignedCANSignal(float, 32, 8, 0.012, 2.0) bms_status_max_cell_voltage;
     MakeUnsignedCANSignal(float, 40, 8, 0.012, 2.0) bms_status_min_cell_voltage;
-    MakeUnsignedCANSignal(float, 48, 8, 0.5, 0.0) bms_status_bms_soc;
+    MakeUnsignedCANSignal(float, 48, 8, 0.004, 0.0) bms_status_bms_soc;
 
     CANRXMessage<7> rx_bms_status{_driveBus, 0x152, bms_status_bms_state, bms_status_imd_state, bms_status_max_cell_temp, bms_status_min_cell_temp, bms_status_max_cell_voltage, bms_status_min_cell_voltage, bms_status_bms_soc};
 
@@ -175,7 +191,7 @@ class DriveBus {
 
     // inverter stuff
     MakeUnsignedCANSignal(uint8_t, 0, 8, 1.0, 0.0) inverter_fault_status_fault_code_signal;
-    CANRXMessage<1> rx_inverter_fault_status{_driveBus, 0x208, inverter_fault_status_fault_code_signal};
+    CANRXMessage<1> rx_inverter_fault_status{_driveBus, 0x280, inverter_fault_status_fault_code_signal};
 
     MakeSignedCANSignal(int16_t, 0, 16, 1.0, 0.0) inverter_motor_status_rpm;
     MakeSignedCANSignal(int16_t, 16, 16, 0.1, 0.0) inverter_motor_status_motor_current;

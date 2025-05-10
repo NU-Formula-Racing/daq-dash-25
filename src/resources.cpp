@@ -17,11 +17,20 @@ const DriveBusData &Resources::prevDriveBusData() {
     return instance().driveBus.getPrevData();
 }
 
+float Resources::deltaTimeMs() {
+    return instance()._deltaTime;
+}
+
 Resources::Resources() : soundDriver(PIEZO_INPUT), dataBus(), driveBus() {
 }
+
 
 
 void Resources::update() {
     dataBus.update();
     driveBus.update();
+    
+    long long now = millis();
+    _deltaTime = now - _lastTime;
+    _lastTime = now;
 }
