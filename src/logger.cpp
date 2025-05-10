@@ -11,25 +11,29 @@
 
 const int chipSelect = BUILTIN_SDCARD;
 
-time_t getTeensy3Time() {
+time_t getTeensy3Time()
+{
     return Teensy3Clock.get();
 }
 
-Logger::Logger() {
+Logger::Logger()
+{
     // calculate the size of the data
-    size_t timeSize = sizeof(uint32_t);  // millis
+    size_t timeSize = sizeof(uint32_t); // millis
 
     _lineBuffer = ByteBuffer(timeSize + sizeof(DataBusData) + sizeof(DriveBusData));
 }
 
-void Logger::initialize() {
+void Logger::initialize()
+{
     Resources::instance().driveBus.initialize();
     Resources::instance().dataBus.initialize();
     setSyncProvider(getTeensy3Time);
 
     Serial.println("Initializing Logger!");
 
-    if (!SD.begin(chipSelect)) {
+    if (!SD.begin(chipSelect))
+    {
         Serial.println("SD initalization failed.");
         _status = LoggerStatus::UNABLE_TO_LOG;
         return;
@@ -38,13 +42,14 @@ void Logger::initialize() {
     Serial.println("SD card initialized.");
     _status = LoggerStatus::LOGGING;
 
-    char fname[16];  // "log_" + 3-digits + ".bin" + '\0'
+    char fname[16]; // "log_" + 3-digits + ".bin" + '\0'
     uint16_t index = 0;
 
-    do {
+    do
+    {
         snprintf(fname, sizeof(fname), "log_%03u.bin", index);
         ++index;
-    } while (SD.exists(fname) && index < 1000);  // stop at 999 just in case
+    } while (SD.exists(fname) && index < 1000); // stop at 999 just in case
 
     loggingFileName = fname;
     Serial.print("Next log file: ");
@@ -64,10 +69,14 @@ void Logger::initialize() {
     this->loggingFile.write((uint8_t)0);
     this->loggingFile.write((uint8_t)1);
     this->loggingFile.write(_lineBuffer.size());
+
+    this->loggingFile.close();
 }
 
-void Logger::log() {
-    if (_status == LoggerStatus::UNABLE_TO_LOG) return;
+void Logger::log()
+{
+    if (_status == LoggerStatus::UNABLE_TO_LOG)
+        return;
 
     this->loggingFile = SD.open(loggingFileName.c_str(), FILE_WRITE);
 
@@ -88,16 +97,20 @@ void Logger::log() {
     this->loggingFile.close();
 }
 
-LoggerStatus Logger::status() const {
+LoggerStatus Logger::status() const
+{
     return _status;
 }
 
-std::string Logger::logFileName() const {
+std::string Logger::logFileName() const
+{
     return loggingFileName;
 }
 
-void Logger::writeMileCounter() {
-    if (_status == LoggerStatus::UNABLE_TO_LOG) return;
+void Logger::writeMileCounter()
+{
+    if (_status == LoggerStatus::UNABLE_TO_LOG)
+        return;
 
     this->milageFile = SD.open(milageFileName.c_str(), FILE_WRITE_BEGIN);
     String counter = "";
@@ -109,19 +122,24 @@ void Logger::writeMileCounter() {
 }
 
 // returns current mileage
-float Logger::readMileCounter() {
-    if (_status == LoggerStatus::UNABLE_TO_LOG) return 0;
+float Logger::readMileCounter()
+{
+    if (_status == LoggerStatus::UNABLE_TO_LOG)
+        return 0;
 
     // open mileage file
     this->milageFile = SD.open(milageFileName.c_str(), FILE_READ);
     float miles = 0;
     // if empty, read as 0?
-    if (this->milageFile && this->milageFile.size() == 0) {
+    if (this->milageFile && this->milageFile.size() == 0)
+    {
         return 0;
-    } else {                                                           // else, read
-        this->milageFile.seek(0);                                      // Go to the start of the file
-        String numberString = this->milageFile.readStringUntil('\n');  // or '\r' or any delimiter
-        miles = numberString.toFloat();                                // or .toInt() for integers
+    }
+    else
+    {                                                                 // else, read
+        this->milageFile.seek(0);                                     // Go to the start of the file
+        String numberString = this->milageFile.readStringUntil('\n'); // or '\r' or any delimiter
+        miles = numberString.toFloat();                               // or .toInt() for integers
     }
     // close mileage file
     this->milageFile.close();
