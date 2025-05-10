@@ -30,11 +30,13 @@ using std::vector;
 
 // ——— helpers ———
 
-static string fmt(const char* fmt, float v) {
-    char buf[8];
-    std::snprintf(buf, sizeof(buf), "%f", v);
-    return string(buf);
+
+static string fmt(const char* fmtStr, float v) {
+    char buf[32];                                 
+    dtostrf(v, 0, 2, buf);
+    return std::string(buf);
 }
+
 static string hex8(unsigned v) {
     char buf[8];
     std::snprintf(buf, sizeof(buf), "0x%02X", v);
@@ -184,7 +186,14 @@ static const vector<DebugField> debugFields = {
          for (int i = 0; i < ECU_FAULT_COUNT; i++)
              if (Resources::prevDriveBusData().ecuFaults[i]) bits |= (1 << i);
          return hex16(bits);
-     }}};
+     }},
+     {"Log",
+        [](){ return Resources::instance().logger.logFileName(); },
+        [](){ return Resources::instance().logger.logFileName(); },
+     },
+    
+};
+
 
 const std::vector<DebugField>& DriveBusDebugScreen::fields() {
     return debugFields;

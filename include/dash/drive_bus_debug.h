@@ -29,14 +29,14 @@ class DriveBusDebugScreen : public Screen {
 
     // layout
     static constexpr int START_Y = 50;
-    static constexpr int LINE_H = 25;
+    static constexpr int LINE_H = 30;
     static constexpr int COL_COUNT = 3;
     static constexpr int COL_WIDTH = SCREEN_WIDTH / COL_COUNT;
     static constexpr int LABEL_X_OFF = 10;
     static constexpr int VALUE_X_OFF = 150;
 
     static constexpr TextDrawOptions textOpts = {
-        .size = 2,
+        .size = 2.5,
         .color = RA8875_WHITE,
         .backgroundColor = RA8875_BLACK,
         .hAlign = ALIGN_LEFT,

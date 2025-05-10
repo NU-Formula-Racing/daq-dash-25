@@ -62,7 +62,7 @@ class Logger {
 
    private:
     File loggingFile;
-    std::string loggingFileName;
+    std::string loggingFileName = "none!";
     std::string milageFileName = "mileage_counter.txt";
     File milageFile;
     ByteBuffer _lineBuffer;
