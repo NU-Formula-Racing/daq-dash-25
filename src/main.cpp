@@ -25,6 +25,8 @@ void logData() {
 void setup() {
     // initialize serial communication, when done, turn internal LED off
     Serial.begin(9600);
+    pinMode(ROTARY_OUTPUT_A, INPUT);
+    pinMode(ROTARY_OUTPUT_A, INPUT);
     Serial.println("Starting setup");
 
     

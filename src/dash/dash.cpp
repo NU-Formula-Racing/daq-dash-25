@@ -10,6 +10,7 @@
 
 #include "dash/drive_screen.h"
 #include "dash/error_screen.h"
+#include "dash/logging_screen.h"
 #include "resources.h"
 
 
@@ -32,10 +33,12 @@ int min_cell_temp_mid_state = 11;  // min 8 celsius
 
 int bar_max_size = 480;
 
-Dash::Dash() : _tft(RA8875_CS, RA8875_RESET), _currentScreen(DashScreen::DS_DRIVE) {
+Dash::Dash() : _tft(RA8875_CS, RA8875_RESET), _currentScreen(DashScreen::DS_LOGGING) {
     _screens = {
         std::make_shared<DriveScreen>(),
-        std::make_shared<ErrorScreen>()};
+        std::make_shared<ErrorScreen>(),
+        std::make_shared<LoggingScreen>()
+    };
 }
 
 void Dash::initalize() {

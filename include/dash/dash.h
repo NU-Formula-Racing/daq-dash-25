@@ -11,6 +11,7 @@
 enum DashScreen {
     DS_DRIVE,
     DS_ERROR,
+    DS_LOGGING,
     DS_NUM_SCREENS,
 };
 

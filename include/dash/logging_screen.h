@@ -4,6 +4,7 @@
 #include <Adafruit_RA8875.h>
 #include "screen.h"
 #include "resources.h"
+#include "dash/rotary_encoder.h"
 
 
 class LoggingScreen : public Screen {
@@ -17,10 +18,7 @@ class LoggingScreen : public Screen {
      RotaryEncoder rotaryEncoder;  // Declare the RotaryEncoder object
      std::vector <std::string> labels = {"Acceleration", "Skid Pad", "Endurance", "General Testing"};
      int highlighted = 0;
-     bool accelSelected;
-     bool skidSelected;
-     bool endureSelected;
-     bool genSelected;
+    
 
      // *** highlighted will need to be modified via code from rotary_encoder.h
      // might need to re-define in the future?

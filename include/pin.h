@@ -27,6 +27,7 @@
 
 #define ROTARY_OUTPUT_A A11
 #define ROTARY_OUTPUT_B A10
+//#define ROTARY_BUTTON 
 
 
 //other pins
