@@ -40,6 +40,13 @@ void DriveBus::initialize()
     _driveBus.RegisterRXMessage(inverter_temp_status);
     _driveBus.RegisterRXMessage(pdm_current);
 
+    _driveBus.RegisterRXMessage(rx_pdm_efuse);
+
+    _driveBus.RegisterRXMessage(rx_inverter_current_draw);
+    _driveBus.RegisterRXMessage(rx_inverter_power_draw);
+
+    _driveBus.RegisterRXMessage(rx_ecu_set_current);
+
     // lowkey mad annoying but we gotta pull the imd status to be high
     bms_status_imd_state = 1; // drake why can't you be normal
     inverter_fault_status_fault_code_signal = 0;
@@ -186,6 +193,17 @@ void DriveBus::update()
     this->_data.genAmps = pdm_current_gen_amps;
     this->_data.fanAmps = pdm_current_fan_amps;
     this->_data.pumpAmps = pdm_current_pump_amps;
+
+    this->_data.pdmGenEfuseTriggered = gen_efuse_triggered;
+    this->_data.pdmACEfuseTriggered = ac_efuse_triggered;
+
+    this->_data.inverterAhDrawn = ah_drawn_signal;
+    this->_data.inverterAhCharged = ah_charged_signal;
+
+    this->_data.inverterWhDrawn = wh_drawn_signal;
+    this->_data.inverterWhCharged = wh_charged_signal;
+
+    this->_data.EcuSetCurrent = ecu_set_current_signal;
 
 #endif
 }
