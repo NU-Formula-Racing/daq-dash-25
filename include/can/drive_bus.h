@@ -141,6 +141,52 @@ struct DriveBusData
     float blo_temperature_2;
     float blo_temperature_3;
 
+    float bli_temperature_4;
+    float bli_temperature_5;
+    float bli_temperature_6;
+    float bli_temperature_7;
+
+    float bro_temperature_0;
+    float bro_temperature_1;
+    float bro_temperature_2;
+    float bro_temperature_3;
+
+    float bri_temperature_4;
+    float bri_temperature_5;
+    float bri_temperature_6;
+    float bri_temperature_7;
+
+    float fl_speed;
+    float fl_displacement;
+    float fl_load;
+
+    float fr_speed;
+    float fr_displacement;
+    float fr_load;
+
+    float bl_speed;
+    float bl_displacement;
+    float bl_load;
+
+    float br_speed;
+    float br_displacement;
+    float br_load;
+
+    uint8_t file_status;
+    uint8_t num_lut_pairs;
+    uint8_t interp_type;
+    uint8_t lut_id;
+
+    int16_t x_zero;
+    float y_zero;
+    int16_t x_one;
+    float y_one;
+
+    int16_t x_two;
+    float y_two;
+    int16_t x_three;
+    float y_three;
+
     float cellTemperatures[NUM_TEMP_CELLS];
     float cellVoltages[NUM_VOLT_CELLS];
 
@@ -246,7 +292,61 @@ private:
     MakeSignedCANSignal(float, 48, 16, 0.01, 0.0) blo_temperature_3_signal;
     CANRXMessage<4> rx_daq_wheel_back_left_outer_temps{_driveBus, 0x245, blo_temperature_0_signal, blo_temperature_1_signal, blo_temperature_2_signal, blo_temperature_3_signal};
 
+    MakeSignedCANSignal(float, 0, 16, 0.01, 0.0) bli_temperature_4_signal;
+    MakeSignedCANSignal(float, 16, 16, 0.01, 0.0) bli_temperature_5_signal;
+    MakeSignedCANSignal(float, 32, 16, 0.01, 0.0) bli_temperature_6_signal;
+    MakeSignedCANSignal(float, 48, 16, 0.01, 0.0) bli_temperature_7_signal;
+    CANRXMessage<4> rx_daq_wheel_back_left_inner_temps{_driveBus, 0x246, bli_temperature_4_signal, bli_temperature_5_signal, bli_temperature_6_signal, bli_temperature_7_signal};
 
+    MakeSignedCANSignal(float, 0, 16, 0.01, 0.0) bro_temperature_0_signal;
+    MakeSignedCANSignal(float, 16, 16, 0.01, 0.0) bro_temperature_1_signal;
+    MakeSignedCANSignal(float, 32, 16, 0.01, 0.0) bro_temperature_2_signal;
+    MakeSignedCANSignal(float, 48, 16, 0.01, 0.0) bro_temperature_3_signal;
+    CANRXMessage<4> rx_daq_wheel_back_right_outer_temps{_driveBus, 0x247, bro_temperature_0_signal, bro_temperature_1_signal, bro_temperature_2_signal, bro_temperature_3_signal};
+
+    MakeSignedCANSignal(float, 0, 16, 0.01, 0.0) bri_temperature_4_signal;
+    MakeSignedCANSignal(float, 16, 16, 0.01, 0.0) bri_temperature_5_signal;
+    MakeSignedCANSignal(float, 32, 16, 0.01, 0.0) bri_temperature_6_signal;
+    MakeSignedCANSignal(float, 48, 16, 0.01, 0.0) bri_temperature_7_signal;
+    CANRXMessage<4> rx_daq_wheel_back_right_inner_temps{_driveBus, 0x248, bri_temperature_4_signal, bri_temperature_5_signal, bri_temperature_6_signal, bri_temperature_7_signal};
+
+    MakeSignedCANSignal(float, 0, 16, 0.01, 0.0) fl_speed_signal;
+    MakeSignedCANSignal(float, 16, 16, 0.01, 0.0) fl_displacement_signal;
+    MakeSignedCANSignal(float, 32, 16, 0.01, 0.0) fl_load_signal;
+    CANRXMessage<3> rx_daq_wheel_fl{_driveBus, 0x249, fl_speed_signal, fl_displacement_signal, fl_load_signal};
+
+    MakeSignedCANSignal(float, 0, 16, 0.01, 0.0) fr_speed_signal;
+    MakeSignedCANSignal(float, 16, 16, 0.01, 0.0) fr_displacement_signal;
+    MakeSignedCANSignal(float, 32, 16, 0.01, 0.0) fr_load_signal;
+    CANRXMessage<3> rx_daq_wheel_fr{_driveBus, 0x24A, fr_speed_signal, fr_displacement_signal, fr_load_signal};
+
+    MakeSignedCANSignal(float, 0, 16, 0.01, 0.0) bl_speed_signal;
+    MakeSignedCANSignal(float, 16, 16, 0.01, 0.0) bl_displacement_signal;
+    MakeSignedCANSignal(float, 32, 16, 0.01, 0.0) bl_load_signal;
+    CANRXMessage<3> rx_daq_wheel_bl{_driveBus, 0x24B, bl_speed_signal, bl_displacement_signal, bl_load_signal};
+
+    MakeSignedCANSignal(float, 0, 16, 0.01, 0.0) br_speed_signal;
+    MakeSignedCANSignal(float, 16, 16, 0.01, 0.0) br_displacement_signal;
+    MakeSignedCANSignal(float, 32, 16, 0.01, 0.0) br_load_signal;
+    CANRXMessage<3> rx_daq_wheel_br{_driveBus, 0x24C, br_speed_signal, br_displacement_signal, br_load_signal};
+
+    MakeUnsignedCANSignal(uint8_t, 0, 8, 1.0, 0.0) file_status_signal;
+    MakeUnsignedCANSignal(uint8_t, 8, 8, 1.0, 0.0) num_lut_pairs_signal;
+    MakeUnsignedCANSignal(uint8_t, 16, 8, 1.0, 0.0) interp_type_signal;
+    MakeUnsignedCANSignal(uint8_t, 24, 8, 1.0, 0.0) lut_id_signal;
+    CANRXMessage<4> rx_daq_lut_metadata{_driveBus, 0x2B0, file_status_signal, num_lut_pairs_signal, interp_type_signal, lut_id_signal};
+
+    MakeSignedCANSignal(int16_t, 0, 16, 1.0, 0.0) x_zero_signal;
+    MakeSignedCANSignal(float, 16, 16, 0.01, 0.0) y_zero_signal;
+    MakeSignedCANSignal(int16_t, 32, 16, 1.0, 0.0) x_one_signal;
+    MakeSignedCANSignal(float, 48, 16, 0.01, 0.0) y_one_signal;
+    CANRXMessage<4> rx_daq_lut_pair_zero_one{_driveBus, 0x2B1, x_zero_signal, y_zero_signal, x_one_signal, y_one_signal};
+
+    MakeSignedCANSignal(int16_t, 0, 16, 1.0, 0.0) x_two_signal;
+    MakeSignedCANSignal(float, 16, 16, 0.01, 0.0) y_two_signal;
+    MakeSignedCANSignal(int16_t, 32, 16, 1.0, 0.0) x_three_signal;
+    MakeSignedCANSignal(float, 48, 16, 0.01, 0.0) y_three_signal;
+    CANRXMessage<4> rx_daq_lut_pair_two_three{_driveBus, 0x2B2, x_two_signal, y_two_signal, x_three_signal, y_three_signal};
 
 
     // ECU Stuff
