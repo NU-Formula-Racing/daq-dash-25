@@ -51,7 +51,7 @@ void DriveBus::initialize()
 
     _driveBus.RegisterRXMessage(rx_ecu_pump_fan_command);
     _driveBus.RegisterRXMessage(rx_ecu_active_aero_command);
-    _driveBus.RegisterRXMessage(ecu_bms_command_message);
+    _driveBus.RegisterRXMessage(rx_accel_lut_id_response);
 
     _driveBus.RegisterRXMessage(rx_ecu_temp_limiting_status);
     _driveBus.RegisterRXMessage(rx_ecu_torque_status);
@@ -233,6 +233,8 @@ void DriveBus::update()
     this->_data.battery_temp_limiting = battery_temp_limiting_signal;
     this->_data.motor_temp_limiting = motor_temp_limiting_signal;
     this->_data.torque_status = torque_status_signal;
+
+    this->_data.accel_lut_id_response = accel_lut_id_response_signal;
 
     this->_data.flo_temperature_0 = flo_temperature_0_signal;
     this->_data.flo_temperature_1 = flo_temperature_1_signal;

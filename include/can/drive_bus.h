@@ -278,7 +278,7 @@ private:
     CANRXMessage<2> rx_ecu_active_aero_command{_driveBus, 0x208, active_aero_state_signal, active_aero_position_signal};
 
     MakeUnsignedCANSignal(uint8_t, 0, 8, 1, 0) accel_lut_id_response_signal;
-    CANRXMessage<1> ecu_bms_command_message{_driveBus, 0x20A, ecu_bms_command_message_bms_command};
+    CANRXMessage<1> rx_accel_lut_id_response{_driveBus, 0x20A, accel_lut_id_response_signal};
 
     MakeUnsignedCANSignal(bool, 0, 1, 1, 0) igbt_temp_limiting_signal;
     MakeUnsignedCANSignal(bool, 1, 1, 1, 0) battery_temp_limiting_signal;
