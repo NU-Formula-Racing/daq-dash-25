@@ -187,6 +187,74 @@ struct DriveBusData
     int16_t x_three;
     float y_three;
 
+    int16_t x_four;
+    float y_four;
+    int16_t x_five;
+    float y_five;
+
+    int16_t x_six;
+    float y_six;
+    int16_t x_seven;
+    float y_seven;
+
+    int16_t x_eight;
+    float y_eight;
+    int16_t x_nine;
+    float y_nine;
+
+    int16_t x_ten;
+    float y_ten;
+    int16_t x_eleven;
+    float y_eleven;
+
+    int16_t x_twelve;
+    float y_twelve;
+    int16_t x_thirteen;
+    float y_thirteen;
+
+    int16_t x_fourteen;
+    float y_fourteen;
+    int16_t x_fifteen;
+    float y_fifteen;
+
+    int16_t x_sixteen;
+    float y_sixteen;
+    int16_t x_seventeen;
+    float y_seventeen;
+
+    int16_t x_eighteen;
+    float y_eighteen;
+    int16_t x_nineteen;
+    float y_nineteen;
+
+    int16_t x_twenty;
+    float y_twenty;
+    int16_t x_twenty_one;
+    float y_twenty_one;
+
+    int16_t x_twenty_two;
+    float y_twenty_two;
+    int16_t x_twenty_three;
+    float y_twenty_three;
+
+    int16_t x_twenty_four;
+    float y_twenty_four;
+    int16_t x_twenty_five;
+    float y_twenty_five;
+
+    int16_t x_twenty_six;
+    float y_twenty_six;
+    int16_t x_twenty_seven;
+    float y_twenty_seven;
+
+    int16_t x_twenty_eight;
+    float y_twenty_eight;
+    int16_t x_twenty_nine;
+    float y_twenty_nine;
+
+
+
+
     float cellTemperatures[NUM_TEMP_CELLS];
     float cellVoltages[NUM_VOLT_CELLS];
 
@@ -347,6 +415,84 @@ private:
     MakeSignedCANSignal(int16_t, 32, 16, 1.0, 0.0) x_three_signal;
     MakeSignedCANSignal(float, 48, 16, 0.01, 0.0) y_three_signal;
     CANRXMessage<4> rx_daq_lut_pair_two_three{_driveBus, 0x2B2, x_two_signal, y_two_signal, x_three_signal, y_three_signal};
+
+    MakeSignedCANSignal(int16_t, 0, 16, 1.0, 0.0) x_four_signal;
+    MakeSignedCANSignal(float, 16, 16, 0.01, 0.0) y_four_signal;
+    MakeSignedCANSignal(int16_t, 32, 16, 1.0, 0.0) x_five_signal;
+    MakeSignedCANSignal(float, 48, 16, 0.01, 0.0) y_five_signal;
+    CANRXMessage<4> rx_daq_lut_pair_four_five{_driveBus, 0x2B3, x_four_signal, y_four_signal, x_five_signal, y_five_signal};
+
+    MakeSignedCANSignal(int16_t, 0, 16, 1.0, 0.0) x_six_signal;
+    MakeSignedCANSignal(float, 16, 16, 0.01, 0.0) y_six_signal;
+    MakeSignedCANSignal(int16_t, 32, 16, 1.0, 0.0) x_seven_signal;
+    MakeSignedCANSignal(float, 48, 16, 0.01, 0.0) y_seven_signal;
+    CANRXMessage<4> rx_daq_lut_pair_six_seven{_driveBus, 0x2B4, x_six_signal, y_six_signal, x_seven_signal, y_seven_signal};
+
+    MakeSignedCANSignal(int16_t, 0, 16, 1.0, 0.0) x_eight_signal;
+    MakeSignedCANSignal(float, 16, 16, 0.01, 0.0) y_eight_signal;
+    MakeSignedCANSignal(int16_t, 32, 16, 1.0, 0.0) x_nine_signal;
+    MakeSignedCANSignal(float, 48, 16, 0.01, 0.0) y_nine_signal;
+    CANRXMessage<4> rx_daq_lut_pair_eight_nine{_driveBus, 0x2B5, x_eight_signal, y_eight_signal, x_nine_signal, y_nine_signal};
+
+    MakeSignedCANSignal(int16_t, 0, 16, 1.0, 0.0) x_ten_signal;
+    MakeSignedCANSignal(float, 16, 16, 0.01, 0.0) y_ten_signal;
+    MakeSignedCANSignal(int16_t, 32, 16, 1.0, 0.0) x_eleven_signal;
+    MakeSignedCANSignal(float, 48, 16, 0.01, 0.0) y_eleven_signal;
+    CANRXMessage<4> rx_daq_lut_pair_ten_eleven{_driveBus, 0x2B6, x_ten_signal, y_ten_signal, x_eleven_signal, y_eleven_signal};
+
+    MakeSignedCANSignal(int16_t, 0, 16, 1.0, 0.0) x_twelve_signal;
+    MakeSignedCANSignal(float, 16, 16, 0.01, 0.0) y_twelve_signal;
+    MakeSignedCANSignal(int16_t, 32, 16, 1.0, 0.0) x_thirteen_signal;
+    MakeSignedCANSignal(float, 48, 16, 0.01, 0.0) y_thirteen_signal;
+    CANRXMessage<4> rx_daq_lut_pair_twelve_thirteen{_driveBus, 0x2B7, x_twelve_signal, y_twelve_signal, x_thirteen_signal, y_thirteen_signal};
+
+    MakeSignedCANSignal(int16_t, 0, 16, 1.0, 0.0) x_fourteen_signal;
+    MakeSignedCANSignal(float, 16, 16, 0.01, 0.0) y_fourteen_signal;
+    MakeSignedCANSignal(int16_t, 32, 16, 1.0, 0.0) x_fifteen_signal;
+    MakeSignedCANSignal(float, 48, 16, 0.01, 0.0) y_fifteen_signal;
+    CANRXMessage<4> rx_daq_lut_pair_fourteen_fifteen{_driveBus, 0x2B8, x_fourteen_signal, y_fourteen_signal, x_fifteen_signal, y_fifteen_signal};
+
+    MakeSignedCANSignal(int16_t, 0, 16, 1.0, 0.0) x_sixteen_signal;
+    MakeSignedCANSignal(float, 16, 16, 0.01, 0.0) y_sixteen_signal;
+    MakeSignedCANSignal(int16_t, 32, 16, 1.0, 0.0) x_seventeen_signal;
+    MakeSignedCANSignal(float, 48, 16, 0.01, 0.0) y_seventeen_signal;
+    CANRXMessage<4> rx_daq_lut_pair_sixteen_seventeen{_driveBus, 0x2B9, x_sixteen_signal, y_sixteen_signal, x_seventeen_signal, y_seventeen_signal};
+
+    MakeSignedCANSignal(int16_t, 0, 16, 1.0, 0.0) x_eighteen_signal;
+    MakeSignedCANSignal(float, 16, 16, 0.01, 0.0) y_eighteen_signal;
+    MakeSignedCANSignal(int16_t, 32, 16, 1.0, 0.0) x_nineteen_signal;
+    MakeSignedCANSignal(float, 48, 16, 0.01, 0.0) y_nineteen_signal;
+    CANRXMessage<4> rx_daq_lut_pair_eighteen_nineteen{_driveBus, 0x2BA, x_eighteen_signal, y_eighteen_signal, x_nineteen_signal, y_nineteen_signal};
+
+    MakeSignedCANSignal(int16_t, 0, 16, 1.0, 0.0) x_twenty_signal;
+    MakeSignedCANSignal(float, 16, 16, 0.01, 0.0) y_twenty_signal;
+    MakeSignedCANSignal(int16_t, 32, 16, 1.0, 0.0) x_twenty_one_signal;
+    MakeSignedCANSignal(float, 48, 16, 0.01, 0.0) y_twenty_one_signal;
+    CANRXMessage<4> rx_daq_lut_pair_twenty_twenty_one{_driveBus, 0x2BB, x_twenty_signal, y_twenty_signal, x_twenty_one_signal, y_twenty_one_signal};
+
+    MakeSignedCANSignal(int16_t, 0, 16, 1.0, 0.0) x_twenty_two_signal;
+    MakeSignedCANSignal(float, 16, 16, 0.01, 0.0) y_twenty_two_signal;
+    MakeSignedCANSignal(int16_t, 32, 16, 1.0, 0.0) x_twenty_three_signal;
+    MakeSignedCANSignal(float, 48, 16, 0.01, 0.0) y_twenty_three_signal;
+    CANRXMessage<4> rx_daq_lut_pair_twenty_two_twenty_three{_driveBus, 0x2BC, x_twenty_two_signal, y_twenty_two_signal, x_twenty_three_signal, y_twenty_three_signal};
+
+    MakeSignedCANSignal(int16_t, 0, 16, 1.0, 0.0) x_twenty_four_signal;
+    MakeSignedCANSignal(float, 16, 16, 0.01, 0.0) y_twenty_four_signal;
+    MakeSignedCANSignal(int16_t, 32, 16, 1.0, 0.0) x_twenty_five_signal;
+    MakeSignedCANSignal(float, 48, 16, 0.01, 0.0) y_twenty_five_signal;
+    CANRXMessage<4> rx_daq_lut_pair_twenty_four_twenty_five{_driveBus, 0x2BD, x_twenty_four_signal, y_twenty_four_signal, x_twenty_five_signal, y_twenty_five_signal};
+
+    MakeSignedCANSignal(int16_t, 0, 16, 1.0, 0.0) x_twenty_six_signal;
+    MakeSignedCANSignal(float, 16, 16, 0.01, 0.0) y_twenty_six_signal;
+    MakeSignedCANSignal(int16_t, 32, 16, 1.0, 0.0) x_twenty_seven_signal;
+    MakeSignedCANSignal(float, 48, 16, 0.01, 0.0) y_twenty_seven_signal;
+    CANRXMessage<4> rx_daq_lut_pair_twenty_six_twenty_seven{_driveBus, 0x2BE, x_twenty_six_signal, y_twenty_six_signal, x_twenty_seven_signal, y_twenty_seven_signal};
+
+    MakeSignedCANSignal(int16_t, 0, 16, 1.0, 0.0) x_twenty_eight_signal;
+    MakeSignedCANSignal(float, 16, 16, 0.01, 0.0) y_twenty_eight_signal;
+    MakeSignedCANSignal(int16_t, 32, 16, 1.0, 0.0) x_twenty_nine_signal;
+    MakeSignedCANSignal(float, 48, 16, 0.01, 0.0) y_twenty_nine_signal;
+    CANRXMessage<4> rx_daq_lut_pair_twenty_eight_twenty_nine{_driveBus, 0x2BF, x_twenty_eight_signal, y_twenty_eight_signal, x_twenty_nine_signal, y_twenty_nine_signal};
 
 
     // ECU Stuff

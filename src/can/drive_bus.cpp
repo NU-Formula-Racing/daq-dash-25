@@ -106,6 +106,23 @@ void DriveBus::initialize()
     _driveBus.RegisterRXMessage(rx_daq_lut_pair_zero_one);
     _driveBus.RegisterRXMessage(rx_daq_lut_pair_two_three);
 
+    _driveBus.RegisterRXMessage(rx_daq_lut_pair_four_five);
+    _driveBus.RegisterRXMessage(rx_daq_lut_pair_six_seven);
+    _driveBus.RegisterRXMessage(rx_daq_lut_pair_eight_nine);
+    _driveBus.RegisterRXMessage(rx_daq_lut_pair_ten_eleven);
+    _driveBus.RegisterRXMessage(rx_daq_lut_pair_twelve_thirteen);
+
+    _driveBus.RegisterRXMessage(rx_daq_lut_pair_fourteen_fifteen);
+    _driveBus.RegisterRXMessage(rx_daq_lut_pair_sixteen_seventeen);
+    _driveBus.RegisterRXMessage(rx_daq_lut_pair_eighteen_nineteen);
+    _driveBus.RegisterRXMessage(rx_daq_lut_pair_twenty_twenty_one);
+    _driveBus.RegisterRXMessage(rx_daq_lut_pair_twenty_two_twenty_three);
+    _driveBus.RegisterRXMessage(rx_daq_lut_pair_twenty_four_twenty_five);
+    _driveBus.RegisterRXMessage(rx_daq_lut_pair_twenty_six_twenty_seven);
+    _driveBus.RegisterRXMessage(rx_daq_lut_pair_twenty_eight_twenty_nine);
+
+
+
     // lowkey mad annoying but we gotta pull the imd status to be high
     bms_status_imd_state = 1; // drake why can't you be normal
     inverter_fault_status_fault_code_signal = 0;
@@ -573,6 +590,74 @@ void DriveBus::update()
     this->_data.y_two = y_two_signal;
     this->_data.x_three = x_three_signal;
     this->_data.y_three = y_three_signal;
+
+    this->_data.x_four = x_four_signal;
+    this->_data.y_four = y_four_signal;
+    this->_data.x_five = x_five_signal;
+    this->_data.y_five = y_five_signal;
+
+    this->_data.x_six = x_six_signal;
+    this->_data.y_six = y_six_signal;
+    this->_data.x_seven = x_seven_signal;
+    this->_data.y_seven = y_seven_signal;
+
+    this->_data.x_eight = x_eight_signal;
+    this->_data.y_eight = y_eight_signal;
+    this->_data.x_nine = x_nine_signal;
+    this->_data.y_nine = y_nine_signal;
+
+    this->_data.x_ten = x_ten_signal;
+    this->_data.y_ten = y_ten_signal;
+    this->_data.x_eleven = x_eleven_signal;
+    this->_data.y_eleven = y_eleven_signal;
+
+    this->_data.x_twelve = x_twelve_signal;
+    this->_data.y_twelve = y_twelve_signal;
+    this->_data.x_thirteen = x_thirteen_signal;
+    this->_data.y_thirteen = y_thirteen_signal;
+
+    this->_data.x_fourteen = x_fourteen_signal;
+    this->_data.y_fourteen = y_fourteen_signal;
+    this->_data.x_fifteen = x_fifteen_signal;
+    this->_data.y_fifteen = y_fifteen_signal;
+
+    this->_data.x_sixteen = x_sixteen_signal;
+    this->_data.y_sixteen = y_sixteen_signal;
+    this->_data.x_seventeen = x_seventeen_signal;
+    this->_data.y_seventeen = y_seventeen_signal;
+
+    this->_data.x_eighteen = x_eighteen_signal;
+    this->_data.y_eighteen = y_eighteen_signal;
+    this->_data.x_nineteen = x_nineteen_signal;
+    this->_data.y_nineteen = y_nineteen_signal;
+
+    this->_data.x_twenty = x_twenty_signal;
+    this->_data.y_twenty = y_twenty_signal;
+    this->_data.x_twenty_one = x_twenty_one_signal;
+    this->_data.y_twenty_one = y_twenty_one_signal;
+
+    this->_data.x_twenty_two = x_twenty_two_signal;
+    this->_data.y_twenty_two = y_twenty_two_signal;
+    this->_data.x_twenty_three = x_twenty_three_signal;
+    this->_data.y_twenty_three = y_twenty_three_signal;
+
+    this->_data.x_twenty_four = x_twenty_four_signal;
+    this->_data.y_twenty_four = y_twenty_four_signal;
+    this->_data.x_twenty_five = x_twenty_five_signal;
+    this->_data.y_twenty_five = y_twenty_five_signal;
+
+    this->_data.x_twenty_six = x_twenty_six_signal;
+    this->_data.y_twenty_six = y_twenty_six_signal;
+    this->_data.x_twenty_seven = x_twenty_seven_signal;
+    this->_data.y_twenty_seven = y_twenty_seven_signal;
+
+    this->_data.x_twenty_eight = x_twenty_eight_signal;
+    this->_data.y_twenty_eight = y_twenty_eight_signal;
+    this->_data.x_twenty_nine = x_twenty_nine_signal;
+    this->_data.y_twenty_nine = y_twenty_nine_signal;
+
+
+
 
 #endif
 }
