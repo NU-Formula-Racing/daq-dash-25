@@ -46,6 +46,21 @@ void DriveBus::initialize()
     _driveBus.RegisterRXMessage(rx_inverter_power_draw);
 
     _driveBus.RegisterRXMessage(rx_ecu_set_current);
+    _driveBus.RegisterRXMessage(rx_ecu_set_current_brake);
+    _driveBus.RegisterRXMessage(rx_pdm_efuse_reset);
+
+    _driveBus.RegisterRXMessage(rx_ecu_pump_fan_command);
+    _driveBus.RegisterRXMessage(rx_ecu_active_aero_command);
+    _driveBus.RegisterRXMessage(ecu_bms_command_message);
+
+    _driveBus.RegisterRXMessage(rx_ecu_temp_limiting_status);
+    _driveBus.RegisterRXMessage(rx_ecu_torque_status);
+    _driveBus.RegisterRXMessage(rx_flo_temps);
+
+    _driveBus.RegisterRXMessage(rx_daq_wheel_front_left_inner_temps);
+    _driveBus.RegisterRXMessage(rx_daq_wheel_front_right_outer_temps);
+    _driveBus.RegisterRXMessage(rx_daq_wheel_front_right_inner_temps);
+    _driveBus.RegisterRXMessage(rx_daq_wheel_back_left_outer_temps);
 
     // lowkey mad annoying but we gotta pull the imd status to be high
     bms_status_imd_state = 1; // drake why can't you be normal
@@ -204,6 +219,45 @@ void DriveBus::update()
     this->_data.inverterWhCharged = wh_charged_signal;
 
     this->_data.EcuSetCurrent = ecu_set_current_signal;
+    this->_data.EcuSetCurrentBrake = ecu_set_current_brake_signal;
+    this->_data.reset_gen_efuse = reset_gen_efuse_signal;
+    this->_data.reset_ac_efuse = reset_ac_efuse_signal;
+
+    this->_data.pump_duty_cycle = pump_duty_cycle_signal;
+    this->_data.fan_duty_cycle = fan_duty_cycle_signal;
+    this->_data.active_aero_state = active_aero_state_signal;
+    this->_data.active_aero_position = active_aero_position_signal;
+    this->_data.accel_lut_id_response = accel_lut_id_response_signal;
+
+    this->_data.igbt_temp_limiting = igbt_temp_limiting_signal;
+    this->_data.battery_temp_limiting = battery_temp_limiting_signal;
+    this->_data.motor_temp_limiting = motor_temp_limiting_signal;
+    this->_data.torque_status = torque_status_signal;
+
+    this->_data.flo_temperature_0 = flo_temperature_0_signal;
+    this->_data.flo_temperature_1 = flo_temperature_1_signal;
+    this->_data.flo_temperature_2 = flo_temperature_2_signal;
+    this->_data.flo_temperature_3 = flo_temperature_3_signal;
+
+    this->_data.fli_temperature_4 = fli_temperature_4_signal;
+    this->_data.fli_temperature_5 = fli_temperature_5_signal;
+    this->_data.fli_temperature_6 = fli_temperature_6_signal;
+    this->_data.fli_temperature_7 = fli_temperature_7_signal;
+
+    this->_data.fro_temperature_0 = fro_temperature_0_signal;
+    this->_data.fro_temperature_1 = fro_temperature_1_signal;
+    this->_data.fro_temperature_2 = fro_temperature_2_signal;
+    this->_data.fro_temperature_3 = fro_temperature_3_signal;
+
+    this->_data.fri_temperature_4 = fri_temperature_4_signal;
+    this->_data.fri_temperature_5 = fri_temperature_5_signal;
+    this->_data.fri_temperature_6 = fri_temperature_6_signal;
+    this->_data.fri_temperature_7 = fri_temperature_7_signal;
+
+    this->_data.blo_temperature_0 = blo_temperature_0_signal;
+    this->_data.blo_temperature_1 = blo_temperature_1_signal;
+    this->_data.blo_temperature_2 = blo_temperature_2_signal;
+    this->_data.blo_temperature_3 = blo_temperature_3_signal;
 
 #endif
 }

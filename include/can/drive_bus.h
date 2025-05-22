@@ -97,6 +97,49 @@ struct DriveBusData
     uint32_t inverterWhCharged;
 
     int32_t EcuSetCurrent;
+    int32_t EcuSetCurrentBrake;
+
+    uint8_t pump_duty_cycle;
+    int16_t fan_duty_cycle;
+
+    bool active_aero_state;
+    int16_t active_aero_position;
+
+    uint8_t accel_lut_id_response;
+
+    bool reset_gen_efuse;
+    bool reset_ac_efuse;
+
+    bool igbt_temp_limiting;
+    bool battery_temp_limiting;
+    bool motor_temp_limiting;
+
+    uint8_t torque_status;
+
+    float flo_temperature_0;
+    float flo_temperature_1;
+    float flo_temperature_2;
+    float flo_temperature_3;
+
+    float fli_temperature_4;
+    float fli_temperature_5;
+    float fli_temperature_6;
+    float fli_temperature_7;
+
+    float fro_temperature_0;
+    float fro_temperature_1;
+    float fro_temperature_2;
+    float fro_temperature_3;
+
+    float fri_temperature_4;
+    float fri_temperature_5;
+    float fri_temperature_6;
+    float fri_temperature_7;
+
+    float blo_temperature_0;
+    float blo_temperature_1;
+    float blo_temperature_2;
+    float blo_temperature_3;
 
     float cellTemperatures[NUM_TEMP_CELLS];
     float cellVoltages[NUM_VOLT_CELLS];
@@ -173,6 +216,39 @@ private:
     MakeUnsignedCANSignal(float, 32, 16, 0.01, 0) br_wheel_load_signal;
     CANRXMessage<3> rx_br_wheel_speed{_driveBus, 0x24C, br_wheel_speed_signal, br_wheel_displacement_signal, br_wheel_load_signal};
 
+    MakeSignedCANSignal(float, 0, 16, 0.01, 0.0) flo_temperature_0_signal;
+    MakeSignedCANSignal(float, 16, 16, 0.01, 0.0) flo_temperature_1_signal;
+    MakeSignedCANSignal(float, 32, 16, 0.01, 0.0) flo_temperature_2_signal;
+    MakeSignedCANSignal(float, 48, 16, 0.01, 0.0) flo_temperature_3_signal;
+    CANRXMessage<4> rx_flo_temps{_driveBus, 0x241, flo_temperature_0_signal, flo_temperature_1_signal, flo_temperature_2_signal, flo_temperature_3_signal};
+
+    MakeSignedCANSignal(float, 0, 16, 0.01, 0.0) fli_temperature_4_signal;
+    MakeSignedCANSignal(float, 16, 16, 0.01, 0.0) fli_temperature_5_signal;
+    MakeSignedCANSignal(float, 32, 16, 0.01, 0.0) fli_temperature_6_signal;
+    MakeSignedCANSignal(float, 48, 16, 0.01, 0.0) fli_temperature_7_signal;
+    CANRXMessage<4> rx_daq_wheel_front_left_inner_temps{_driveBus, 0x242, fli_temperature_4_signal, fli_temperature_5_signal, fli_temperature_6_signal, fli_temperature_7_signal};
+
+    MakeSignedCANSignal(float, 0, 16, 0.01, 0.0) fro_temperature_0_signal;
+    MakeSignedCANSignal(float, 16, 16, 0.01, 0.0) fro_temperature_1_signal;
+    MakeSignedCANSignal(float, 32, 16, 0.01, 0.0) fro_temperature_2_signal;
+    MakeSignedCANSignal(float, 48, 16, 0.01, 0.0) fro_temperature_3_signal;
+    CANRXMessage<4> rx_daq_wheel_front_right_outer_temps{_driveBus, 0x243, fro_temperature_0_signal, fro_temperature_1_signal, fro_temperature_2_signal, fro_temperature_3_signal};
+
+    MakeSignedCANSignal(float, 0, 16, 0.01, 0.0) fri_temperature_4_signal;
+    MakeSignedCANSignal(float, 16, 16, 0.01, 0.0) fri_temperature_5_signal;
+    MakeSignedCANSignal(float, 32, 16, 0.01, 0.0) fri_temperature_6_signal;
+    MakeSignedCANSignal(float, 48, 16, 0.01, 0.0) fri_temperature_7_signal;
+    CANRXMessage<4> rx_daq_wheel_front_right_inner_temps{_driveBus, 0x244, fri_temperature_4_signal, fri_temperature_5_signal, fri_temperature_6_signal, fri_temperature_7_signal};
+
+    MakeSignedCANSignal(float, 0, 16, 0.01, 0.0) blo_temperature_0_signal;
+    MakeSignedCANSignal(float, 16, 16, 0.01, 0.0) blo_temperature_1_signal;
+    MakeSignedCANSignal(float, 32, 16, 0.01, 0.0) blo_temperature_2_signal;
+    MakeSignedCANSignal(float, 48, 16, 0.01, 0.0) blo_temperature_3_signal;
+    CANRXMessage<4> rx_daq_wheel_back_left_outer_temps{_driveBus, 0x245, blo_temperature_0_signal, blo_temperature_1_signal, blo_temperature_2_signal, blo_temperature_3_signal};
+
+
+
+
     // ECU Stuff
     MakeUnsignedCANSignal(uint8_t, 0, 8, 1, 0) drive_state_signal;
     CANRXMessage<1> rx_drive_state{_driveBus, 0x206,
@@ -192,6 +268,27 @@ private:
     CANRXMessage<5> rx_ecu_implausibility{
         _driveBus, 0x204, ecu_implausibility_present_signal, ecu_implausibility_appss_disagreement_imp_signal,
         ecu_implausibility_bppc_imp_signal, ecu_implausibility_brake_invalid_imp_signal, ecu_implausibility_appss_invalid_imp_signal};
+
+    MakeUnsignedCANSignal(uint8_t, 0, 8, 1, 0) pump_duty_cycle_signal;
+    MakeUnsignedCANSignal(int16_t, 8, 8, 1, 0) fan_duty_cycle_signal;
+    CANRXMessage<2> rx_ecu_pump_fan_command{_driveBus, 0x209, pump_duty_cycle_signal, fan_duty_cycle_signal};
+
+    MakeUnsignedCANSignal(bool, 0, 1, 1, 0) active_aero_state_signal;
+    MakeUnsignedCANSignal(int16_t, 1, 16, 1, 0) active_aero_position_signal;
+    CANRXMessage<2> rx_ecu_active_aero_command{_driveBus, 0x208, active_aero_state_signal, active_aero_position_signal};
+
+    MakeUnsignedCANSignal(uint8_t, 0, 8, 1, 0) accel_lut_id_response_signal;
+    CANRXMessage<1> ecu_bms_command_message{_driveBus, 0x20A, ecu_bms_command_message_bms_command};
+
+    MakeUnsignedCANSignal(bool, 0, 1, 1, 0) igbt_temp_limiting_signal;
+    MakeUnsignedCANSignal(bool, 1, 1, 1, 0) battery_temp_limiting_signal;
+    MakeUnsignedCANSignal(bool, 2, 1, 1, 0) motor_temp_limiting_signal;
+    CANRXMessage<3> rx_ecu_temp_limiting_status{_driveBus, 0x20B, igbt_temp_limiting_signal, battery_temp_limiting_signal, motor_temp_limiting_signal};
+
+    MakeUnsignedCANSignal(uint8_t, 0, 8, 1, 0) torque_status_signal;
+    CANRXMessage<1> rx_ecu_torque_status{_driveBus, 0x20C, torque_status_signal};
+
+
 
     // BMS
     MakeUnsignedCANSignal(float, 0, 12, 0.1, 0) max_discharge_current_signal;
@@ -230,6 +327,10 @@ private:
     MakeUnsignedCANSignal(bool, 0, 8, 1, 0) gen_efuse_triggered;
     MakeUnsignedCANSignal(bool, 8, 8, 1, 0) ac_efuse_triggered;
     CANRXMessage<2> rx_pdm_efuse{_driveBus, 0x2A3, gen_efuse_triggered, ac_efuse_triggered};
+
+    MakeUnsignedCANSignal(bool, 0, 8, 1, 0) reset_gen_efuse_signal;
+    MakeUnsignedCANSignal(bool, 8, 8, 1, 0) reset_ac_efuse_signal;
+    CANRXMessage<2> rx_pdm_efuse_reset{_driveBus, 0x2A4, reset_gen_efuse_signal, reset_ac_efuse_signal};
 
     // inverter stuff
     MakeUnsignedCANSignal(uint8_t, 0, 8, 1.0, 0.0) inverter_fault_status_fault_code_signal;
@@ -273,6 +374,9 @@ private:
 
     MakeSignedCANSignal(int32_t, 0, 32, 0.001, 0.0) ecu_set_current_signal;
     CANRXMessage<1> rx_ecu_set_current{_driveBus, 0x200, ecu_set_current_signal};
+
+    MakeSignedCANSignal(int32_t, 0, 32, 0.001, 0.0) ecu_set_current_brake_signal;
+    CANRXMessage<1> rx_ecu_set_current_brake{_driveBus, 0x201, ecu_set_current_brake_signal};
 
     MakeSignedCANSignal(float, 0, 8, 0.012, 2) cell_v_0;
     MakeSignedCANSignal(float, 8, 8, 0.012, 2) cell_v_1;
