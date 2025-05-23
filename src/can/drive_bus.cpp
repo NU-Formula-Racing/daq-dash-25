@@ -121,6 +121,14 @@ void DriveBus::initialize()
     _driveBus.RegisterRXMessage(rx_daq_lut_pair_twenty_six_twenty_seven);
     _driveBus.RegisterRXMessage(rx_daq_lut_pair_twenty_eight_twenty_nine);
 
+    _driveBus.RegisterRXMessage(rx_daq_dynamics_imu_acceleration);
+    _driveBus.RegisterRXMessage(rx_daq_dynamics_imu_gryo);
+    _driveBus.RegisterRXMessage(rx_daq_dynamics_pitot_lower);
+    _driveBus.RegisterRXMessage(rx_daq_dynamics_pitot_upper);
+    _driveBus.RegisterRXMessage(rx_daq_coolant_flow_rates);
+    _driveBus.RegisterRXMessage(rx_daq_coolant_temps);
+
+
 
 
     // lowkey mad annoying but we gotta pull the imd status to be high
@@ -655,6 +663,31 @@ void DriveBus::update()
     this->_data.y_twenty_eight = y_twenty_eight_signal;
     this->_data.x_twenty_nine = x_twenty_nine_signal;
     this->_data.y_twenty_nine = y_twenty_nine_signal;
+
+    this->_data.x_acceleration = x_acceleration_signal;
+    this->_data.y_acceleration = y_acceleration_signal;
+    this->_data.z_acceleration = z_acceleration_signal;
+
+    this->_data.x_angular_speed = x_angular_speed_signal;
+    this->_data.y_angular_speed = y_angular_speed_signal;
+    this->_data.z_angular_speed = z_angular_speed_signal;
+
+    this->_data.air_speed_0 = air_speed_0_signal;
+    this->_data.air_speed_1 = air_speed_1_signal;
+    this->_data.air_speed_2 = air_speed_2_signal;
+    this->_data.air_speed_3 = air_speed_3_signal;
+
+    this->_data.air_speed_4 = air_speed_4_signal;
+    this->_data.air_speed_5 = air_speed_5_signal;
+    this->_data.air_speed_6 = air_speed_6_signal;
+    this->_data.air_speed_7 = air_speed_7_signal;
+
+    this->_data.before_motor_flow_rate = before_motor_flow_rate_signal;
+    this->_data.before_accumulator_flow_rate = before_accumulator_flow_rate_signal;
+
+    this->_data.before_motor_temperature = before_motor_temperature_signal;
+    this->_data.before_accumulator_temperature = before_accumulator_temperature_signal;
+
 
 
 

@@ -252,6 +252,31 @@ struct DriveBusData
     int16_t x_twenty_nine;
     float y_twenty_nine;
 
+    float x_acceleration;
+    float y_acceleration;
+    float z_acceleration;
+
+    float x_angular_speed;
+    float y_angular_speed;
+    float z_angular_speed;
+
+    float air_speed_0;
+    float air_speed_1;
+    float air_speed_2;
+    float air_speed_3;
+
+    float air_speed_4;
+    float air_speed_5;
+    float air_speed_6;
+    float air_speed_7;
+
+    float before_motor_flow_rate;
+    float before_accumulator_flow_rate;
+
+    float before_motor_temperature;
+    float before_accumulator_temperature;
+
+
 
 
 
@@ -310,24 +335,24 @@ private:
     // all of the CAN message stuff and setup
 
     // Wheel speeds
-    MakeUnsignedCANSignal(float, 0, 16, 1.0, 0) fl_wheel_speed_signal;
-    MakeUnsignedCANSignal(float, 16, 16, 0.01, 0) fl_wheel_displacement_signal;
-    MakeUnsignedCANSignal(float, 32, 16, 0.01, 0) fl_wheel_load_signal;
+    MakeSignedCANSignal(float, 0, 16, 1.0, 0) fl_wheel_speed_signal;
+    MakeSignedCANSignal(float, 16, 16, 0.01, 0) fl_wheel_displacement_signal;
+    MakeSignedCANSignal(float, 32, 16, 0.01, 0) fl_wheel_load_signal;
     CANRXMessage<3> rx_fl_wheel_speed{_driveBus, 0x249, fl_wheel_speed_signal, fl_wheel_displacement_signal, fl_wheel_load_signal};
 
-    MakeUnsignedCANSignal(float, 0, 16, 1.0, 0) fr_wheel_speed_signal;
-    MakeUnsignedCANSignal(float, 16, 16, 0.01, 0) fr_wheel_displacement_signal;
-    MakeUnsignedCANSignal(float, 32, 16, 0.01, 0) fr_wheel_load_signal;
+    MakeSignedCANSignal(float, 0, 16, 1.0, 0) fr_wheel_speed_signal;
+    MakeSignedCANSignal(float, 16, 16, 0.01, 0) fr_wheel_displacement_signal;
+    MakeSignedCANSignal(float, 32, 16, 0.01, 0) fr_wheel_load_signal;
     CANRXMessage<3> rx_fr_wheel_speed{_driveBus, 0x24A, fr_wheel_speed_signal, fr_wheel_displacement_signal, fr_wheel_load_signal};
 
-    MakeUnsignedCANSignal(float, 0, 16, 1.0, 0) bl_wheel_speed_signal;
-    MakeUnsignedCANSignal(float, 16, 16, 0.01, 0) bl_wheel_displacement_signal;
-    MakeUnsignedCANSignal(float, 32, 16, 0.01, 0) bl_wheel_load_signal;
+    MakeSignedCANSignal(float, 0, 16, 1.0, 0) bl_wheel_speed_signal;
+    MakeSignedCANSignal(float, 16, 16, 0.01, 0) bl_wheel_displacement_signal;
+    MakeSignedCANSignal(float, 32, 16, 0.01, 0) bl_wheel_load_signal;
     CANRXMessage<3> rx_bl_wheel_speed{_driveBus, 0x24B, bl_wheel_speed_signal, bl_wheel_displacement_signal, bl_wheel_load_signal};
 
-    MakeUnsignedCANSignal(float, 0, 16, 1.0, 0) br_wheel_speed_signal;
-    MakeUnsignedCANSignal(float, 16, 16, 0.01, 0) br_wheel_displacement_signal;
-    MakeUnsignedCANSignal(float, 32, 16, 0.01, 0) br_wheel_load_signal;
+    MakeSignedCANSignal(float, 0, 16, 1.0, 0) br_wheel_speed_signal;
+    MakeSignedCANSignal(float, 16, 16, 0.01, 0) br_wheel_displacement_signal;
+    MakeSignedCANSignal(float, 32, 16, 0.01, 0) br_wheel_load_signal;
     CANRXMessage<3> rx_br_wheel_speed{_driveBus, 0x24C, br_wheel_speed_signal, br_wheel_displacement_signal, br_wheel_load_signal};
 
     MakeSignedCANSignal(float, 0, 16, 0.01, 0.0) flo_temperature_0_signal;
@@ -533,6 +558,38 @@ private:
 
     MakeUnsignedCANSignal(uint8_t, 0, 8, 1, 0) torque_status_signal;
     CANRXMessage<1> rx_ecu_torque_status{_driveBus, 0x20C, torque_status_signal};
+
+    MakeSignedCANSignal(float, 0, 16, 0.1, 0.0) x_acceleration_signal;
+    MakeSignedCANSignal(float, 16, 16, 0.1, 0.0) y_acceleration_signal;
+    MakeSignedCANSignal(float, 32, 16, 0.1, 0.0) z_acceleration_signal;
+    CANRXMessage<3> rx_daq_dynamics_imu_acceleration{_driveBus, 0x130, x_acceleration_signal, y_acceleration_signal, z_acceleration_signal};
+
+    MakeSignedCANSignal(float, 0, 16, 0.1, 0.0) x_angular_speed_signal;
+    MakeSignedCANSignal(float, 16, 16, 0.1, 0.0) y_angular_speed_signal;
+    MakeSignedCANSignal(float, 32, 16, 0.1, 0.0) z_angular_speed_signal;
+    CANRXMessage<3> rx_daq_dynamics_imu_gryo{_driveBus, 0x131, x_angular_speed_signal, y_angular_speed_signal, z_angular_speed_signal};
+
+    MakeSignedCANSignal(float, 0, 16, 0.1, 0.0) air_speed_0_signal;
+    MakeSignedCANSignal(float, 16, 16, 0.1, 0.0) air_speed_1_signal;
+    MakeSignedCANSignal(float, 32, 16, 0.1, 0.0) air_speed_2_signal;
+    MakeSignedCANSignal(float, 48, 16, 0.1, 0.0) air_speed_3_signal;
+    CANRXMessage<4> rx_daq_dynamics_pitot_lower{_driveBus, 0x132, air_speed_0_signal, air_speed_1_signal, air_speed_2_signal, air_speed_3_signal};
+
+    MakeSignedCANSignal(float, 0, 16, 0.1, 0.0) air_speed_4_signal;
+    MakeSignedCANSignal(float, 16, 16, 0.1, 0.0) air_speed_5_signal;
+    MakeSignedCANSignal(float, 32, 16, 0.1, 0.0) air_speed_6_signal;
+    MakeSignedCANSignal(float, 48, 16, 0.1, 0.0) air_speed_7_signal;
+    CANRXMessage<4> rx_daq_dynamics_pitot_upper{_driveBus, 0x133, air_speed_4_signal, air_speed_5_signal, air_speed_6_signal, air_speed_7_signal};
+
+    MakeSignedCANSignal(float, 0, 16, 0.1, 0.0) before_motor_flow_rate_signal;
+    MakeSignedCANSignal(float, 16, 16, 0.1, 0.0) before_accumulator_flow_rate_signal;
+    CANRXMessage<2> rx_daq_coolant_flow_rates{_driveBus, 0x134, before_motor_flow_rate_signal, before_accumulator_flow_rate_signal};
+
+    MakeSignedCANSignal(float, 0, 16, 0.1, 0.0) before_motor_temperature_signal;
+    MakeSignedCANSignal(float, 16, 16, 0.1, 0.0) before_accumulator_temperature_signal;
+    CANRXMessage<2> rx_daq_coolant_temps{_driveBus, 0x135, before_motor_temperature_signal, before_accumulator_temperature_signal};
+
+
 
 
 
