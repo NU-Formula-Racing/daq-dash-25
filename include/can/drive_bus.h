@@ -276,8 +276,39 @@ struct DriveBusData
     float before_motor_temperature;
     float before_accumulator_temperature;
 
+    uint32_t time_since_1970;
+    float longitude;
+    float latitude;
+    uint8_t wireless_status;
+    uint8_t logger_status;
 
+    uint8_t ecu_enable_response;
+    uint8_t bms_enable_response;
+    uint8_t pdm_enable_response;
 
+    uint8_t dynamics_enable_response;
+    uint8_t front_enable_response;
+    uint8_t telemetry_enable_response;
+
+    uint8_t bl_enable_response;
+    uint8_t br_enable_response;
+    uint8_t fl_enable_response;
+    uint8_t fr_enable_response;
+
+    uint8_t ecu_status;
+    uint8_t bms_status;
+    uint8_t pdm_status;
+
+    uint8_t dynamics_status;
+    uint8_t front_status;
+    uint8_t telemetry_status;
+
+    uint8_t bl_status;
+    uint8_t br_status;
+    uint8_t fl_status;
+    uint8_t fr_status;
+
+    float steering_angle;
 
 
     float cellTemperatures[NUM_TEMP_CELLS];
@@ -589,7 +620,52 @@ private:
     MakeSignedCANSignal(float, 16, 16, 0.1, 0.0) before_accumulator_temperature_signal;
     CANRXMessage<2> rx_daq_coolant_temps{_driveBus, 0x135, before_motor_temperature_signal, before_accumulator_temperature_signal};
 
+    MakeUnsignedCANSignal(uint32_t, 0, 32, 1.0, 0.0) time_since_1970_signal;
+    CANRXMessage<1> rx_daq_rtc{_driveBus, 0x120, time_since_1970_signal};
 
+    MakeSignedCANSignal(float, 0, 16, 0.01, 0.0) longitude_signal;
+    MakeSignedCANSignal(float, 16, 16, 0.01, 0.0) latitude_signal;
+    CANRXMessage<2> rx_daq_gps{_driveBus, 0x121, longitude_signal, latitude_signal};
+
+    MakeUnsignedCANSignal(uint8_t, 0, 8, 1.0, 0.0) wireless_status_signal;
+    MakeUnsignedCANSignal(uint8_t, 8, 16, 1.0, 0.0) logger_status_signal;
+    CANRXMessage<2> rx_daq_telemetry_status{_driveBus, 0x122, wireless_status_signal, logger_status_signal};
+
+    MakeUnsignedCANSignal(uint8_t, 0, 8, 1.0, 0.0) ecu_enable_response_signal;
+    MakeUnsignedCANSignal(uint8_t, 8, 8, 1.0, 0.0) bms_enable_response_signal;
+    MakeUnsignedCANSignal(uint8_t, 16, 8, 1.0, 0.0) pdm_enable_response_signal;
+    CANRXMessage<3> rx_cm_request_drivetrain{_driveBus, 0x294, ecu_enable_response_signal, bms_enable_response_signal, pdm_enable_response_signal};
+
+    MakeUnsignedCANSignal(uint8_t, 0, 8, 1.0, 0.0) dynamics_enable_response_signal;
+    MakeUnsignedCANSignal(uint8_t, 8, 8, 1.0, 0.0) front_enable_response_signal;
+    MakeUnsignedCANSignal(uint8_t, 16, 8, 1.0, 0.0) telemetry_enable_response_signal;
+    CANRXMessage<3> rx_cm_request_daq{_driveBus, 0x291, dynamics_enable_response_signal, front_enable_response_signal, telemetry_enable_response_signal};
+
+    MakeUnsignedCANSignal(uint8_t, 0, 8, 1.0, 0.0) bl_enable_response_signal;
+    MakeUnsignedCANSignal(uint8_t, 8, 8, 1.0, 0.0) br_enable_response_signal;
+    MakeUnsignedCANSignal(uint8_t, 16, 8, 1.0, 0.0) fl_enable_response_signal;
+    MakeUnsignedCANSignal(uint8_t, 24, 8, 1.0, 0.0) fr_enable_response_signal;
+    CANRXMessage<4> rx_cm_request_wheel{_driveBus, 0x292, bl_enable_response_signal, br_enable_response_signal, fl_enable_response_signal, fr_enable_response_signal};
+
+
+    MakeUnsignedCANSignal(uint8_t, 0, 8, 1.0, 0.0) ecu_status_signal;
+    MakeUnsignedCANSignal(uint8_t, 8, 8, 1.0, 0.0) bms_status_signal;
+    MakeUnsignedCANSignal(uint8_t, 16, 8, 1.0, 0.0) pdm_status_signal;
+    CANRXMessage<3> rx_cm_node_status_drivetrain{_driveBus, 0x192, ecu_status_signal, bms_status_signal, pdm_status_signal};
+
+    MakeUnsignedCANSignal(uint8_t, 0, 8, 1.0, 0.0) dynamics_status_signal;
+    MakeUnsignedCANSignal(uint8_t, 8, 8, 1.0, 0.0) front_status_signal;
+    MakeUnsignedCANSignal(uint8_t, 16, 8, 1.0, 0.0) telemetry_status_signal;
+    CANRXMessage<3> rx_cm_node_status_daq{_driveBus, 0x193, dynamics_status_signal, front_status_signal, telemetry_status_signal};
+
+    MakeUnsignedCANSignal(uint8_t, 0, 8, 1.0, 0.0) bl_status_signal;
+    MakeUnsignedCANSignal(uint8_t, 8, 8, 1.0, 0.0) br_status_signal;
+    MakeUnsignedCANSignal(uint8_t, 16, 8, 1.0, 0.0) fl_status_signal;
+    MakeUnsignedCANSignal(uint8_t, 24, 8, 1.0, 0.0) fr_status_signal;
+    CANRXMessage<4> rx_cm_node_status_wheel{_driveBus, 0x194, bl_status_signal, br_status_signal, fl_status_signal, fr_status_signal};
+
+    MakeSignedCANSignal(float, 0, 32, 1.0, 0.0) steering_angle_signal;
+    CANRXMessage<1> rx_daq_dynamics_steering{_driveBus, 0x110, steering_angle_signal};
 
 
 

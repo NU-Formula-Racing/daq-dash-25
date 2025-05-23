@@ -128,6 +128,19 @@ void DriveBus::initialize()
     _driveBus.RegisterRXMessage(rx_daq_coolant_flow_rates);
     _driveBus.RegisterRXMessage(rx_daq_coolant_temps);
 
+    _driveBus.RegisterRXMessage(rx_daq_rtc);
+    _driveBus.RegisterRXMessage(rx_daq_gps);
+    _driveBus.RegisterRXMessage(rx_daq_telemetry_status);
+
+    _driveBus.RegisterRXMessage(rx_cm_request_drivetrain);
+    _driveBus.RegisterRXMessage(rx_cm_request_daq);
+    _driveBus.RegisterRXMessage(rx_cm_request_wheel);
+    
+    _driveBus.RegisterRXMessage(rx_cm_node_status_drivetrain);
+    _driveBus.RegisterRXMessage(rx_cm_node_status_daq);
+    _driveBus.RegisterRXMessage(rx_cm_node_status_wheel);
+
+    _driveBus.RegisterRXMessage(rx_daq_dynamics_steering);
 
 
 
@@ -688,6 +701,39 @@ void DriveBus::update()
     this->_data.before_motor_temperature = before_motor_temperature_signal;
     this->_data.before_accumulator_temperature = before_accumulator_temperature_signal;
 
+    this->_data.time_since_1970 = time_since_1970_signal;
+    this->_data.longitude = longitude_signal;
+    this->_data.latitude = latitude_signal;
+    this->_data.wireless_status = wireless_status_signal;
+    this->_data.logger_status = logger_status_signal;
+
+    this->_data.ecu_enable_response = ecu_enable_response_signal;
+    this->_data.bms_enable_response = bms_enable_response_signal;
+    this->_data.pdm_enable_response = pdm_enable_response_signal;
+
+    this->_data.dynamics_enable_response = dynamics_enable_response_signal;
+    this->_data.front_enable_response = front_enable_response_signal;
+    this->_data.telemetry_enable_response = telemetry_enable_response_signal;
+
+    this->_data.bl_enable_response = bl_enable_response_signal;
+    this->_data.br_enable_response = br_enable_response_signal;
+    this->_data.fl_enable_response = fl_enable_response_signal;
+    this->_data.fr_enable_response = fr_enable_response_signal;
+
+    this->_data.ecu_status = ecu_status_signal;
+    this->_data.bms_status = bms_status_signal;
+    this->_data.pdm_status = pdm_status_signal;
+
+    this->_data.dynamics_status = dynamics_status_signal;
+    this->_data.front_status = front_status_signal;
+    this->_data.telemetry_status = telemetry_status_signal;
+
+    this->_data.bl_status = bl_status_signal;
+    this->_data.br_status = br_status_signal;
+    this->_data.fl_status = fl_status_signal;
+    this->_data.fr_status = fr_status_signal;
+
+    this->_data.steering_angle = steering_angle_signal;
 
 
 
