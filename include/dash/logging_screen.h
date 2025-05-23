@@ -11,6 +11,7 @@ class LoggingScreen : public Screen {
     public:
      void draw(Adafruit_RA8875 tft);
      void update(Adafruit_RA8875 tft, bool force = false);
+     void setupEncoder();
 
     private:
     // defined these variables here for now; not sure if it's the best
@@ -18,6 +19,7 @@ class LoggingScreen : public Screen {
      RotaryEncoder rotaryEncoder;  // Declare the RotaryEncoder object
      std::vector <std::string> labels = {"Acceleration", "Skid Pad", "Endurance", "General Testing"};
      int highlighted = 0;
+     RotaryEncoder rotaryencoder;
     
 
      // *** highlighted will need to be modified via code from rotary_encoder.h

@@ -4,14 +4,17 @@
 
 class RotaryEncoder {
     public:
-     void registerPush(std::function<void()> push); // *** TBA: argument should be lambda function
-     void registerL(std::function<void()> left);
-     void registerR(std::function<void()> right);
+     void registerPush(std::function<void()> cb); // *** TBA: argument should be lambda function
+     void registerL(std::function<void()> cb);
+     void registerR(std::function<void()> cb);
      void update();
 
     private:
-    std::function<void()> push;
-    std::function<void()> left;
-    std::function<void()> right;
+    std::function<void()> onPush;
+    std::function<void()> onLeft;
+    std::function<void()> onRight;
 
+    int lastA = 0;
+    int lastB = 0;
+    int lastButton = 0;
 };

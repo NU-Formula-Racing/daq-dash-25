@@ -9,7 +9,7 @@ void LoggingScreen::draw(Adafruit_RA8875 tft)
 {
     // Clear the screen with a gray background
     tft.fillScreen(BACKGROUND_GRAY);
-
+    setupEncoder();
    
 }
 
@@ -57,4 +57,18 @@ void LoggingScreen::update(Adafruit_RA8875 tft, bool force)
     {
         drawSelectionStatus(tft, SCREEN_WIDTH / 2, SCREEN_HEIGHT * (0.2 + i * 0.2), (highlighted == i), labels[i]);
     }
+}
+
+void LoggingScreen::setupEncoder() {
+    rotaryEncoder.registerL([this]() {
+        highlighted = (highlighted + 1) % labels.size();
+    });
+
+    rotaryEncoder.registerR([this]() {
+        highlighted = (highlighted - 1 + labels.size()) % labels.size();
+    });
+
+    rotaryEncoder.registerPush([this]() {
+        // do something
+    });
 }
