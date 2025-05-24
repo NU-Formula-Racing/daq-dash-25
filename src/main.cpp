@@ -27,7 +27,7 @@ void setup() {
     pinMode(ROTARY_OUTPUT_B, INPUT);
     pinMode(ROTARY_BUTTON, INPUT);
     Serial.println("Starting setup");
-
+    
     
     Resources::instance().logger.initialize();
     Resources::instance().milageCounter = Resources::instance().logger.readMileCounter();

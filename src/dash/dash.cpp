@@ -36,8 +36,8 @@ int bar_max_size = 480;
 Dash::Dash() : _tft(RA8875_CS, RA8875_RESET), _currentScreen(DashScreen::DS_LOGGING) {
     _screens = {
         std::make_shared<DriveScreen>(),
-        std::make_shared<ErrorScreen>(),
-        std::make_shared<LoggingScreen>()
+        std::make_shared<LoggingScreen>(),
+        std::make_shared<ErrorScreen>()
     };
 }
 
@@ -48,7 +48,7 @@ void Dash::initalize() {
     digitalWrite(IMD_INDICATOR, HIGH);
     digitalWrite(BMS_INDICATOR, HIGH);
     
-    setupEncoder();
+    // setupEncoder();
 
     int numAttempts = 0;
     while (!_tft.begin(RA8875_800x480)) {
@@ -86,6 +86,7 @@ void Dash::update() {
     bool bmsFault = Resources::driveBusData().bmsFaults[BMS_FAULT_SUMMARY];
     digitalWrite(BMS_INDICATOR, bmsFault ? LOW : HIGH);
     
+
     // update the current screen
     // Serial.printf("Updating screen %d\n", (int)_currentScreen);
     _screens[_currentScreen]->update(_tft);
@@ -107,19 +108,20 @@ void Dash::changeScreen(DashScreen screen) {
     if (_currentScreen == screen) return;  // no change
 
     _currentScreen = screen;
+    _screens[_currentScreen]->setupEncoder();
     _screens[_currentScreen]->draw(_tft);
     _screens[_currentScreen]->update(_tft, true);
 }
 
-void Dash::setupEncoder() {
-    rotaryEncoder.registerL([this]() {
-        _currentScreen = static_cast<DashScreen>((static_cast<int>(_currentScreen) + 1) % _screens.size());
-        changeScreen(_currentScreen);
+// void Dash::setupEncoder() {
+//     rotaryEncoder.registerL([this]() {
+//         DashScreen nextScreen = static_cast<DashScreen>((static_cast<int>(_currentScreen) + 1) % (_screens.size() - 1));
+//         changeScreen(nextScreen);
 
-    });
+//     });
 
-    rotaryEncoder.registerR([this]() {
-        _currentScreen = static_cast<DashScreen>((static_cast<int>(_currentScreen) - 1 + _screens.size()) % _screens.size());
-        changeScreen(_currentScreen);
-    });
-}
+//     rotaryEncoder.registerR([this]() {
+//         DashScreen nextScreen = static_cast<DashScreen>((static_cast<int>(_currentScreen) - 1 + _screens.size()) % (_screens.size() - 1));
+//         changeScreen(nextScreen);
+//     });
+// }

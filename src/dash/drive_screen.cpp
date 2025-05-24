@@ -345,3 +345,12 @@ void DriveScreen::update(Adafruit_RA8875 tft, bool force) {
                          min_cell_temp_last_state);
     }
 }
+
+void DriveScreen::setupEncoder() {
+    rotaryEncoder.registerL(nullptr); // Disable left turn
+    rotaryEncoder.registerR(nullptr); // Disable right turn
+
+    rotaryEncoder.registerPush([this]() {
+        Resources::instance().dash.changeScreen(DashScreen::DS_LOGGING);
+    });
+}

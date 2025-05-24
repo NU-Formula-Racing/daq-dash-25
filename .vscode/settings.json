@@ -60,6 +60,7 @@
         "compare": "cpp",
         "concepts": "cpp",
         "numbers": "cpp",
-        "*.tpp": "cpp"
+        "*.tpp": "cpp",
+        "wprogram.h": "c"
     }
 }

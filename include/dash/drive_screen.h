@@ -7,8 +7,13 @@
 
 
 class DriveScreen : public Screen {
+    public:
     void draw(Adafruit_RA8875 tft);
     void update(Adafruit_RA8875 tft, bool force = false);
+    void setupEncoder();
+    
+    private:
+    RotaryEncoder rotaryEncoder;
 };
 
 #endif // __DRIVE_SCREEN_H__
