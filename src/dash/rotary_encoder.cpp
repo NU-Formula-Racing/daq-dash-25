@@ -8,13 +8,10 @@ void RotaryEncoder::registerPush(std::function<void()> cb){
 
 void RotaryEncoder::registerL(std::function<void()> cb){
     onLeft = cb;
-    // how to access highlighted?
-    // highlighted = (highlighted + 1) % labels.size()
 }
 
 void RotaryEncoder::registerR(std::function<void()> cb){
     onRight = cb;
-    // highlighted = (highlighted - 1) % labels.size()
 }
 
 void RotaryEncoder::update(){

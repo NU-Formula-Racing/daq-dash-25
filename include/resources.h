@@ -6,6 +6,7 @@
 #include "logger.h"
 #include "songs.h"
 #include "sound.h"
+#include "dash/dash.h"
 
 class Resources {
    public:
@@ -29,6 +30,7 @@ class Resources {
     void operator=(Resources const &other) = delete;
 
    public:
+    Dash dash;
     DataBus dataBus;
     DriveBus driveBus;
     SoundDriver soundDriver;

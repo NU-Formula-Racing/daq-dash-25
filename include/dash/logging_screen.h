@@ -19,7 +19,6 @@ class LoggingScreen : public Screen {
      RotaryEncoder rotaryEncoder;  // Declare the RotaryEncoder object
      std::vector <std::string> labels = {"Acceleration", "Skid Pad", "Endurance", "General Testing"};
      int highlighted = 0;
-     RotaryEncoder rotaryencoder;
     
 
      // *** highlighted will need to be modified via code from rotary_encoder.h

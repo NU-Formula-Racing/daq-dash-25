@@ -47,6 +47,8 @@ void Dash::initalize() {
 
     digitalWrite(IMD_INDICATOR, HIGH);
     digitalWrite(BMS_INDICATOR, HIGH);
+    
+    setupEncoder();
 
     int numAttempts = 0;
     while (!_tft.begin(RA8875_800x480)) {
@@ -107,4 +109,17 @@ void Dash::changeScreen(DashScreen screen) {
     _currentScreen = screen;
     _screens[_currentScreen]->draw(_tft);
     _screens[_currentScreen]->update(_tft, true);
+}
+
+void Dash::setupEncoder() {
+    rotaryEncoder.registerL([this]() {
+        _currentScreen = static_cast<DashScreen>((static_cast<int>(_currentScreen) + 1) % _screens.size());
+        changeScreen(_currentScreen);
+
+    });
+
+    rotaryEncoder.registerR([this]() {
+        _currentScreen = static_cast<DashScreen>((static_cast<int>(_currentScreen) - 1 + _screens.size()) % _screens.size());
+        changeScreen(_currentScreen);
+    });
 }

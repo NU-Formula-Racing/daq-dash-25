@@ -1,10 +1,11 @@
 #include <string>
 #include <vector>
 #include "define.h"
-
+#ifndef ROTARY_ENCODER_H
+#define ROTARY_ENCODER_H
 class RotaryEncoder {
     public:
-     void registerPush(std::function<void()> cb); // *** TBA: argument should be lambda function
+     void registerPush(std::function<void()> cb); 
      void registerL(std::function<void()> cb);
      void registerR(std::function<void()> cb);
      void update();
@@ -18,3 +19,4 @@ class RotaryEncoder {
     int lastB = 0;
     int lastButton = 0;
 };
+#endif

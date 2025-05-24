@@ -49,19 +49,7 @@ void Logger::initialize() {
     Serial.println("SD card initialized.");
     _status = LoggerStatus::LOGGING;
 
-    char fname[16];  // "log_" + 3-digits + ".bin" + '\0'
-    uint16_t index = 0;
-
-    do {
-        snprintf(fname, sizeof(fname), "log_%03u.bin", index);
-        ++index;
-    } while (SD.exists(fname) && index < 1000);  // stop at 999 just in case
-
-    loggingFileName = fname;
-    Serial.print("Next log file: ");
-    Serial.println(loggingFileName.c_str());
-
-    _status = LoggerStatus::LOGGING;
+    
 }
 
 void Logger::log() {
@@ -158,3 +146,20 @@ float Logger::readMileCounter() {
 }
 
 // every two seconds, update mileage counter
+
+void Logger::switchLogFile(const std::string& eventName) {
+    char fname[32];  // Enough space for event + "_" + 3-digit + ".bin"
+    uint16_t index = 0;
+
+    std::string safeEventName = eventName;
+    std::replace(safeEventName.begin(), safeEventName.end(), ' ', '_');  // e.g. "Skid Pad" → "Skid_Pad"
+
+    do {
+        snprintf(fname, sizeof(fname), "%s_%03u.bin", safeEventName.c_str(), index);
+        ++index;
+    } while (SD.exists(fname) && index < 1000);  // Stop at 999 just in case
+
+    loggingFileName = fname;
+    Serial.print("Next log file: ");
+    Serial.println(loggingFileName.c_str());
+}

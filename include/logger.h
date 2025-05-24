@@ -6,6 +6,7 @@
 
 #include "can/data_bus.h"
 #include "can/drive_bus.h"
+#include <ctime>
 
 class ByteBuffer {
    public:
@@ -48,6 +49,8 @@ class Logger {
     LoggerStatus status() const;
 
     std::string logFileName() const;
+
+    void switchLogFile(const std::string& eventName);
 
     // new functions for mileage logging
     void writeMileCounter();

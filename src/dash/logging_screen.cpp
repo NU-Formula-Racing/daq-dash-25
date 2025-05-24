@@ -43,7 +43,7 @@ static void drawSelectionStatus(Adafruit_RA8875 tft, float startX, float startY,
                        (TextDrawOptions){
                            .x = static_cast<int>(startX),
                            .y = static_cast<int>(startY),
-                           .size = 10,
+                           .size = 8,
                            .color = RA8875_WHITE,
                            .backgroundColor = fillColor,
                            .hAlign = ALIGN_CENTER,
@@ -53,7 +53,7 @@ static void drawSelectionStatus(Adafruit_RA8875 tft, float startX, float startY,
 
 void LoggingScreen::update(Adafruit_RA8875 tft, bool force)
 {
-    for (size_t i = 0; i < labels.size(); i++)
+    for (int i = 0; i < labels.size(); i++)
     {
         drawSelectionStatus(tft, SCREEN_WIDTH / 2, SCREEN_HEIGHT * (0.2 + i * 0.2), (highlighted == i), labels[i]);
     }
@@ -69,6 +69,11 @@ void LoggingScreen::setupEncoder() {
     });
 
     rotaryEncoder.registerPush([this]() {
-        // do something
+        // find out what we selected
+        // change the file name
+        std::string selectedFile  = labels[highlighted];
+        Resources::instance().logger.switchLogFile(selectedFile);
+
+        Resources::instance().dash.changeScreen(DashScreen::DS_DRIVE);
     });
 }

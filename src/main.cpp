@@ -8,8 +8,6 @@
 #include "songs.h"
 #include "sound.h"
 
-Dash dashboard;
-
 Song song{312 * 2, goU};
 
 VirtualTimerGroup loggingTimer;
@@ -26,7 +24,8 @@ void setup() {
     // initialize serial communication, when done, turn internal LED off
     Serial.begin(9600);
     pinMode(ROTARY_OUTPUT_A, INPUT);
-    pinMode(ROTARY_OUTPUT_A, INPUT);
+    pinMode(ROTARY_OUTPUT_B, INPUT);
+    pinMode(ROTARY_BUTTON, INPUT);
     Serial.println("Starting setup");
 
     
@@ -42,7 +41,7 @@ void setup() {
     Resources::instance().dataBus.initialize();
     Resources::instance().driveBus.initialize();
     
-    dashboard.initalize();
+    Resources::instance().dash.initalize();
     
     loggingTimer.AddTimer(1000, logData);
 }
@@ -52,7 +51,7 @@ void loop() {
 
     if(currentTime - lastUpdateTime >= 50){
         Resources::instance().update();
-        dashboard.update();
+        Resources::instance().dash.update();
         lastUpdateTime = currentTime;
     }
 
