@@ -34,7 +34,7 @@ void setup() {
     song.shift(-2);
     Resources::instance().soundDriver.initialize();
     Resources::instance().soundDriver.setSong(song);
-    // Resources::instance().soundDriver.playSong();
+    Resources::instance().soundDriver.playSong();
     
     Resources::instance().dataBus.initialize();
     Resources::instance().driveBus.initialize();
