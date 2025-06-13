@@ -388,32 +388,67 @@ void DriveScreen::draw(Adafruit_RA8875 tft) {
     Serial.print("Drawing DriveScreen!");
     tft.fillScreen(CARBON_FIBER_BLACK);
 
-    // draw a twill (45° stepped) checker background
-    int checkerSize = 20;  // size of each square
+    // draw a continuously-sliding twill background with wrapping
+    int checkerSize = 20;  // size of each square in px
 
     int rows = (SCREEN_HEIGHT + checkerSize - 1) / checkerSize;
     int cols = (SCREEN_WIDTH + checkerSize - 1) / checkerSize;
 
+    // small helper for true modulo on negatives:
+    auto wrapX = [&](int rawX) {
+        int x = rawX % SCREEN_WIDTH;
+        if (x < 0) x += SCREEN_WIDTH;
+        return x;
+    };
+
     for (int row = 0; row < rows; row++) {
         int y = row * checkerSize;
-        // on odd rows, shift everything left by half a square:
-        int xOffset = (row % 2) * (checkerSize / 2);
+        // offset increases by half-square each row:
+        int xOffset = row * (checkerSize / 2);
 
-        for (int col = 0; col < cols + 1; col++) {
-            int x = col * checkerSize - xOffset;
+        // go a few extra cols to guarantee coverage when wrapping:
+        for (int col = 0; col < cols + rows; col++) {
+            int rawX = col * checkerSize - xOffset;
+            int x = wrapX(rawX);
 
             // choose color by the sum of (row + col)
             bool even = ((row + col) % 2) == 0;
             uint16_t color = even ? CARBON_FIBER_BLACK : CARBON_FIBER_GREY;
 
-            Drawer::drawRect(tft, (RectDrawOptions){
-                                      .x = x,
-                                      .y = y,
-                                      .width = checkerSize,
-                                      .height = checkerSize,
-                                      .fill = true,
-                                      .strokeThickness = 0,
-                                      .fillColor = color});
+            // if it fits entirely on the right side:
+            if (x + checkerSize <= SCREEN_WIDTH) {
+                Drawer::drawRect(tft, (RectDrawOptions){
+                                          .x = x,
+                                          .y = y,
+                                          .width = checkerSize,
+                                          .height = checkerSize,
+                                          .fill = true,
+                                          .strokeThickness = 0,
+                                          .fillColor = color});
+            } else {
+                // split into two pieces:
+                int width1 = SCREEN_WIDTH - x;      // part to the right edge
+                int width2 = checkerSize - width1;  // remaining wrapping on left
+
+                // right-edge piece
+                Drawer::drawRect(tft, (RectDrawOptions){
+                                          .x = x,
+                                          .y = y,
+                                          .width = width1,
+                                          .height = checkerSize,
+                                          .fill = true,
+                                          .strokeThickness = 0,
+                                          .fillColor = color});
+                // left-edge wrapped piece
+                Drawer::drawRect(tft, (RectDrawOptions){
+                                          .x = 0,
+                                          .y = y,
+                                          .width = width2,
+                                          .height = checkerSize,
+                                          .fill = true,
+                                          .strokeThickness = 0,
+                                          .fillColor = color});
+            }
         }
     }
 
