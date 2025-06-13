@@ -4,40 +4,27 @@
 #include "define.h"
 #include "resources.h"
 
-static const int drive_state_startX = SCREEN_WIDTH / 4;
-static const int drive_state_startY = SCREEN_HEIGHT / 3;
-static const int error_state_startX = SCREEN_WIDTH * 0.4;
-static const int error_state_startY = SCREEN_HEIGHT * 6 / 8;
-static const int hv_bat_volt_startX = SCREEN_WIDTH / 8;
-static const int hv_bat_volt_startY = SCREEN_HEIGHT / 4 + 30;
-static const int lv_bat_volt_startX = SCREEN_WIDTH / 8;
-static const int lv_bat_volt_startY = SCREEN_HEIGHT * 3 / 4 + 30;
-static const int wheel_speed_startX = SCREEN_WIDTH / 2;
-static const int wheel_speed_startY = SCREEN_HEIGHT / 2;
-static const int max_cell_temp_startX = SCREEN_WIDTH * 7 / 8;
-static const int max_cell_temp_startY = SCREEN_HEIGHT / 4 + 30;
-static const int min_cell_temp_startX = SCREEN_WIDTH * 7 / 8;
-static const int min_cell_temp_startY = SCREEN_HEIGHT * 3 / 4 + 30;
-static const int handle_error_startX = 0;  // /4
-static const int handle_error_startY = SCREEN_HEIGHT / 3;
-
-// for states, after mid state, goes to last state
-static const float motor_temp_last_state = 70;
-static const float motor_temp_mid_state = 30;
-static const float inverter_current_last_state = 100;
-static const float inverter_current_mid_state = 50;
-static const float min_voltage_last_state = 2.7;
-static const float min_voltage_mid_state = 3.2;
-static const float hv_battery_voltage_last_state = 3.4;
-static const float hv_battery_voltage_mid_state = 3.2;
-static const float lv_battery_voltage_last_state = 3.5;
-static const float lv_battery_voltage_mid_state = 3.1;  // min 2.7
-static const float max_cell_temp_last_state = 50;       // max 50 celsius
-static const float max_cell_temp_mid_state = 45;
-static const float min_cell_temp_last_state = 15;
-static const float min_cell_temp_mid_state = 11;  // min 8 celsius
-
 #define OUTLINE_COLOR GOLD
+
+static const int infoPaddingSides = 20; // from the left and right edges of the screen
+static const int infoPaddingVertical = 50; // from the top and bottom edges of the screen
+static const int infoWidth = 150;
+static const int infoHeight = 150;
+static const int infoLabelSize = 3;
+static const int infoValueSize = 3;
+
+
+static std::vector<std::string> infoLabelsLeft = {
+    "HV BAT V",
+    "LV BAT V",
+    "HV SOC"
+};
+
+static std::vector<std::string> infoLabelRight = {
+    "MIN CELL T",
+    "MAX CELL T",
+    "INV T"
+};
 
 static uint16_t getDriveStateColor() {
     switch (Resources::driveBusData().driveState) {
@@ -113,7 +100,7 @@ static void drawMileageCounter(Adafruit_RA8875 tft) {
                               .strokeThickness = 10,
                               .strokeColor = OUTLINE_COLOR,
                               .fillColor = color,
-                              .cornerRadius = 5,
+                              .cornerRadius = 15,
                               .hAlign = ALIGN_CENTER,
                               .vAlign = ALIGN_MIDDLE,
                           });
@@ -162,69 +149,11 @@ static void drawSpeed(Adafruit_RA8875 tft) {
                     (NumberDrawOptions){
                         .x = SCREEN_WIDTH / 2,
                         .y = SCREEN_HEIGHT / 2 - 40,
-                        .size = 10,
+                        .size = 9,
                         .color = GOTH_WHITE,
                         .backgroundColor = getDriveStateColor(),
                         .hAlign = ALIGN_CENTER,
                         .vAlign = ALIGN_MIDDLE});
-}
-
-static void drawCircleStatus(Adafruit_RA8875 tft, float startX, float startY, float value, float lowerBound, float upperBound) {
-    // Determine the current state based on the thresholds.
-    int currState = 0;
-    if (value > upperBound) {
-        currState = 2;
-    } else if (value > lowerBound) {
-        currState = 1;
-    } else {
-        currState = 0;
-    }
-
-    int16_t fillColor;
-    switch (currState) {
-        case 0:
-            fillColor = GOTH_GREEN;
-            break;
-        case 1:
-            fillColor = GOLD;
-            break;
-        case 2:
-            fillColor = GOTH_RED;
-            break;
-        default:
-            fillColor = GOTH_GREEN;
-            break;
-    }
-
-    // Set a default circle radius (adjust this value if desired).
-    const int defaultRadius = 80;
-
-    // Create the options struct to draw a filled circle.
-    CircleDrawOptions circleOptions;
-    circleOptions.centerX = static_cast<int>(startX);
-    circleOptions.centerY = static_cast<int>(startY);
-    circleOptions.radius = defaultRadius;
-    circleOptions.fill = true;
-    circleOptions.fillColor = fillColor;
-    circleOptions.strokeThickness = 10;
-    circleOptions.strokeColor = OUTLINE_COLOR;
-
-    // Draw the status circle.
-    Drawer::drawCircle(tft, circleOptions);
-
-    // Prepare options to draw the numeric value inside the circle.
-    NumberDrawOptions numOptions;
-    numOptions.x = circleOptions.centerX;
-    numOptions.y = circleOptions.centerY;
-    numOptions.size = 4;
-    numOptions.color = GOTH_WHITE;
-    numOptions.backgroundColor = fillColor;
-    numOptions.precision = 1;
-    numOptions.hAlign = ALIGN_CENTER;
-    numOptions.vAlign = ALIGN_MIDDLE;
-
-    // Draw the numeric value using the Drawer class's drawNum method.
-    Drawer::drawNum(tft, value, numOptions);
 }
 
 static void drawLoggerStatus(Adafruit_RA8875 tft) {
@@ -240,7 +169,7 @@ static void drawLoggerStatus(Adafruit_RA8875 tft) {
                               .strokeThickness = 10,
                               .strokeColor = OUTLINE_COLOR,
                               .fillColor = color,
-                              .cornerRadius = 5,
+                              .cornerRadius = 15,
                               .hAlign = ALIGN_CENTER,
                               .vAlign = ALIGN_MIDDLE,
                           });
@@ -298,16 +227,33 @@ void DriveScreen::draw(Adafruit_RA8875 tft) {
     options.vAlign = ALIGN_MIDDLE;
     Drawer::drawRect(tft, options);
 
-    // write circle labels
-    int16_t color = GOTH_WHITE;
-    Drawer::drawString(tft, "HV Battery", hv_bat_volt_startX * 0.15, hv_bat_volt_startY - SCREEN_WIDTH / 6 - 10, 3, GOTH_WHITE, color);
-    Drawer::drawString(tft, "Voltage", hv_bat_volt_startX * 0.4, hv_bat_volt_startY - SCREEN_WIDTH / 8 - 10, 3, GOTH_WHITE, color);
-    Drawer::drawString(tft, "LV Battery", lv_bat_volt_startX * 0.15, lv_bat_volt_startY - SCREEN_WIDTH / 6 - 10, 3, GOTH_WHITE, color);
-    Drawer::drawString(tft, "Voltage", lv_bat_volt_startX * 0.4, lv_bat_volt_startY - SCREEN_WIDTH / 8 - 10, 3, GOTH_WHITE, color);
-    Drawer::drawString(tft, "Max Cell", max_cell_temp_startX * 0.9, max_cell_temp_startY - SCREEN_WIDTH / 6 - 10, 3, GOTH_WHITE, color);
-    Drawer::drawString(tft, "Temp", max_cell_temp_startX * 0.95, max_cell_temp_startY - SCREEN_WIDTH / 8 - 10, 3, GOTH_WHITE, color);
-    Drawer::drawString(tft, "Min Cell", min_cell_temp_startX * 0.9, min_cell_temp_startY - SCREEN_WIDTH / 6 - 10, 3, GOTH_WHITE, color);
-    Drawer::drawString(tft, "Voltage", min_cell_temp_startX * 0.92, min_cell_temp_startY - SCREEN_WIDTH / 8 - 10, 3, GOTH_WHITE, color);
+    // draw info labels on the left and right side
+    // distribute them evenly
+    for (size_t i = 0; i < infoLabelsLeft.size(); i++) {
+        Drawer::drawString(tft, infoLabelsLeft[i],
+                           (TextDrawOptions){
+                               .x = infoPaddingSides,
+                               .y = infoPaddingVertical + i * (infoHeight + 10),
+                               .size = infoLabelSize,
+                               .color = GOTH_WHITE,
+                               .backgroundColor = BACKGROUND_GRAY,
+                               .hAlign = ALIGN_LEFT,
+                               .vAlign = ALIGN_MIDDLE,
+                           });
+    }
+
+    for (size_t i = 0; i < infoLabelRight.size(); i++) {
+        Drawer::drawString(tft, infoLabelRight[i],
+                           (TextDrawOptions){
+                               .x = SCREEN_WIDTH - infoPaddingSides,
+                               .y = infoPaddingVertical + i * (infoHeight + 10),
+                               .size = infoLabelSize,
+                               .color = GOTH_WHITE,
+                               .backgroundColor = BACKGROUND_GRAY,
+                               .hAlign = ALIGN_RIGHT,
+                               .vAlign = ALIGN_MIDDLE,
+                           });
+    }
 }
 
 void DriveScreen::update(Adafruit_RA8875 tft, bool force) {
@@ -320,45 +266,46 @@ void DriveScreen::update(Adafruit_RA8875 tft, bool force) {
     if (abs(Resources::driveBusData().averageWheelRPM() - Resources::prevDriveBusData().averageWheelRPM()) >= 0.1 || force) {
         drawSpeed(tft);
     }
-    // Update high-voltage battery status.
-    if (Resources::driveBusData().hvVoltage != Resources::prevDriveBusData().hvVoltage  || force) {
-        drawCircleStatus(tft,
-                         hv_bat_volt_startX,
-                         hv_bat_volt_startY,
-                         Resources::driveBusData().hvVoltage,
-                         hv_battery_voltage_mid_state,
-                         hv_battery_voltage_last_state);
-    }
 
-    // Update low-voltage battery status.
-    if (Resources::driveBusData().lvVoltage != Resources::prevDriveBusData().lvVoltage || force) {
-        drawCircleStatus(tft,
-                         lv_bat_volt_startX,
-                         lv_bat_volt_startY,
-                         Resources::driveBusData().lvVoltage,
-                         lv_battery_voltage_mid_state,
-                         lv_battery_voltage_last_state);
-    }
+    // // Update high-voltage battery status.
+    // if (Resources::driveBusData().hvVoltage != Resources::prevDriveBusData().hvVoltage  || force) {
+    //     drawCircleStatus(tft,
+    //                      hv_bat_volt_startX,
+    //                      hv_bat_volt_startY,
+    //                      Resources::driveBusData().hvVoltage,
+    //                      hv_battery_voltage_mid_state,
+    //                      hv_battery_voltage_last_state);
+    // }
 
-    // Update maximum cell temperature display.
-    if (Resources::driveBusData().maxCellTemp != Resources::prevDriveBusData().maxCellTemp || force) {
-        drawCircleStatus(tft,
-                         max_cell_temp_startX,
-                         max_cell_temp_startY,
-                         Resources::driveBusData().maxCellTemp,  // Change to maxCellTemp if defined separately.
-                         max_cell_temp_mid_state,
-                         max_cell_temp_last_state);
-    }
+    // // Update low-voltage battery status.
+    // if (Resources::driveBusData().lvVoltage != Resources::prevDriveBusData().lvVoltage || force) {
+    //     drawCircleStatus(tft,
+    //                      lv_bat_volt_startX,
+    //                      lv_bat_volt_startY,
+    //                      Resources::driveBusData().lvVoltage,
+    //                      lv_battery_voltage_mid_state,
+    //                      lv_battery_voltage_last_state);
+    // }
 
-    // Update minimum cell temperature display.
-    if (Resources::driveBusData().minCellVoltage - Resources::prevDriveBusData().minCellVoltage || force) {
-        drawCircleStatus(tft,
-                         min_cell_temp_startX,
-                         min_cell_temp_startY,
-                         Resources::driveBusData().minCellVoltage,
-                         min_cell_temp_mid_state,
-                         min_cell_temp_last_state);
-    }
+    // // Update maximum cell temperature display.
+    // if (Resources::driveBusData().maxCellTemp != Resources::prevDriveBusData().maxCellTemp || force) {
+    //     drawCircleStatus(tft,
+    //                      max_cell_temp_startX,
+    //                      max_cell_temp_startY,
+    //                      Resources::driveBusData().maxCellTemp,  // Change to maxCellTemp if defined separately.
+    //                      max_cell_temp_mid_state,
+    //                      max_cell_temp_last_state);
+    // }
+
+    // // Update minimum cell temperature display.
+    // if (Resources::driveBusData().minCellVoltage - Resources::prevDriveBusData().minCellVoltage || force) {
+    //     drawCircleStatus(tft,
+    //                      min_cell_temp_startX,
+    //                      min_cell_temp_startY,
+    //                      Resources::driveBusData().minCellVoltage,
+    //                      min_cell_temp_mid_state,
+    //                      min_cell_temp_last_state);
+    // }
 }
 
 void DriveScreen::periodicDraw(Adafruit_RA8875 tft) {
