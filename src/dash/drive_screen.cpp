@@ -146,7 +146,7 @@ static void drawDriveState(Adafruit_RA8875 tft) {
 
 static void drawMileageCounter(Adafruit_RA8875 tft) {
     // dont need wheel speed start x y anymore i think
-    uint16_t color = GOTH_BLUE;
+    uint16_t color = NORTHWESTERN_PURPLE;
 
     Drawer::drawRect(tft, (RectDrawOptions){
                               .x = SCREEN_WIDTH / 2,
@@ -215,7 +215,7 @@ static void drawSpeed(Adafruit_RA8875 tft) {
 
 static void drawLoggerStatus(Adafruit_RA8875 tft) {
     uint16_t color =
-        (Resources::instance().logger.status() == LoggerStatus::LOGGING) ? GOTH_BLUE : GOTH_RED;
+        (Resources::instance().logger.status() == LoggerStatus::LOGGING) ? NORTHWESTERN_PURPLE : GOTH_RED;
 
     Drawer::drawRect(tft, (RectDrawOptions){
                               .x = SCREEN_WIDTH / 2,

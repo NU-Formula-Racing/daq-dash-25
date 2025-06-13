@@ -5,7 +5,12 @@
 
 float DriveBusData::vehicleSpeedMPH() const
 {
-    return (averageWheelRPM() * M_PI * WHEEL_DIAMETER * 60) / (12 * 5280);
+    float wheelRPM = averageWheelRPM();
+    // 1 wheel revolution = 2 * pi * wheel radius
+    float wheelCircumference = PI * WHEEL_DIAMETER; // in feet
+    float wheelSpeedFeetPerMin = wheelRPM * wheelCircumference; // in feet per minute
+    float wheelSpeedMPH = wheelSpeedFeetPerMin / 5280.0 * 60.0; // convert to miles per hour
+    return max(0.0f, wheelSpeedMPH); // ensure non-negative speed
 }
 
 DriveBusData &DriveBus::getData()

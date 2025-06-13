@@ -334,7 +334,8 @@ struct DriveBusData
     {
         // return std::max({wheelSpeeds[0], wheelSpeeds[1], wheelSpeeds[2], wheelSpeeds[3]});
         // return ((wheelSpeeds[0] + wheelSpeeds[1] + wheelSpeeds[2] + wheelSpeeds[3])) / 2; // only by two rn cause only two wheel speeds
-        return motorRPM * 3;
+        // 3 to 1 transmission ratio
+        return motorRPM / 3;
     }
 
     float vehicleSpeedMPH() const;
@@ -344,7 +345,7 @@ class DriveBus
 {
 public:
     DriveBus() {}
-    
+
     DriveBusData &getData();
     DriveBusData &getPrevData();
 
