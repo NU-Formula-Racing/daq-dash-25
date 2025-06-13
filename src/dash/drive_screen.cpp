@@ -6,10 +6,10 @@
 
 #define OUTLINE_COLOR GOLD
 
-static const int infoPaddingSides = 20; // from the left and right edges of the screen
-static const int infoPaddingVertical = 50; // from the top and bottom edges of the screen
-static const int infoWidth = 150;
-static const int infoHeight = 150;
+static const int infoPaddingVertical = 20; // from the top and bottom edges of the screen
+static const int infoPaddingSides = 30; // from the left and right edges of the screen
+static const int infoWidth = 160; // width of each info box
+static const int infoHeight = 100;
 static const int infoLabelSize = 3;
 static const int infoValueSize = 3;
 
@@ -53,7 +53,7 @@ static void drawDriveState(Adafruit_RA8875 tft) {
                               .strokeThickness = 10,
                               .strokeColor = OUTLINE_COLOR,
                               .fillColor = color,
-                              .cornerRadius = 15,
+                              .cornerRadius = 25,
                               .hAlign = ALIGN_CENTER,
                               .vAlign = ALIGN_MIDDLE,
                           });
@@ -135,7 +135,7 @@ static void drawSpeed(Adafruit_RA8875 tft) {
     Drawer::drawRect(tft, (RectDrawOptions){
                               .x = SCREEN_WIDTH / 2,
                               .y = SCREEN_HEIGHT / 2 - 40,
-                              .width = 350,
+                              .width = 330,
                               .height = 100,
                               .fill = true,
                               .strokeThickness = 0,
@@ -228,31 +228,55 @@ void DriveScreen::draw(Adafruit_RA8875 tft) {
     Drawer::drawRect(tft, options);
 
     // draw info labels on the left and right side
-    // distribute them evenly
+    // distribute them evenly vertically
+    // left labels are aligned left horizontally
+    // right labels are aligned right horizontally
+
+    // total amount of space that we can distribute the labels in
+    // draw the boxes for the labels + values
+
+    int infoAvailableVerticalSpace = SCREEN_HEIGHT - infoPaddingVertical * 2;
+    int infoFullVerticalSpace = infoLabelsLeft.size() * infoHeight + (infoLabelsLeft.size() - 1) * infoPaddingVertical;
+    int infoGap = (infoAvailableVerticalSpace - infoFullVerticalSpace) / (infoLabelsLeft.size() + 1);
+
+    // draw boxes for the labels and values
     for (size_t i = 0; i < infoLabelsLeft.size(); i++) {
+        int y = infoPaddingVertical + i * (infoHeight + infoGap);
+        Drawer::drawRect(tft, (RectDrawOptions){
+                                  .x = infoPaddingSides + infoWidth / 2,
+                                  .y = y + infoHeight / 2,
+                                  .width = infoWidth,
+                                  .height = infoHeight,
+                                  .fill = true,
+                                  .strokeThickness = 10,
+                                  .strokeColor = OUTLINE_COLOR,
+                                  .fillColor = GOTH_GREEN,
+                                  .cornerRadius = 15,
+                                  .hAlign = ALIGN_CENTER,
+                                  .vAlign = ALIGN_MIDDLE,
+                              });
+
         Drawer::drawString(tft, infoLabelsLeft[i],
                            (TextDrawOptions){
                                .x = infoPaddingSides,
-                               .y = infoPaddingVertical + i * (infoHeight + 10),
+                               .y = y + infoHeight / 2,
                                .size = infoLabelSize,
                                .color = GOTH_WHITE,
-                               .backgroundColor = BACKGROUND_GRAY,
+                               .backgroundColor = GOTH_GREEN,
                                .hAlign = ALIGN_LEFT,
                                .vAlign = ALIGN_MIDDLE,
                            });
-    }
 
-    for (size_t i = 0; i < infoLabelRight.size(); i++) {
-        Drawer::drawString(tft, infoLabelRight[i],
-                           (TextDrawOptions){
-                               .x = SCREEN_WIDTH - infoPaddingSides,
-                               .y = infoPaddingVertical + i * (infoHeight + 10),
-                               .size = infoLabelSize,
-                               .color = GOTH_WHITE,
-                               .backgroundColor = BACKGROUND_GRAY,
-                               .hAlign = ALIGN_RIGHT,
-                               .vAlign = ALIGN_MIDDLE,
-                           });
+        Drawer::drawNum(tft, Resources::driveBusData().hvVoltage,  // TODO: change to correct data
+                        (NumberDrawOptions){
+                            .x = infoPaddingSides,
+                            .y = y - infoHeight / 2,
+                            .size = infoValueSize,
+                            .color = GOTH_WHITE,
+                            .backgroundColor = GOTH_GREEN,
+                            .precision = 2,
+                            .hAlign = ALIGN_LEFT,
+                            .vAlign = ALIGN_MIDDLE});
     }
 }
 
