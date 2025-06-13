@@ -33,6 +33,8 @@
 #define GOTH_GREEN toRGB(6, 128, 29)
 #define GOTH_BLUE toRGB(46, 35, 145)
 #define GOTH_WHITE toRGB(237, 235, 211)
+#define CARBON_FIBER_BLACK toRGB(20, 20, 20)
+#define CARBON_FIBER_GREY toRGB(50, 50, 50)
 
 
 #define SCREEN_WIDTH 800

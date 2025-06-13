@@ -6,9 +6,9 @@
 
 #define OUTLINE_COLOR GOLD
 
-static const int infoPaddingVertical = 50; // from the top and bottom edges of the screen
-static const int infoPaddingSides = 20; // from the left and right edges of the screen
-static const int infoWidth = 190; // width of each info box
+static const int infoPaddingVertical = 50;  // from the top and bottom edges of the screen
+static const int infoPaddingSides = 20;     // from the left and right edges of the screen
+static const int infoWidth = 190;           // width of each info box
 static const int infoHeight = 100;
 static const int infoLabelSize = 3;
 static const int infoValueSize = 3;
@@ -17,10 +17,10 @@ struct InfoBox {
     const char *label;
     std::function<float()> currentValue;
     std::function<float()> previousValue;
-    float lowerBoundHard; // lower threshold for the value, show in red if below this
-    float lowerBoundSoft; // lower threshold for the value, show in yellow if below this
-    float upperBoundHard; // upper threshold for the value, show in red if above this
-    float upperBoundSoft; // upper threshold for the value, show in yellow if above this
+    float lowerBoundHard;  // lower threshold for the value, show in red if below this
+    float lowerBoundSoft;  // lower threshold for the value, show in yellow if below this
+    float upperBoundHard;  // upper threshold for the value, show in red if above this
+    float upperBoundSoft;  // upper threshold for the value, show in yellow if above this
 };
 
 std::vector<InfoBox> leftBoxes = {
@@ -81,10 +81,7 @@ std::vector<InfoBox> rightBoxes = {
         .lowerBoundSoft = 16,
         .upperBoundHard = 70,
         .upperBoundSoft = 65,
-    }
-};
-
-
+    }};
 
 static uint16_t getDriveStateColor() {
     switch (Resources::driveBusData().driveState) {
@@ -273,17 +270,15 @@ static void drawLoggerStatus(Adafruit_RA8875 tft) {
 static uint16_t getInfoBoxColor(InfoBox &box) {
     float value = box.currentValue();
     if (value < box.lowerBoundHard || value > box.upperBoundHard) {
-        return GOTH_RED; // hard bounds
+        return GOTH_RED;  // hard bounds
     } else if (value < box.lowerBoundSoft || value > box.upperBoundSoft) {
-        return GOLD; // soft bounds
+        return GOLD;  // soft bounds
     } else {
-        return GOTH_GREEN; // normal
+        return GOTH_GREEN;  // normal
     }
 }
 
-
 static void drawInfoBoxes(Adafruit_RA8875 tft, bool force) {
-
     int infoAvailableVerticalSpace = SCREEN_HEIGHT - infoPaddingVertical * 2;
     int infoFullVerticalSpace = leftBoxes.size() * infoHeight;
     int infoGap = (infoAvailableVerticalSpace - infoFullVerticalSpace) / (leftBoxes.size() - 1);
@@ -294,7 +289,7 @@ static void drawInfoBoxes(Adafruit_RA8875 tft, bool force) {
 
         // check if there is enough of a change in the value to warrant a redraw
         if (!force && abs(box.currentValue() - box.previousValue()) < 0.01) {
-            continue; // no need to redraw
+            continue;  // no need to redraw
         }
 
         int y = infoPaddingVertical + i * (infoHeight + infoGap) + infoHeight / 2;
@@ -346,7 +341,7 @@ static void drawInfoBoxes(Adafruit_RA8875 tft, bool force) {
 
         // check if there is enough of a change in the value to warrant a redraw
         if (!force && abs(box.currentValue() - box.previousValue()) < 0.01) {
-            continue; // no need to redraw
+            continue;  // no need to redraw
         }
 
         int y = infoPaddingVertical + i * (infoHeight + infoGap) + infoHeight / 2;
@@ -387,26 +382,73 @@ static void drawInfoBoxes(Adafruit_RA8875 tft, bool force) {
                             .hAlign = ALIGN_CENTER,
                             .vAlign = ALIGN_MIDDLE});
     }
-
 }
-
 
 void DriveScreen::draw(Adafruit_RA8875 tft) {
     Serial.print("Drawing DriveScreen!");
-    tft.fillScreen(BACKGROUND_GRAY);
+    tft.fillScreen(CARBON_FIBER_BLACK);
 
-    // draw a nice gold line down the middle
-    RectDrawOptions options = {0};
-    options.x = SCREEN_WIDTH / 2;
-    options.y = SCREEN_HEIGHT / 2;
-    options.width = 100;
-    options.height = SCREEN_HEIGHT;
-    options.fillColor = GOLD;
-    options.fill = true;
-    options.strokeThickness = 0;
-    options.hAlign = ALIGN_CENTER;
-    options.vAlign = ALIGN_MIDDLE;
-    Drawer::drawRect(tft, options);
+    // draw a twill (45° stepped) checker background
+    int checkerSize = 20;  // size of each square
+
+    int rows = (SCREEN_HEIGHT + checkerSize - 1) / checkerSize;
+    int cols = (SCREEN_WIDTH + checkerSize - 1) / checkerSize;
+
+    for (int row = 0; row < rows; row++) {
+        int y = row * checkerSize;
+        // on odd rows, shift everything left by half a square:
+        int xOffset = (row % 2) * (checkerSize / 2);
+
+        for (int col = 0; col < cols + 1; col++) {
+            int x = col * checkerSize - xOffset;
+
+            // choose color by the sum of (row + col)
+            bool even = ((row + col) % 2) == 0;
+            uint16_t color = even ? CARBON_FIBER_BLACK : CARBON_FIBER_GREY;
+
+            Drawer::drawRect(tft, (RectDrawOptions){
+                                      .x = x,
+                                      .y = y,
+                                      .width = checkerSize,
+                                      .height = checkerSize,
+                                      .fill = true,
+                                      .strokeThickness = 0,
+                                      .fillColor = color});
+        }
+    }
+
+    // draw a northwestern purple line going down the middle of the screen
+    int lineThickness = 100;  // thickness of the purple line
+
+    Drawer::drawLine(tft, (LineDrawOptions){
+                              .x1 = SCREEN_WIDTH / 2,
+                              .y1 = 0,
+                              .x2 = SCREEN_WIDTH / 2,
+                              .y2 = SCREEN_HEIGHT,
+                              .thickness = lineThickness,
+                              .color = NORTHWESTERN_PURPLE});
+
+    // now draw thinner gold lines on either side of the purple line
+    Drawer::drawLine(tft, (LineDrawOptions){
+                              .x1 = SCREEN_WIDTH / 2 - lineThickness / 2 - 20,
+                              .y1 = 0,
+                              .x2 = SCREEN_WIDTH / 2 - lineThickness / 2 - 20,
+                              .y2 = SCREEN_HEIGHT,
+                              .thickness = 10,
+                              .color = GOLD});
+
+    Drawer::drawLine(tft, (LineDrawOptions){
+                              .x1 = SCREEN_WIDTH / 2 + lineThickness / 2 + 20,
+                              .y1 = 0,
+                              .x2 = SCREEN_WIDTH / 2 + lineThickness / 2 + 20,
+                              .y2 = SCREEN_HEIGHT,
+                              .thickness = 10,
+                              .color = GOLD});
+
+    drawDriveState(tft);
+    drawSpeed(tft);
+    drawMileageCounter(tft);
+    drawLoggerStatus(tft);
 
     drawInfoBoxes(tft, true);
 }
@@ -423,7 +465,6 @@ void DriveScreen::update(Adafruit_RA8875 tft, bool force) {
     }
 
     drawInfoBoxes(tft, force);
-
 }
 
 void DriveScreen::periodicDraw(Adafruit_RA8875 tft) {
