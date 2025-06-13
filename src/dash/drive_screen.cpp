@@ -430,19 +430,19 @@ void DriveScreen::draw(Adafruit_RA8875 tft) {
 
     // now draw thinner gold lines on either side of the purple line
     Drawer::drawLine(tft, (LineDrawOptions){
-                              .x1 = SCREEN_WIDTH / 2 - lineThickness / 2 - 20,
+                              .x1 = SCREEN_WIDTH / 2 - lineThickness / 2 - 30,
                               .y1 = 0,
-                              .x2 = SCREEN_WIDTH / 2 - lineThickness / 2 - 20,
+                              .x2 = SCREEN_WIDTH / 2 - lineThickness / 2 - 30,
                               .y2 = SCREEN_HEIGHT,
-                              .thickness = 10,
+                              .thickness = 15,
                               .color = GOLD});
 
     Drawer::drawLine(tft, (LineDrawOptions){
-                              .x1 = SCREEN_WIDTH / 2 + lineThickness / 2 + 20,
+                              .x1 = SCREEN_WIDTH / 2 + lineThickness / 2 + 30,
                               .y1 = 0,
-                              .x2 = SCREEN_WIDTH / 2 + lineThickness / 2 + 20,
+                              .x2 = SCREEN_WIDTH / 2 + lineThickness / 2 + 30,
                               .y2 = SCREEN_HEIGHT,
-                              .thickness = 10,
+                              .thickness = 15,
                               .color = GOLD});
 
     drawDriveState(tft);
