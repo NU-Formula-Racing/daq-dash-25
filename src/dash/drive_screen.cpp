@@ -7,8 +7,8 @@
 #define OUTLINE_COLOR GOLD
 
 static const int infoPaddingVertical = 50; // from the top and bottom edges of the screen
-static const int infoPaddingSides = 30; // from the left and right edges of the screen
-static const int infoWidth = 160; // width of each info box
+static const int infoPaddingSides = 20; // from the left and right edges of the screen
+static const int infoWidth = 190; // width of each info box
 static const int infoHeight = 100;
 static const int infoLabelSize = 3;
 static const int infoValueSize = 3;
@@ -25,7 +25,7 @@ struct InfoBox {
 
 std::vector<InfoBox> leftBoxes = {
     {
-        .label = "HV Voltage",
+        .label = "HV Volt",
         .currentValue = []() { return Resources::driveBusData().hvVoltage; },
         .previousValue = []() { return Resources::prevDriveBusData().hvVoltage; },
         .lowerBoundHard = 500,
@@ -34,7 +34,7 @@ std::vector<InfoBox> leftBoxes = {
         .upperBoundSoft = 580,
     },
     {
-        .label = "LV Voltage",
+        .label = "LV Volt",
         .currentValue = []() { return Resources::driveBusData().lvVoltage; },
         .previousValue = []() { return Resources::prevDriveBusData().lvVoltage; },
         .lowerBoundHard = 20,
@@ -47,25 +47,25 @@ std::vector<InfoBox> leftBoxes = {
         .currentValue = []() { return Resources::driveBusData().bmsSOC; },
         .previousValue = []() { return Resources::prevDriveBusData().bmsSOC; },
         .lowerBoundHard = 0,
-        .lowerBoundSoft = 10,
-        .upperBoundHard = 100,
-        .upperBoundSoft = 90,
+        .lowerBoundSoft = 0.10,
+        .upperBoundHard = 1.00,
+        .upperBoundSoft = 0.90,
     }
 
 };
 
 std::vector<InfoBox> rightBoxes = {
     {
-        .label = "Max Cell Temp",
+        .label = "Max Cell T",
         .currentValue = []() { return Resources::driveBusData().maxCellTemp; },
         .previousValue = []() { return Resources::prevDriveBusData().maxCellTemp; },
-        .lowerBoundHard = 60,
-        .lowerBoundSoft = 55,
+        .lowerBoundHard = 15,
+        .lowerBoundSoft = 16,
         .upperBoundHard = 100,
         .upperBoundSoft = 90,
     },
     {
-        .label = "Min Cell Voltage",
+        .label = "Min Cell V",
         .currentValue = []() { return Resources::driveBusData().minCellVoltage; },
         .previousValue = []() { return Resources::prevDriveBusData().minCellVoltage; },
         .lowerBoundHard = 2.5,
@@ -78,9 +78,9 @@ std::vector<InfoBox> rightBoxes = {
         .currentValue = []() { return Resources::driveBusData().inverterIGBTTemp; },
         .previousValue = []() { return Resources::prevDriveBusData().inverterIGBTTemp; },
         .lowerBoundHard = 15,
-        .lowerBoundSoft = 20,
-        .upperBoundHard = 100,
-        .upperBoundSoft = 90,
+        .lowerBoundSoft = 16,
+        .upperBoundHard = 70,
+        .upperBoundSoft = 65,
     }
 };
 
@@ -107,7 +107,7 @@ static void drawDriveState(Adafruit_RA8875 tft) {
     Drawer::drawRect(tft, (RectDrawOptions){
                               .x = SCREEN_WIDTH / 2,
                               .y = SCREEN_HEIGHT / 2,
-                              .width = 350,
+                              .width = 300,
                               .height = 200,
                               .fill = true,
                               .strokeThickness = 10,
@@ -138,8 +138,8 @@ static void drawDriveState(Adafruit_RA8875 tft) {
     Drawer::drawString(tft, driveString,
                        (TextDrawOptions){
                            .x = SCREEN_WIDTH / 2,
-                           .y = SCREEN_HEIGHT / 2 + 60,
-                           .size = 8,
+                           .y = SCREEN_HEIGHT / 2 + 40,
+                           .size = 7,
                            .color = GOTH_WHITE,
                            .backgroundColor = color,
                            .hAlign = ALIGN_CENTER,
@@ -195,7 +195,7 @@ static void drawSpeed(Adafruit_RA8875 tft) {
     Drawer::drawRect(tft, (RectDrawOptions){
                               .x = SCREEN_WIDTH / 2,
                               .y = SCREEN_HEIGHT / 2 - 40,
-                              .width = 330,
+                              .width = 280,
                               .height = 100,
                               .fill = true,
                               .strokeThickness = 0,
@@ -209,7 +209,7 @@ static void drawSpeed(Adafruit_RA8875 tft) {
                     (NumberDrawOptions){
                         .x = SCREEN_WIDTH / 2,
                         .y = SCREEN_HEIGHT / 2 - 40,
-                        .size = 9,
+                        .size = 8,
                         .color = GOTH_WHITE,
                         .backgroundColor = getDriveStateColor(),
                         .hAlign = ALIGN_CENTER,
