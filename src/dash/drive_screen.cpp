@@ -6,7 +6,7 @@
 
 #define OUTLINE_COLOR GOLD
 
-static const int infoPaddingVertical = 20; // from the top and bottom edges of the screen
+static const int infoPaddingVertical = 50; // from the top and bottom edges of the screen
 static const int infoPaddingSides = 30; // from the left and right edges of the screen
 static const int infoWidth = 160; // width of each info box
 static const int infoHeight = 100;
@@ -236,15 +236,16 @@ void DriveScreen::draw(Adafruit_RA8875 tft) {
     // draw the boxes for the labels + values
 
     int infoAvailableVerticalSpace = SCREEN_HEIGHT - infoPaddingVertical * 2;
-    int infoFullVerticalSpace = infoLabelsLeft.size() * infoHeight + (infoLabelsLeft.size() - 1) * infoPaddingVertical;
-    int infoGap = (infoAvailableVerticalSpace - infoFullVerticalSpace) / (infoLabelsLeft.size() + 1);
+    int infoFullVerticalSpace = infoLabelsLeft.size() * infoHeight;
+    int infoGap = (infoAvailableVerticalSpace - infoFullVerticalSpace) / (infoLabelsLeft.size() - 1);
 
     // draw boxes for the labels and values
     for (size_t i = 0; i < infoLabelsLeft.size(); i++) {
-        int y = infoPaddingVertical + i * (infoHeight + infoGap);
+        int y = infoPaddingVertical + i * (infoHeight + infoGap) + infoHeight / 2;
+
         Drawer::drawRect(tft, (RectDrawOptions){
                                   .x = infoPaddingSides + infoWidth / 2,
-                                  .y = y + infoHeight / 2,
+                                  .y = y,
                                   .width = infoWidth,
                                   .height = infoHeight,
                                   .fill = true,
@@ -258,24 +259,24 @@ void DriveScreen::draw(Adafruit_RA8875 tft) {
 
         Drawer::drawString(tft, infoLabelsLeft[i],
                            (TextDrawOptions){
-                               .x = infoPaddingSides,
-                               .y = y + infoHeight / 2,
+                               .x = infoPaddingSides + infoWidth / 2,
+                               .y = y - infoHeight / 4,
                                .size = infoLabelSize,
                                .color = GOTH_WHITE,
                                .backgroundColor = GOTH_GREEN,
-                               .hAlign = ALIGN_LEFT,
+                               .hAlign = ALIGN_CENTER,
                                .vAlign = ALIGN_MIDDLE,
                            });
 
         Drawer::drawNum(tft, Resources::driveBusData().hvVoltage,  // TODO: change to correct data
                         (NumberDrawOptions){
-                            .x = infoPaddingSides,
-                            .y = y - infoHeight / 2,
+                            .x = infoPaddingSides + infoWidth / 2,
+                            .y = y + infoHeight / 4,
                             .size = infoValueSize,
                             .color = GOTH_WHITE,
                             .backgroundColor = GOTH_GREEN,
                             .precision = 2,
-                            .hAlign = ALIGN_LEFT,
+                            .hAlign = ALIGN_CENTER,
                             .vAlign = ALIGN_MIDDLE});
     }
 }
