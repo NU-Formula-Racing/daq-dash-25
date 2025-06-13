@@ -333,7 +333,8 @@ struct DriveBusData
     float averageWheelRPM() const
     {
         // return std::max({wheelSpeeds[0], wheelSpeeds[1], wheelSpeeds[2], wheelSpeeds[3]});
-        return ((wheelSpeeds[0] + wheelSpeeds[1] + wheelSpeeds[2] + wheelSpeeds[3])) / 2; // only by two rn cause only two wheel speeds
+        // return ((wheelSpeeds[0] + wheelSpeeds[1] + wheelSpeeds[2] + wheelSpeeds[3])) / 2; // only by two rn cause only two wheel speeds
+        return motorRPM * 3;
     }
 
     float vehicleSpeedMPH() const;
@@ -343,10 +344,9 @@ class DriveBus
 {
 public:
     DriveBus() {}
-
-    // returns imuatable reference to _data
-    const DriveBusData &getData() const;
-    const DriveBusData &getPrevData() const;
+    
+    DriveBusData &getData();
+    DriveBusData &getPrevData();
 
     // does any of the initialization stuff
     void initialize();
@@ -556,7 +556,7 @@ private:
     CANRXMessage<1> rx_drive_state{_driveBus, 0x206,
                                    [this]()
                                    {
-                                       this->playReadyToDriveSound();
+                                    //    this->playReadyToDriveSound();
                                    },
                                    drive_state_signal};
 
@@ -665,7 +665,7 @@ private:
     CANRXMessage<4> rx_cm_node_status_wheel{_driveBus, 0x194, bl_status_signal, br_status_signal, fl_status_signal, fr_status_signal};
 
     MakeSignedCANSignal(float, 0, 32, 1.0, 0.0) steering_angle_signal;
-    CANRXMessage<1> rx_daq_dynamics_steering{_driveBus, 0x110, steering_angle_signal};
+    CANTXMessage<1> rx_daq_dynamics_steering{_driveBus, 0x110, 8, 100, timer_group, steering_angle_signal};
 
 
 

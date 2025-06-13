@@ -15,7 +15,7 @@
 
 int bar_max_size = 480;
 
-DashScreen defaultScreen = DashScreen::DS_DRIVE_DEBUG;
+DashScreen defaultScreen = DashScreen::DS_DRIVE;
 
 Dash::Dash() : _tft(RA8875_CS, RA8875_RESET), _currentScreen(defaultScreen) {
     _screens = {

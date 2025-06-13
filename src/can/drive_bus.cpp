@@ -8,12 +8,12 @@ float DriveBusData::vehicleSpeedMPH() const
     return (averageWheelRPM() * M_PI * WHEEL_DIAMETER * 60) / (12 * 5280);
 }
 
-const DriveBusData &DriveBus::getData() const
+DriveBusData &DriveBus::getData()
 {
     return _data;
 }
 
-const DriveBusData &DriveBus::getPrevData() const
+DriveBusData &DriveBus::getPrevData()
 {
     return _prevData;
 }
@@ -140,10 +140,6 @@ void DriveBus::initialize()
     _driveBus.RegisterRXMessage(rx_cm_node_status_daq);
     _driveBus.RegisterRXMessage(rx_cm_node_status_wheel);
 
-    _driveBus.RegisterRXMessage(rx_daq_dynamics_steering);
-
-
-
     // lowkey mad annoying but we gotta pull the imd status to be high
     bms_status_imd_state = 1; // drake why can't you be normal
     inverter_fault_status_fault_code_signal = 0;
@@ -160,6 +156,7 @@ static float randomFloat(float min, float max)
 void DriveBus::update()
 {
     this->_driveBus.Tick();
+    this->timer_group.Tick(millis());
     // update the previous data
     this->_prevData = this->_data;
 
@@ -499,6 +496,7 @@ void DriveBus::update()
     this->_data.motorCurrent = inverter_motor_status_motor_current;
     this->_data.motorDCVoltage = inverter_motor_status_dc_voltage;
     this->_data.motorDCCurrent = inverter_motor_status_dc_current;
+    this->_data.motorRPM = inverter_motor_status_rpm;
 
     this->_data.bmsCommand = ecu_bms_command_message_bms_command;
     this->_data.frontBrakePressure = ecu_brake_front_brake_pressure;
@@ -733,8 +731,8 @@ void DriveBus::update()
     this->_data.fl_status = fl_status_signal;
     this->_data.fr_status = fr_status_signal;
 
-    this->_data.steering_angle = steering_angle_signal;
-
+    // this->_data.steering_angle = steering_angle_signal;
+    this->steering_angle_signal = this->_data.steering_angle;
 
 
 

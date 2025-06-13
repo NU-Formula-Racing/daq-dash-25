@@ -28,6 +28,8 @@
 #define ROTARY_OUTPUT_A A11
 #define ROTARY_OUTPUT_B A10
 
+#define STEERING_ANGLE A9
+
 
 //other pins
 // drive can tx   1

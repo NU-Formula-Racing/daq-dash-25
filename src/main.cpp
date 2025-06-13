@@ -43,6 +43,9 @@ void setup() {
     dashboard.update();
     
     loggingTimer.AddTimer(100, logData);
+
+    // setup the steering angle sensor
+    pinMode(STEERING_ANGLE, INPUT);
 }
 
 void loop() {
@@ -58,4 +61,14 @@ void loop() {
         // keep progressing the song
         Resources::instance().soundDriver.playSong();
     }
+
+
+    // at 350 we are at 90 degrees
+    // 632 we are at 0 degrees
+    // 918 we are at -90 degrees
+    int rawAngle = analogRead(STEERING_ANGLE);
+    // map the raw angle to a range of -90 to 90 degrees
+    float angle = map(rawAngle, 350, 918, -90, 90);
+    // Serial.printf("Raw angle: %d, Mapped angle: %.2f\n", rawAngle, angle);
+    Resources::instance().driveBus.getData().steering_angle = angle;
 }

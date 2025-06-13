@@ -3,28 +3,36 @@
 
 #include "pin.h"
 
-#define rawRGB24toRGB565(r, g, b) uint16_t((r / 8) << 11) | ((g / 4) << 5) | (b / 8)
+#define toRGB(r, g, b) uint16_t((r / 8) << 11) | ((g / 4) << 5) | (b / 8)
 
-#define NORTHWESTERN_PURPLE rawRGB24toRGB565(78, 42, 132)
-#define PURPLE_130 rawRGB24toRGB565(38, 8, 65)
-#define RUSSIAN_VIOLET rawRGB24toRGB565(49, 20, 82)
-#define GOLD rawRGB24toRGB565(177, 149, 61)
-#define ROSE rawRGB24toRGB565(129, 83, 85)
-#define GREEN rawRGB24toRGB565(100, 120, 84)
-#define FERN_GREEN rawRGB24toRGB565(70, 109, 38)
-#define INDIAN_RED rawRGB24toRGB565(201, 42, 69)
-#define OFF_BLACK rawRGB24toRGB565(24, 4, 41)
-// #define KAWAII_PINK rawRGB24toRGB565(248, 152, 178)
-#define BACKGROUND_GREEN rawRGB24toRGB565(159, 243, 123)
-#define KAWAII_YELLOW rawRGB24toRGB565(245, 220, 81)
-#define BACKGROUND_PURPLE rawRGB24toRGB565(167, 107, 235)
-#define KAWAII_PINK rawRGB24toRGB565(237, 52, 160)
-#define KAWAII_GREEN rawRGB24toRGB565(66, 199, 46)
-// #define KAWAII_YELLOW rawRGB24toRGB565(245, 225, 5)
-#define KAWAII_PURPLE rawRGB24toRGB565(143, 2, 236)
-#define BACKGROUND_GRAY rawRGB24toRGB565(163, 162, 196)
-#define KAWAII_BLUE rawRGB24toRGB565(71, 172, 203)
-#define KAWAII_BLACK rawRGB24toRGB565(49, 48, 75)
+#define NORTHWESTERN_PURPLE toRGB(78, 42, 132)
+#define PURPLE_130 toRGB(38, 8, 65)
+#define RUSSIAN_VIOLET toRGB(49, 20, 82)
+#define GOLD toRGB(207, 161, 62)
+#define ROSE toRGB(129, 83, 85)
+#define GREEN toRGB(100, 120, 84)
+#define FERN_GREEN toRGB(70, 109, 38)
+#define INDIAN_RED toRGB(201, 42, 69)
+#define OFF_BLACK toRGB(24, 4, 41)
+
+// #define KAWAII_PINK toRGB(248, 152, 178)
+#define BACKGROUND_GREEN toRGB(159, 243, 123)
+#define KAWAII_YELLOW toRGB(245, 220, 81)
+#define BACKGROUND_PURPLE toRGB(167, 107, 235)
+#define KAWAII_PINK toRGB(237, 52, 160)
+#define KAWAII_GREEN toRGB(66, 199, 46)
+
+// #define KAWAII_YELLOW toRGB(245, 225, 5)
+#define KAWAII_PURPLE toRGB(143, 2, 236)
+#define BACKGROUND_GRAY toRGB(25, 10, 27)
+#define KAWAII_BLUE toRGB(71, 172, 203)
+#define KAWAII_BLACK toRGB(8, 2, 5)
+
+
+#define GOTH_RED toRGB(140, 6, 51)
+#define GOTH_GREEN toRGB(6, 128, 29)
+#define GOTH_BLUE toRGB(46, 35, 145)
+#define GOTH_WHITE toRGB(237, 235, 211)
 
 
 #define SCREEN_WIDTH 800
