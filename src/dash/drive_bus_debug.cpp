@@ -171,7 +171,6 @@ static const vector<DebugField> debugFields = {
     {"Motor_DC_C",
      []() { return fmt("%0.2f", Resources::driveBusData().motorDCCurrent); },
      []() { return fmt("%0.2f", Resources::prevDriveBusData().motorDCCurrent); }},
-
     // ECU faults bitmask
     {"ECU_Flts",
      []() {
@@ -254,19 +253,19 @@ void DriveBusDebugScreen::draw(Adafruit_RA8875 tft) {
 }
 
 void DriveBusDebugScreen::update(Adafruit_RA8875 tft, bool force) {
-    // const auto &flds = fields();
-    // int perCol = (flds.size() + COL_COUNT - 1) / COL_COUNT;
+    const auto &flds = fields();
+    int perCol = (flds.size() + COL_COUNT - 1) / COL_COUNT;
 
-    // for (size_t i = 0; i < flds.size(); ++i) {
-    //     int col = i / perCol;
-    //     int row = i % perCol;
-    //     int x = col * COL_WIDTH + LABEL_X_OFF + VALUE_X_OFF;
-    //     int y = START_Y + row * LINE_H;
+    for (size_t i = 0; i < flds.size(); ++i) {
+        int col = i / perCol;
+        int row = i % perCol;
+        int x = col * COL_WIDTH + LABEL_X_OFF + VALUE_X_OFF;
+        int y = START_Y + row * LINE_H;
 
-    //     auto cur = flds[i].current();
-    //     auto prv = flds[i].previous();
-    //     if (force || cur != prv) {
-    //         Drawer::drawString(tft, cur, {.x = x, .y = y, .size = textOpts.size, .color = textOpts.color, .backgroundColor = textOpts.backgroundColor, .hAlign = textOpts.hAlign, .vAlign = textOpts.vAlign});
-    //     }
-    // }
+        auto cur = flds[i].current();
+        auto prv = flds[i].previous();
+        if (force || cur != prv) {
+            Drawer::drawString(tft, cur, {.x = x, .y = y, .size = textOpts.size, .color = textOpts.color, .backgroundColor = textOpts.backgroundColor, .hAlign = textOpts.hAlign, .vAlign = textOpts.vAlign});
+        }
+    }
 }

@@ -69,7 +69,13 @@ void Dash::update() {
 
     // pull the pin for the imd
     // driven by mosfets, the logic is inverted
+    
     bool imdFault = Resources::driveBusData().imdState == 0 || _imdErrored;
+    
+    if (millis() < 5000) {  // if we are in the first 5 seconds, don't change the indicator
+        imdFault = false;  // don't show the IMD fault indicator
+    }
+
     digitalWrite(IMD_INDICATOR, imdFault ? LOW : HIGH);
     _imdErrored = imdFault;
 

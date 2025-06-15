@@ -67,7 +67,7 @@ void Logger::initialize()
     this->loggingFile.write('5');
     this->loggingFile.write((uint8_t)0);
     this->loggingFile.write((uint8_t)0);
-    this->loggingFile.write((uint8_t)1);
+    this->loggingFile.write((uint8_t)2);
     this->loggingFile.write(_lineBuffer.size());
 
     this->loggingFile.close();
