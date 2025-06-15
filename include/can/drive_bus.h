@@ -326,8 +326,27 @@ struct DriveBusData
         if (driveState != 0) // if not in off, don't ignore undervoltage
             return bmsFaults[BMS_FAULT_SUMMARY] || ecuFaults[ECU_FAULT_PRESENT] || inverterStatus != 0 || imdState == 0;
 
+        
+
         // if we are off, ignore the undervoltage
-        return bmsFaults[BMS_FAULT_SUMMARY] || ecuFaults[ECU_FAULT_PRESENT] || (inverterStatus != 0 && inverterStatus != 2) || imdState == 0;
+        bool ecuFault = ecuFaults[ECU_FAULT_PRESENT];
+
+        // ignore the only fault is bppc
+        bool falutOnlyBbbpc = false;
+        for (int i = 0; i < ECU_FAULT_COUNT; i++)
+        {
+            if (ecuFaults[i] && i != ECU_FAULT_BPPC)
+            {
+                falutOnlyBbbpc = false;
+                break;
+            }
+            falutOnlyBbbpc = true;
+        }
+
+        if (falutOnlyBbbpc)
+            ecuFault = false;
+
+        return bmsFaults[BMS_FAULT_SUMMARY] || (ecuFault) || (inverterStatus != 0 && inverterStatus != 2) || imdState == 0;
     }
 
     float averageWheelRPM() const

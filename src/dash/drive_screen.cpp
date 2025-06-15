@@ -34,6 +34,15 @@ std::vector<InfoBox> leftBoxes = {
         .upperBoundSoft = 580,
     },
     {
+        .label = "BMS SOC",
+        .currentValue = []() { return Resources::driveBusData().bmsSOC; },
+        .previousValue = []() { return Resources::prevDriveBusData().bmsSOC; },
+        .lowerBoundHard = 0.10,
+        .lowerBoundSoft = 0.60,
+        .upperBoundHard = 1.00,
+        .upperBoundSoft = 0.95,
+    },
+    {
         .label = "LV Volt",
         .currentValue = []() { return Resources::driveBusData().lvVoltage; },
         .previousValue = []() { return Resources::prevDriveBusData().lvVoltage; },
@@ -42,16 +51,6 @@ std::vector<InfoBox> leftBoxes = {
         .upperBoundHard = 24.5,
         .upperBoundSoft = 24,
     },
-    {
-        .label = "BMS SOC",
-        .currentValue = []() { return Resources::driveBusData().bmsSOC; },
-        .previousValue = []() { return Resources::prevDriveBusData().bmsSOC; },
-        .lowerBoundHard = 0,
-        .lowerBoundSoft = 0.10,
-        .upperBoundHard = 1.00,
-        .upperBoundSoft = 0.90,
-    }
-
 };
 
 std::vector<InfoBox> rightBoxes = {
